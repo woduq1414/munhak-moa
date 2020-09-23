@@ -1,6 +1,6 @@
 import configparser
 
-from flask import Flask, render_template, session, request, flash, redirect, url_for, Response, abort, jsonify
+from flask import Flask, render_template, session, request, flash, redirect, url_for, Response, abort, jsonify, send_file
 import socket
 import os
 import random
@@ -268,6 +268,21 @@ def update_():
     update()
 
 
+@app.route('/images/<path:path>')
+def get_image(path):
+    def get_absolute_path(path):
+        import os
+        script_dir = os.path.dirname(__file__)  # <-- absolute dir the script is in
+        rel_path = path
+        abs_file_path = os.path.join(script_dir, rel_path)
+        return abs_file_path
+
+    return send_file(
+        get_absolute_path(f"./images/{path}"),
+        mimetype='image/png',
+        attachment_filename='snapshot.png',
+        cache_timeout=0
+    )
 
 
 if __name__ == '__main__':

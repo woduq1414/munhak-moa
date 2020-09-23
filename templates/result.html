@@ -47,16 +47,28 @@
                 Kakao.init("7c6363be08358dc7ce7079459bfe67de");
 
                 function sendLink() {
+
                     Kakao.Link.sendDefault({
-                        objectType: 'text',
-                        text:
-                            `문학 따먹기에서 {{ data.solved_count }}개를 맞혔어요!`,
-                        link: {
-                            mobileWebUrl:
-                                'http://127.0.0.1:5000/main',
-                            webUrl:
-                                'http://127.0.0.1:5000/main',
+                        objectType: 'feed',
+                        content: {
+                            title:  "문학 따먹기",
+                            description:  `문학 따먹기에서 {{ data.solved_count }}개를 맞혔어요!`,
+                            imageUrl:
+                                'https://munhak.herokuapp.com/images/logo1.png',
+                            link: {
+                                mobileWebUrl: 'https://munhak.herokuapp.com/',
+                                webUrl: 'https://munhak.herokuapp.com/',
+                            },
                         },
+                        buttons: [
+                            {
+                                title: '웹으로 보기',
+                                link: {
+                                    mobileWebUrl: 'https://munhak.herokuapp.com/',
+                                    webUrl: 'https://munhak.herokuapp.com/',
+                                },
+                            },
+                        ],
                     })
 
                 }
