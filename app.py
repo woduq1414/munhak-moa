@@ -79,6 +79,8 @@ else:
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL', None)
     app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', None)
+    print(os.environ.get('GOOGLE_CREDENTIALS', None))
+    print(json.loads(os.environ.get('GOOGLE_CREDENTIALS', None)))
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(os.environ.get('GOOGLE_CREDENTIALS', None)), scope)
 
     update()
