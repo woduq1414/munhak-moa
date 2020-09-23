@@ -136,3 +136,5 @@ chrome-user-data
 
 
 heroku_migrate.py
+test.py
+*.json

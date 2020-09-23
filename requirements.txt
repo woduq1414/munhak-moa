@@ -42,3 +42,7 @@ vine==1.3.0
 Werkzeug==0.15.2
 WTForms==2.2.1
 zipp==3.0.0
+gspread==3.6.0
+oauth2client==4.1.3
+PyOpenSSL==19.1.0
+Flask-HTTPAuth==4.1.0
