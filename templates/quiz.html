@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">
+{% endblock %}
+
+{% block main %}
+
+    <div id="container">
+        <div id="content">
+            <div id="upperBox">
+                <div id="quizNo">
+                    {{ data.quiz_no }}
+                </div>
+                <div id="category">
+                    {{ data.category }}
+                </div>
+            </div>
+
+            <div id="hint">
+                <q>&nbsp;{{ data.hint }}&nbsp;</q>
+            </div>
+            <hr>
+            <div id="options">
+                {% for option in data.options %}
+                    <div class="option" option="{{ loop.index0 }}" id="option{{ loop.index }}">
+                        {{ option }}
+                    </div>
+                {% endfor %}
+            </div>
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(".option").on("click", function () {
+            let option = $(this).attr("option");
+            $.ajax({
+                type: "POST",
+                url: "./answer",
+                data: {"option": option},
+                dataType: "json",
+                statusCode: {
+                    404: function (data) {
+                        location.href = "./result";
+                    },
+                    200 : function (data){
+                        window.location.reload();
+                    }
+                }
+
+            }).done(function (data) {
+                console.log(data);
+
+            })
+        })
+    </script>
+
+
+{% endblock %}

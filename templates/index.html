@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
+{% endblock %}
+
+{% block main %}
+
+    <div id="container">
+        <div id="content">
+            <div id="title">
+                문학 따먹기
+            </div>
+
+
+            <a id="startButton" class="btn btn-primary" href="{{ url_for("quiz") }}">시작하기</a>
+
+        </div>
+    </div>
+
+{% endblock %}
