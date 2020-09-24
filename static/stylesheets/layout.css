@@ -10,16 +10,14 @@ a:link, a {
 }
 
 
-html,
-body, main {
+html{
     font-size: 16px;
 }
 
 
 @media screen and (max-width: 768px) {
-    html,
-    body, main {
-        font-size: 12px;
+    html{
+        font-size: 11px;
     }
 
 }
