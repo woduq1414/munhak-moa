@@ -270,7 +270,7 @@ def update_():
 
     update()
     session.clear()
-    return "success!"
+    return f"success! {len(munhak_rows_data)}"
 
 
 @app.route('/images/<path:path>')
