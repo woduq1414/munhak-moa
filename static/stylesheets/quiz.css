@@ -79,7 +79,11 @@
 }
 
 
-
+#total-munhak {
+    text-align: right;
+    font-size: 1rem;
+    margin-right: 0.8rem;
+}
 
 #option1 {
     background-color: #fad09e;

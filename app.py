@@ -128,6 +128,7 @@ def index():
 def quiz():
     if "quiz_count" not in session:
         session["quiz_count"] = 0
+        session["total_munhak"] = len(munhak_rows_data)
     if "solved_quiz" not in session:
         session["solved_quiz"] = []
     session["result"] = None
@@ -184,7 +185,8 @@ def quiz():
             "hint": hint,
             "options": [
                 f"{munhak_row.writer}, 『{munhak_row.title}』" for munhak_row in option_munhak_rows
-            ]
+            ],
+            "total_munhak" : len(munhak_rows_data)
         }
         print(data)
         #
@@ -198,7 +200,8 @@ def quiz():
             "hint": session["current_munhak"]["hint"],
             "options": [
                 f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in session["options"]
-            ]
+            ],
+            "total_munhak": len(munhak_rows_data)
         }
         print(data)
         #
@@ -266,6 +269,8 @@ def update_():
         return "error"
 
     update()
+    session.clear()
+    return "success!"
 
 
 @app.route('/images/<path:path>')
