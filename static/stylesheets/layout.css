@@ -8,3 +8,19 @@
 a:link, a {
     text-decoration: none;
 }
+
+
+html,
+body, main {
+    font-size: 16px;
+}
+
+
+@media screen and (max-width: 768px) {
+    html,
+    body, main {
+        font-size: 12px;
+    }
+
+}
+
