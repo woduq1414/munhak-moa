@@ -120,8 +120,15 @@ else:
 
 @app.route('/')
 def index():
+    munhak_rows = copy.deepcopy(munhak_rows_data)
+    data = {
+        "total_munhak" : len(munhak_rows),
+        "source_list" : sorted(set([munhak_row.source for munhak_row in munhak_rows]))
+    }
+    print(data)
+
     session["quiz_count"] = 0
-    return render_template("index.html")
+    return render_template("index.html", data=data)
 
 
 @app.route('/quiz')
@@ -150,7 +157,9 @@ def quiz():
 
 
         correct_munhak_row = random.choice(not_solved_munhak_rows)
-        munhak_rows.remove(correct_munhak_row)
+
+        for _ in [munhak_row for munhak_row in munhak_rows if munhak_row.title == correct_munhak_row.title]:
+            munhak_rows.remove(_)
 
         random.shuffle(munhak_rows)
 

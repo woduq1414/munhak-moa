@@ -9,15 +9,55 @@
     <div id="container">
         <div id="content">
             <div id="title">
-                <span class="spotlight">알</span>아두면  &nbsp;
-                <span class="spotlight">쓸</span>데없는  &nbsp;
+                <span class="spotlight">알</span>아두면 &nbsp;
+                <span class="spotlight">쓸</span>데없는 &nbsp;
                 <span class="spotlight">문학</span>퀴즈
             </div>
 
 
             <a id="startButton" class="btn btn-primary" href="{{ url_for("quiz") }}">시작하기</a>
 
+            <span id="openInfo">정보</span>
+
         </div>
     </div>
 
+
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <div id="infoModalText">
+                        총 <span class="infoHighlight">{{ data.total_munhak }}</span>개의 문학 작품이 있습니다. <br>
+                        문학 작품의 출처는
+                        <br>
+                        <small>{{ ", ".join(data.source_list) }}</small>
+                        <br>
+                        입니다.
+                        <div id="githubWrapper">
+                                              <a href="https://github.com/woduq1414">
+                            <img src="https://www.iconfinder.com/data/icons/octicons/1024/mark-github-512.png" id="githubIcon">
+                            woduq1414</a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+        $("#openInfo").on("click", function () {
+            $("#infoModal").modal();
+        })
+    </script>
 {% endblock %}
