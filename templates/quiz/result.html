@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "quiz/layout.html" %}
 
 {% block style %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">
@@ -20,9 +20,14 @@
                 <div id="hint">
                     <q>&nbsp;{{ data.current_munhak.hint }}&nbsp;</q>는..
                 </div>
-                <div id="option{{ data.correct + 1 }}" class="option optionResult">
-                    {{ data.current_munhak.writer }}, 『{{ data.current_munhak.title }}』
-                </div>
+                <a href="{{ url_for('board.munhak_board_detail', munhak_seq=data.current_munhak.munhak_seq) }}">
+                    <div id="option{{ data.correct + 1 }}" class="option optionResult"
+                         data="{{ data.current_munhak.writer }}, 『{{ data.current_munhak.title }}』"
+                         title="{{ data.current_munhak.title }}">
+                        {{ data.current_munhak.writer }}, 『{{ data.current_munhak.title }}』
+                    </div>
+
+                </a>
                 <div id="message">
                     이었습니다!
                 </div>
@@ -40,7 +45,7 @@
             </div>
 
 
-            <a id="startButton" class="btn btn-primary" href="{{ url_for("quiz") }}">다시하기</a>
+            <a id="startButton" class="btn btn-primary" href="{{ url_for("quiz.quiz") }}">다시하기</a>
 
 
             <script type="text/javascript">
@@ -51,21 +56,21 @@
                     Kakao.Link.sendDefault({
                         objectType: 'feed',
                         content: {
-                            title:  "알아두면 쓸데없는 문학퀴즈",
-                            description:  `알쓸문학에서 {{ data.solved_count }}개를 맞혔어요!`,
+                            title: "알아두면 쓸데없는 문학퀴즈",
+                            description: `알쓸문학에서 {{ data.solved_count }}개를 맞혔어요!`,
                             imageUrl:
                                 'https://munhak.herokuapp.com/images/logo3.png',
                             link: {
-                                mobileWebUrl: 'https://munhak.herokuapp.com/',
-                                webUrl: 'https://munhak.herokuapp.com/',
+                                mobileWebUrl: 'https://munhak.herokuapp.com/quiz',
+                                webUrl: 'https://munhak.herokuapp.com/quiz',
                             },
                         },
                         buttons: [
                             {
                                 title: '웹으로 보기',
                                 link: {
-                                    mobileWebUrl: 'https://munhak.herokuapp.com/',
-                                    webUrl: 'https://munhak.herokuapp.com/',
+                                    mobileWebUrl: 'https://munhak.herokuapp.com/quiz',
+                                    webUrl: 'https://munhak.herokuapp.com/quiz',
                                 },
                             },
                         ],
@@ -82,6 +87,12 @@
 
 {% block script %}
     <script>
+        $(".optionResult").hover(function () {
+            $(this).html(`『${$(this).attr("title")}』 더 공부하러 가기`);
+        }, function () {
+            $(this).html($(this).attr("data"));
+        })
+
 
     </script>
 

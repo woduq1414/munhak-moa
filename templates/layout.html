@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="kr">
 <head>
-    <title>알아두면 쓸데없는 문학퀴즈</title>
+    <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -18,37 +18,121 @@
     <script src="https://kit.fontawesome.com/43798b0c81.js" crossorigin="anonymous"></script>
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/layout.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <script src="https://kit.fontawesome.com/43798b0c81.js" crossorigin="anonymous"></script>
+    {#    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.2/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">#}
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500&display=swap" rel="stylesheet">
-    <meta property="og:url" content="https://munhak.herokuapp.com/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://munhak.herokuapp.com/images/logo3.png" />
-    <meta property="og:title" content="알아두면 쓸데없는 문학퀴즈" />
-    <meta property="og:description" content="문학 퀴즈를 풀면서 흥취를 즐겨볼까요?" />
+    <meta property="og:url" content="https://munhak.herokuapp.com/"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://munhak.herokuapp.com/images/logo4.png"/>
+    <meta property="og:title" content="처심어 닷컴"/>
+    <meta property="og:description" content="모두가 사랑하는 처심어입소표"/>
 
     {% block style %}{% endblock %}
 </head>
 <body>
 <header>
-{#    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">#}
-{#        <a class="navbar-brand" href="">게시판</a>#}
-{#        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarCollapse"#}
-{#                aria-controls="navbarCollapse" aria-expanded="true" aria-label="Toggle navigation">#}
-{#            <span class="navbar-toggler-icon"></span>#}
-{#        </button>#}
-{#        <div class="navbar-collapse collapse" id="navbarCollapse" style="">#}
-{#            <ul class="navbar-nav mr-auto">#}
-{#                <li class="nav-item">#}
-{#                    <a class="nav-link" href="">메인</a>#}
-{#                </li>#}
-{##}
-{#            </ul>#}
-{##}
-{#        </div>#}
-{#    </nav>#}
+    {#    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">#}
+    {#        <a class="navbar-brand" href="">게시판</a>#}
+    {#        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarCollapse"#}
+    {#                aria-controls="navbarCollapse" aria-expanded="true" aria-label="Toggle navigation">#}
+    {#            <span class="navbar-toggler-icon"></span>#}
+    {#        </button>#}
+    {#        <div class="navbar-collapse collapse" id="navbarCollapse" style="">#}
+    {#            <ul class="navbar-nav mr-auto">#}
+    {#                <li class="nav-item">#}
+    {#                    <a class="nav-link" href="">메인</a>#}
+    {#                </li>#}
+    {##}
+    {#            </ul>#}
+    {##}
+    {#        </div>#}
+    {#    </nav>#}
 </header>
-<main>
-    {% block main %}{% endblock %}
-</main>
+
+
+<div class="wrapper d-flex">
+    <nav id="sidebar" class="active">
+        {#            <h1><a href="index.html" class="logo">M.</a></h1>#}
+
+        <div id="sidebarFixedMenu">
+            <span class="sidebarCollapse">
+                <i class="fa fa-bars"></i>
+                <span class="sr-only">Toggle Menu</span>
+            </span>
+            <ul class="list-unstyled components mb-5">
+                <li class="active">
+                    <a href="#"><span class="fa fa-home"></span> 홈</a>
+                </li>
+                <li>
+                    <a href="#"><span class="fa fa-file-alt"></span> 기출문제</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quiz.index') }}"><span class="fa fa-sticky-note"></span> 문학퀴즈</a>
+                </li>
+            </ul>
+        </div>
+
+
+    </nav>
+
+    <!-- Page Content  -->
+    <div id="content" class="">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <div>
+                    <button type="button" class="sidebarCollapseMobile btn " class="btn btn-primary">
+                        <i class="fa fa-arrow-left"></i>
+
+                    </button>
+
+                    <img id="logo" src="{{ url_for('others.get_image', path='logo4.png') }}">
+                </div>
+
+
+                <div id="navSearchWrapper" class="input-group">
+                    <input class="form-control rounded-pill py-2 pr-5 mr-1 bg-transparent" type="search"
+                            id="navSearchInput">
+                    <span class="input-group-append">
+                        <div class="input-group-text border-0 bg-transparent ml-n5" id="navSearchButton"><i class="fa fa-search"></i></div>
+                    </span>
+                </div>
+
+                {#                    <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"#}
+                {#                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"#}
+                {#                            aria-expanded="false" aria-label="Toggle navigation">#}
+                {#                        <i class="fa fa-bars"></i>#}
+                {#                    </button>#}
+                {##}
+                {#                    <div class="collapse navbar-collapse" id="navbarSupportedContent">#}
+                {#                        <ul class="nav navbar-nav ml-auto">#}
+                {#                            <li class="nav-item active">#}
+                {#                                <a class="nav-link" href="#">Home</a>#}
+                {#                            </li>#}
+                {#                            <li class="nav-item">#}
+                {#                                <a class="nav-link" href="#">About</a>#}
+                {#                            </li>#}
+                {#                            <li class="nav-item">#}
+                {#                                <a class="nav-link" href="#">Portfolio</a>#}
+                {#                            </li>#}
+                {#                            <li class="nav-item">#}
+                {#                                <a class="nav-link" href="#">Contact</a>#}
+                {#                            </li>#}
+                {#                        </ul>#}
+                {#                    </div>#}
+            </div>
+        </nav>
+
+
+        {% block main %}{% endblock %}
+
+
+    </div>
+</div>
+
+
 
 
 {% with messages = get_flashed_messages() %}
@@ -62,7 +146,21 @@
     {% endif %}
 {% endwith %}
 
-{% block script %} {% endblock %}
+{% block script %}
+
+
+{% endblock %}
+
+<script>
+    $(window).scroll(function () {
+        {#console.log("SDF")#}
+        $('#sidebarFixedMenu').css({
+            'top': $(window).scrollTop()
+            //Why this 15, because in the CSS, we have set left 15, so as we scroll, we would want this to remain at 15px left
+        });
+        {#console.log($(this).scrollTop())#}
+    });
+</script>
 
 </body>
 </html>

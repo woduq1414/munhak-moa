@@ -1,24 +1,30 @@
-#logoutForm {
+:root {
+    --primary-color: red;
+}
 
-    display: inline;
-
+html, body, main {
+    font-family: 'Noto Serif KR', serif;
 }
 
 
-a:link, a {
+a:link, a, a:hover {
     text-decoration: none;
+    color: black;
 }
 
 
-html{
+html {
     font-size: 16px;
 }
 
 
 @media screen and (max-width: 768px) {
-    html{
+    html {
         font-size: 11px;
     }
 
 }
 
+#sidebar #sidebarFixedMenu{
+   position: relative;
+}

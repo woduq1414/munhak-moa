@@ -74,7 +74,7 @@ if isLocal:
     app.config["SECRET_KEY"] = config['DEFAULT']['SECRET_KEY']
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(config['DEFAULT']['GOOGLE_CREDENTIALS_PATH'], scope)
-    update()
+
 else:
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL', None)
@@ -83,10 +83,9 @@ else:
     print(json.loads(os.environ.get('GOOGLE_CREDENTIALS', None)))
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(os.environ.get('GOOGLE_CREDENTIALS', None)), scope)
 
-    update()
 
 
-
+update()
 
 
 # class CustomModel(Model):
@@ -128,7 +127,7 @@ def index():
     print(data)
 
     session["quiz_count"] = 0
-    return render_template("index.html", data=data)
+    return render_template("quiz/index.html", data=data)
 
 
 @app.route('/quiz')
@@ -199,7 +198,7 @@ def quiz():
         }
         print(data)
         #
-        return render_template("quiz.html", data=data)
+        return render_template("quiz/quiz.html", data=data)
     else:
         # print(hint)
         data = {
@@ -214,7 +213,7 @@ def quiz():
         }
         print(data)
         #
-        return render_template("quiz.html", data=data)
+        return render_template("quiz/quiz.html", data=data)
 
 @app.route("/answer", methods=["GET", "POST"])
 def answer():
@@ -267,7 +266,7 @@ def result():
     session["current_munhak"] = None
 
     print(data)
-    return render_template("result.html", data = data)
+    return render_template("quiz/result.html", data = data)
 
 
 @app.route('/update')
