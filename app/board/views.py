@@ -308,7 +308,7 @@ def add_video():
         res = requests.get("https://www.googleapis.com/youtube/v3/videos", params={
             "key": YOUTUBE_KEY, "part": "snippet", "id": video_code
         })
-
+        print(res.text)
         video = json.loads(res.text)["items"][0]
     except:
         return abort(400)
