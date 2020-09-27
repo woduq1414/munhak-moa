@@ -39,7 +39,7 @@ def register_form():
 def register_query():
     args = request.form
     nickname = args.get("nickname", None)
-    if nickname is None or (not (1 <= len(nickname.encode()) <= 16)):
+    if nickname is None or (not (1 <= len(nickname.encode("cp949")) <= 16)):
         return abort(400)
     cookies = request.cookies
     if "kakao-access-token" not in cookies:
