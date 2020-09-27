@@ -1,0 +1,74 @@
+{% extends "quiz/layout.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/login_form.css') }}">
+{% endblock %}
+
+{% block main %}
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <div id="container">
+        <div id="content">
+            <div id="title">
+                소셜 계정으로 로그인 / 회원가입
+            </div>
+
+            <div id="kakaoLoginButton">
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+        function setCookie(cookie_name, value, days) {
+            var exdate = new Date();
+            exdate.setDate(exdate.getDate() + days);
+            // 설정 일수만큼 현재시간에 만료값으로 지정
+
+            var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+            document.cookie = cookie_name + '=' + cookie_value;
+        }
+
+        Kakao.init("7c6363be08358dc7ce7079459bfe67de");
+
+        Kakao.Auth.createLoginButton({
+            container: '#kakaoLoginButton',
+            success: function (response) {
+                $.ajax({
+                    type: "POST",
+                    url: "./login-query-kakao",
+                    data: {"access_token": response.access_token},
+                    dataType: "json",
+                    statusCode: {
+                        404: function (data) {
+
+                            setCookie("kakao-access-token", response.access_token, 1);
+                            location.href = "{{ url_for("user.register_form") }}";
+                        },
+                        200: function (data) {
+                            location.href = "{{ url_for("board.munhak_board_list") }}";
+                        }
+                    }
+                }).done(function (data) {
+                    console.log(data);
+
+                })
+            },
+            fail: function (error) {
+                console.log(error);
+            },
+        });
+    </script>
+
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+
+    </script>
+{% endblock %}

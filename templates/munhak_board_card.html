@@ -1,0 +1,21 @@
+{% for munhak_row in data.munhak_rows %}
+    <a class="munhakCardWrapper" href="{{ url_for("board.munhak_board_detail", munhak_seq = munhak_row.munhak_seq) }}">
+        <div class="munhakCard">
+            <div class="upperText">
+                {{ munhak_row.writer }}, 『{{ munhak_row.title }}』
+            </div>
+            <div class="bottomText">
+                     <span id="source">
+                     {{ munhak_row.source }}
+                </span>
+                &nbsp;·&nbsp;
+                <span id="category">
+                    {{ munhak_row.category }}
+                </span>
+            </div>
+        </div>
+    </a>
+{% endfor %}
+
+<div class="hiddenValue" key="maxPage" value="{{ data.max_page }}">
+</div>

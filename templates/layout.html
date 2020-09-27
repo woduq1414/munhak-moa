@@ -28,7 +28,9 @@
     <meta property="og:image" content="https://munhak.herokuapp.com/images/logo4.png"/>
     <meta property="og:title" content="처심어 닷컴"/>
     <meta property="og:description" content="모두가 사랑하는 처심어입소표"/>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
     {% block style %}{% endblock %}
 </head>
 <body>
@@ -66,7 +68,7 @@
                     <a href="#"><span class="fa fa-home"></span> 홈</a>
                 </li>
                 <li>
-                    <a href="#"><span class="fa fa-file-alt"></span> 기출문제</a>
+                    <a href="{{ url_for('board.munhak_board_list') }}"><span class="fa fa-file-alt"></span> 기출작품</a>
                 </li>
                 <li>
                     <a href="{{ url_for('quiz.index') }}"><span class="fa fa-sticky-note"></span> 문학퀴즈</a>
@@ -92,36 +94,43 @@
                 </div>
 
 
-                <div id="navSearchWrapper" class="input-group">
-                    <input class="form-control rounded-pill py-2 pr-5 mr-1 bg-transparent" type="search"
-                            id="navSearchInput">
-                    <span class="input-group-append">
-                        <div class="input-group-text border-0 bg-transparent ml-n5" id="navSearchButton"><i class="fa fa-search"></i></div>
-                    </span>
-                </div>
+                {#                <div id="navSearchWrapper" class="input-group">#}
+                {#                    <input class="form-control rounded-pill py-2 pr-5 mr-1 bg-transparent" type="search"#}
+                {#                           id="navSearchInput">#}
+                {#                    <span class="input-group-append">#}
+                {#                        <div class="input-group-text border-0 bg-transparent ml-n5" id="navSearchButton"><i#}
+                {#                                class="fa fa-search"></i></div>#}
+                {#                    </span>#}
+                {#                </div>#}
 
-                {#                    <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"#}
-                {#                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"#}
-                {#                            aria-expanded="false" aria-label="Toggle navigation">#}
-                {#                        <i class="fa fa-bars"></i>#}
-                {#                    </button>#}
-                {##}
-                {#                    <div class="collapse navbar-collapse" id="navbarSupportedContent">#}
-                {#                        <ul class="nav navbar-nav ml-auto">#}
-                {#                            <li class="nav-item active">#}
-                {#                                <a class="nav-link" href="#">Home</a>#}
-                {#                            </li>#}
-                {#                            <li class="nav-item">#}
-                {#                                <a class="nav-link" href="#">About</a>#}
-                {#                            </li>#}
-                {#                            <li class="nav-item">#}
-                {#                                <a class="nav-link" href="#">Portfolio</a>#}
-                {#                            </li>#}
-                {#                            <li class="nav-item">#}
-                {#                                <a class="nav-link" href="#">Contact</a>#}
-                {#                            </li>#}
-                {#                        </ul>#}
-                {#                    </div>#}
+                <button id="navRightButton" class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button"
+                        data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        {% if "user" in session %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">
+                                    {{ session.user.nickname }}님, 안녕하세요!
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('user.logout') }}">
+                                    로그아웃
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('user.login_form') }}">로그인 / 회원가입</a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
             </div>
         </nav>
 
@@ -160,6 +169,41 @@
         });
         {#console.log($(this).scrollTop())#}
     });
+
+    var fullHeight = function () {
+
+        $('.js-fullheight').css('height', $(window).height());
+        $(window).resize(function () {
+            $('.js-fullheight').css('height', $(window).height());
+        });
+
+    };
+    fullHeight();
+
+    if (matchMedia("screen and (min-width: 768px)").matches) {
+        $(".sidebar").addClass("active");
+    } else {
+        // 1024px 미만에서 사용할 JavaScript
+        $(".sidebar").removeClass("active");
+    }
+
+
+    $('.sidebarCollapse').on('click', function () {
+        $(this).children("i").toggleClass("fa-bars");
+        $(this).children("i").toggleClass("fa-arrow-left");
+        $('.sidebarCollapseMobile i').toggleClass("fa-bars");
+        $('.sidebarCollapseMobile i').toggleClass("fa-arrow-left");
+        $('#sidebar').toggleClass('active');
+    });
+
+    $('.sidebarCollapseMobile').on('click', function () {
+        $(this).children("i").toggleClass("fa-bars");
+        $(this).children("i").toggleClass("fa-arrow-left");
+        $('.sidebarCollapse i').toggleClass("fa-bars");
+        $('.sidebarCollapse i').toggleClass("fa-arrow-left");
+        $('#sidebar').toggleClass('active');
+    });
+
 </script>
 
 </body>

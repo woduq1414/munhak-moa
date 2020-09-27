@@ -32,16 +32,22 @@
 
 .pgTitle {
     font-size: 1.8rem;
+    display: inline-block;
     /*margin-left: 1rem;*/
     margin-bottom: 0.5rem;
+    background-color: var(--primary-color-bright);
+    padding: 0rem 0.8rem;
+    border-radius: 5px;
 }
 
 .pgContent {
     width: 100%;
+    font-size: 1.6rem;
 }
 
 .pgContainer {
     width: 100%;
+    margin: 0rem 0.5rem 2rem 0.5rem;
 }
 
 #bottomContent {
@@ -51,6 +57,8 @@
 .videoWrapper {
     width: 350px;
     text-align: center;
+    cursor: pointer;
+
     /*display: inline-block;*/
 }
 
@@ -92,6 +100,22 @@ img.videoThumbnail {
     margin-bottom: 1rem;
 }
 
+
+.tag {
+    background-color: var(--tag-color);
+    font-size: 1.3rem;
+    border-radius: 9999px;
+    padding: 0.2rem 1rem;
+    margin: 0.2rem 0.5rem;
+    cursor: pointer
+}
+
+#tagContainer {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
 @media screen and (max-width: 768px) {
     .videoWrapper {
         width: 95%;
@@ -101,4 +125,180 @@ img.videoThumbnail {
         width: 100%;
         /*height: auto;*/
     }
+}
+
+
+#cardContainer {
+    /*background-color: #eee;*/
+}
+
+.hiddenValue {
+    display: none;
+}
+
+#cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    /*flex-direction: column;*/
+}
+
+.munhakCard {
+    /*width: 45%;*/
+    /*border-top: 1px solid grey;*/
+    /*border-bottom: 1px solid grey;*/
+    border-radius: 5px;
+    padding: 1rem;
+}
+
+.munhakCardWrapper {
+    width: 90%;
+}
+
+.munhakCardWrapper .upperText {
+    font-size: 1.8rem;
+}
+
+.munhakCardWrapper .bottomText {
+
+}
+
+
+#goPrevPage, #goNextPage {
+    text-align: center;
+    background-color: #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 1rem 0;
+}
+
+.addTagButton {
+
+    text-align: center;
+
+}
+
+.hidden {
+    display: none;
+}
+
+.addTagPopoverWrapper {
+    text-align: center;
+}
+
+#openAddTagPopover {
+    background-color: var(--primary-color-bright);
+}
+
+#tagPopoverWrapper {
+    padding: 0.3rem 1rem;
+    text-align: center;
+}
+
+#tagLikeCount {
+    font-size: 1.3rem;
+    margin-bottom: 0.3rem;
+}
+
+#tagLikeHeart {
+    margin-top: 1rem;
+    border-radius: 99999px;
+    padding: 0.5rem 0.7rem;
+    background-color: #eee;
+    text-align: center;
+    color: grey;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 2.4rem;
+}
+
+.tagLike {
+    color: deeppink !important;
+}
+
+.userTagLiked {
+    background-color: pink !important;
+}
+
+#tagPopoverSearchButton {
+    font-size: 0.8rem;
+    margin: 0.5rem 0.2rem;
+    cursor: pointer;
+}
+
+#tagPopoverDeleteButton {
+    color: red;
+    font-size: 0.8rem;
+    margin: 0.5rem 0.2rem;
+    cursor: pointer;
+}
+
+#tagPopoverButtonWrapper {
+    margin-top: 0.5rem;
+}
+
+.addVideo {
+    background-color: var(--primary-color-bright);
+    color: black;
+    border-radius: 9999px;
+    width: 240px;
+    margin: 0 auto;
+    cursor: pointer;
+
+}
+
+.addVideoWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 350px;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.videoWrapper {
+    margin: 0.5rem 0.5rem;
+
+}
+
+@media screen and (max-width: 768px) {
+    .videoWrapper {
+        margin: 0.8rem 0;
+        width: 95%;
+    }
+
+    .addVideoWrapper {
+        width: 95%;
+    }
+}
+
+
+
+#openAddMunhakVideoModal {
+
+}
+
+
+#videoPopoverWrapper {
+    padding: 0.3rem 1rem;
+    text-align: center;
+}
+
+
+
+#videoPopoverLinkButton {
+    font-size: 0.8rem;
+    margin: 0.5rem 0.4rem;
+    cursor: pointer;
+}
+
+#videoPopoverDeleteButton {
+    color: red;
+    font-size: 0.8rem;
+    margin: 0.5rem 0.4rem;
+    cursor: pointer;
+}
+
+#videoPopoverButtonWrapper {
+    margin-top: 0.5rem;
 }

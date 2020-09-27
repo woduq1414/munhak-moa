@@ -1,5 +1,8 @@
 :root {
-    --primary-color: red;
+    --primary-color: #3e64ff;
+    --primary-color-bright: #91e4ff;
+    --tag-color : #eee;
+    /*--primary-color: #FF3D00;*/
 }
 
 html, body, main {

@@ -18,3 +18,69 @@ class CustomModel(Model):
 db = SQLAlchemy(model_class=CustomModel)
 
 
+class User(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_general_ci'}
+
+    user_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+    nickname = db.Column(db.String, nullable=False)
+
+    social_id = db.Column(db.String(100), nullable=False)
+    social_type = db.Column(db.String(20), nullable=False)
+    add_date = db.Column(db.DateTime, nullable=False)
+
+
+class Tag(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_general_ci'}
+
+    tag_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+
+    munhak_seq = db.Column(db.Integer, nullable=False)
+    tag_name = db.Column(db.String(20), nullable=False)
+
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
+    user = relationship("User", backref=backref('tag', order_by=tag_seq))
+    add_date = db.Column(db.DateTime, nullable=False)
+
+
+class Tip(db.Model):
+    __table_args__ = {'mysql_collate': 'utf8_general_ci'}
+
+    tip_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
+    user = relationship("User", backref=backref('tip', order_by=user_seq))
+
+    munhak_seq = db.Column(db.Integer, nullable=False)
+    tip_content = db.Column(db.String(1500), nullable=False)
+    add_date = db.Column(db.DateTime, nullable=False)
+
+
+class Like(db.Model):
+    like_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+
+    tip_seq = db.Column(db.Integer, ForeignKey('tip.tip_seq'), nullable=True)
+    tip = relationship("Tip", backref=backref('like1', order_by=like_seq))
+
+    tag_seq = db.Column(db.Integer, ForeignKey('tag.tag_seq'), nullable=True)
+    tag = relationship("Tag", backref=backref('like2', order_by=like_seq))
+
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
+    user = relationship("User", backref=backref('like3', order_by=user_seq))
+
+    add_date = db.Column(db.DateTime, nullable=False)
+
+
+class Video(db.Model):
+    video_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
+    user = relationship("User", backref=backref('video', order_by=user_seq))
+
+    munhak_seq = db.Column(db.Integer, nullable=True)
+    munhak_source = db.Column(db.String, nullable=True)
+
+    youtube_url = db.Column(db.String(50), nullable=False)
+    youtube_code = db.Column(db.String(20), nullable=False)
+    youtube_title = db.Column(db.String(100), nullable=False)
+    youtube_thumbnail = db.Column(db.String(100), nullable=False)
+
+    add_date = db.Column(db.DateTime, nullable=False)

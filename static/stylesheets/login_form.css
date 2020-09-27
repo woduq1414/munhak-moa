@@ -1,0 +1,27 @@
+#content {
+    width: 600px;
+    padding: 2rem;
+}
+
+#content #title {
+    font-size: 2rem;
+}
+
+#kakaoLoginButton {
+    text-align: center;
+}
+
+#nicknameInput {
+    width: 300px;
+    font-size: 1.5rem;
+    display: inline-block;
+    margin-left: 0.8rem;
+}
+#nicknameLabel {
+    font-size: 1.5rem;
+
+}
+
+#registerButton {
+    margin-top: 1rem;
+}

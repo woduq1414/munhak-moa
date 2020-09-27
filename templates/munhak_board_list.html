@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+{% endblock %}
+
+{% block main %}
+    <div id="contentContainer">
+        <div id="goPrevPage">
+            더 보기
+        </div>
+        <div id="cardContainer">
+
+
+        </div>
+        <div id="goNextPage">
+            더 보기
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        let current_page;
+        let rendered_min_page;
+        let rendered_max_page;
+        let current_query;
+
+        function render_munhak_card(query, page, type){
+
+             $.ajax({
+                type: "GET",
+                url: "{{ url_for("board.munhak_board_render_card") }}",
+                data: {
+                    q: query,
+                    page: page
+                },
+
+            }).done(function (data) {
+                $(".hiddenValue[key='maxPage']").remove();
+
+                if(type === "init"){
+                    $("#cardContainer").html(data);
+                }
+                else if(type === "next"){
+                    $("#cardContainer").append(data);
+                }
+                else if(type === "prev"){
+                    $("#cardContainer").prepend(data);
+                }
+
+
+                let maxPage = $(".hiddenValue[key='maxPage']").attr("value") * 1;
+                {#alert(maxPage);#}
+                if(rendered_min_page > 1){
+                    $("#goPrevPage").css("display", "unset");
+                }else{
+                    $("#goPrevPage").css("display", "none");
+                }
+                if(rendered_max_page < maxPage){
+                    $("#goNextPage").css("display", "unset");
+                }else{
+                     $("#goNextPage").css("display", "none");
+                }
+
+            })
+        }
+
+        $(document).ready(function () {
+            current_query = `{{ data.query }}`;
+            current_page = {{ data.page }};
+            rendered_min_page = current_page;
+            rendered_max_page = current_page;
+            render_munhak_card(current_query, current_page, "init");
+        })
+
+        $("#goNextPage").on("click", function() {
+            current_page += 1;
+            rendered_max_page += 1;
+           render_munhak_card(current_query, rendered_max_page, "next");
+        });
+
+         $("#goPrevPage").on("click", function() {
+            current_page -= 1;
+            rendered_min_page -= 1;
+           render_munhak_card(current_query, rendered_min_page, "prev");
+        });
+
+    </script>
+{% endblock %}

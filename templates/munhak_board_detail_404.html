@@ -17,45 +17,8 @@
 
 {% block script %}
     <script>
-        (function ($) {
-
-            "use strict";
-
-            var fullHeight = function () {
-
-                $('.js-fullheight').css('height', $(window).height());
-                $(window).resize(function () {
-                    $('.js-fullheight').css('height', $(window).height());
-                });
-
-            };
-            fullHeight();
-
-            if (matchMedia("screen and (min-width: 768px)").matches) {
-                $(".sidebar").addClass("active");
-            } else {
-                // 1024px 미만에서 사용할 JavaScript
-                $(".sidebar").removeClass("active");
-            }
 
 
-            $('.sidebarCollapse').on('click', function () {
-                $(this).children("i").toggleClass("fa-bars");
-                $(this).children("i").toggleClass("fa-arrow-left");
-                $('.sidebarCollapseMobile i').toggleClass("fa-bars");
-                $('.sidebarCollapseMobile i').toggleClass("fa-arrow-left");
-                $('#sidebar').toggleClass('active');
-            });
-
-            $('.sidebarCollapseMobile').on('click', function () {
-                $(this).children("i").toggleClass("fa-bars");
-                $(this).children("i").toggleClass("fa-arrow-left");
-                $('.sidebarCollapse i').toggleClass("fa-bars");
-                $('.sidebarCollapse i').toggleClass("fa-arrow-left");
-                $('#sidebar').toggleClass('active');
-            });
-
-        })(jQuery);
 
     </script>
 {% endblock %}
