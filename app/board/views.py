@@ -5,7 +5,7 @@ import socket
 import os
 import random
 import copy
-from sqlalchemy import func
+from sqlalchemy import func, desc
 # from app.global_var import munhak_rows_data
 from flask_sqlalchemy import SQLAlchemy, Model
 import gspread
@@ -73,7 +73,8 @@ def munhak_board_detail(munhak_seq, munhak_title):
 
                                 ).outerjoin(
         Like,
-        Tag.tag_seq == Like.tag_seq).filter(Tag.munhak_seq == munhak_seq).group_by(Tag.tag_seq).all()
+        Tag.tag_seq == Like.tag_seq).filter(Tag.munhak_seq == munhak_seq).group_by(Tag.tag_seq).order_by(
+        desc("like_count")).all()
 
     # return "DD"
     data = {
