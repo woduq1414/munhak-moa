@@ -1,7 +1,8 @@
-from flask import Blueprint
+from flask import Blueprint, make_response
 from flask import Flask, render_template, session, request, flash, redirect, url_for, Response, abort, jsonify, \
     send_file
 import socket
+import base64
 import os
 import random
 import copy
@@ -100,14 +101,46 @@ def munhak_board_render_card():
     munhak_rows = copy.deepcopy(munhak_rows_data)
 
     args = request.args
-    query = args.get("query", "")
+    query = args.get("q", "")
+    # tags = args.get("tags", None)
+    print(query)
+    query_list = query.split()
     try:
         page = int(args.get("page", 1))
     except:
         page = 1
     page_size = 10
+    # query_list.remove("#")
 
-    query_munhak_rows = munhak_rows
+    if len(query_list) != 0:
+        query_munhak_seq_set = set()
+
+        for word in query_list:
+
+            if word[0] != "#":
+                for munhak_row in munhak_rows:
+                    if word in munhak_row["title"].replace(" ", "") or word == munhak_row["writer"]:
+                        query_munhak_seq_set.add(munhak_row["munhak_seq"])
+
+        print(Tag.query.filter(
+            Tag.tag_name.in_([word[1:] for word in query_list if word[0] == "#"])).all())
+
+        tag_rows = Tag.query.filter(
+            Tag.tag_name.in_([word[1:] for word in query_list if word[0] == "#"])).all()
+
+        for tag_row in tag_rows:
+            query_munhak_seq_set.add(tag_row.munhak_seq)
+        # query_munhak_seq_set.add()
+
+        print(query_munhak_seq_set)
+
+        query_munhak_rows = [
+            [munhak_row for munhak_row in munhak_rows if munhak_seq == munhak_row["munhak_seq"]][0] for munhak_seq in
+            query_munhak_seq_set]
+        print(query_munhak_rows)
+
+    else:
+        query_munhak_rows = munhak_rows
 
     data = {
         "page": page,
@@ -120,17 +153,44 @@ def munhak_board_render_card():
                 "writer": munhak_row["writer"],
                 "source": munhak_row["source"],
                 "category": munhak_row["category"],
-            } for munhak_row in query_munhak_rows[(page - 1) * page_size:  page * page_size]
-        ]
-    }
+                "tags": [tag_row.tag_name for tag_row in
+                         db.session.query(Tag)
+                             .outerjoin(Like, Tag.tag_seq == Like.tag_seq)
+                             .filter(Tag.munhak_seq == munhak_row["munhak_seq"])
+                             .group_by(Tag.tag_seq)
+                             .order_by(desc(func.count(Like.like_seq).label("like_count")))
+                             .all()
+                         ][:5],
 
-    return render_template("munhak_board_card.html", data=data)
+
+            } for munhak_row in query_munhak_rows[(page - 1) * page_size:  page * page_size]
+        ],
+        "search_query_tags": [word[1:] for word in query_list if word[0] == "#"]
+    }
+    print([word[1:] for word in query_list if word[0] == "#"])
+    resp = make_response(render_template("munhak_board_card.html", data=data))
+
+    query_cookie = " ".join(query_list)
+    resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
+    # print( )
+
+    return resp
 
 
 @board_bp.route('/board')
 def munhak_board_list():
     args = request.args
     query = args.get("query", "")
+    tag = args.get("tag", None)
+    clear = args.get("clear", None)
+
+    if clear is not None:
+        resp = make_response(redirect(url_for("board.munhak_board_list")))
+        resp.set_cookie('query', "")
+        return resp
+
+    # print(query, tags)
+
     try:
         page = int(args.get("page", 1))
     except:
@@ -141,7 +201,14 @@ def munhak_board_list():
         "query": query
     }
 
-    return render_template("munhak_board_list.html", data=data)
+    if tag is not None:
+        resp = make_response(redirect(url_for("board.munhak_board_list")))
+        query_cookie = "#" + tag
+        resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
+        return resp
+    else:
+
+        return render_template("munhak_board_list.html", data=data)
 
 
 @board_bp.route("/tag/add", methods=["GET", "POST"])

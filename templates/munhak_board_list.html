@@ -4,9 +4,38 @@
 {% block style %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+
+
 {% endblock %}
 
 {% block main %}
+
+    <div id="searchContainer">
+        <div id="searchWrapper" class="">
+            {#            <input class="form-control " type="search"#}
+            {#                   id="searchInput">#}
+            <div class="" id="searchInputContent">
+                <div id="searchInputTagWrapper">
+                    <label class="input-sizer" id="searchInputRealSizer">
+                        <input id="searchInputReal" type="text" onInput="this.parentNode.dataset.value = this.value"
+                               onChange="this.parentNode.dataset.value = this.value"
+                               size="4"
+                        >
+                    </label>
+                    {#                    <input id="searchInputReal" >#}
+                </div>
+
+
+            </div>
+
+
+            <div class="" id="searchButton">
+                <i class="fa fa-search"></i>
+            </div>
+        </div>
+
+    </div>
+
     <div id="contentContainer">
         <div id="goPrevPage">
             더 보기
@@ -29,10 +58,110 @@
         let rendered_min_page;
         let rendered_max_page;
         let current_query;
+        let tag_i = 1;
+        let selected_tag;
 
-        function render_munhak_card(query, page, type){
+        var options = {
+            source: {{ TAG_SOURCE | safe }},
+            minLength: 1
+        };
+        var selector = 'input';
+        $(document).on('keydown.searchTagInput', selector, function () {
+            $(this).autocomplete(options);
+        });
 
-             $.ajax({
+
+        function b64DecodeUnicode(str) {
+            // Going backwards: from bytestream, to percent-encoding, to original string.
+            return decodeURIComponent(atob(str).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        function getCookie(cookieName) {
+            var cookieValue = null;
+            if (document.cookie) {
+                var array = document.cookie.split((escape(cookieName) + '='));
+                if (array.length >= 2) {
+                    var arraySub = array[1].split(';');
+                    cookieValue = unescape(arraySub[0]);
+                }
+            }
+            return cookieValue;
+        }
+
+
+        $(document).ready(function () {
+            {#alert("hdl")#}
+
+
+            let tags = b64DecodeUnicode(getCookie("query")).split(" ")
+
+
+            let query = [];
+
+            for (let tag of tags) {
+                if (tag[0] != "#") {
+                    query.push(tag)
+                } else {
+                    $("#searchInputRealSizer").before(
+                        `
+                   <span class="tag searchTag">
+                        # <label class="input-sizer" data-value="${tag.slice(1, tag.length)}">
+                        <input class="searchTagInput" id="searchTagInput${tag_i}" type="text" onInput="this.parentNode.dataset.value = this.value"
+                        maxlength="15"
+                               size="1" value="${tag.slice(1, tag.length)}"
+                        >
+                    </label>
+
+                    <i class="fa fa-times searchTagDelete" ></i>
+
+                    </span>
+                   `
+                    )
+
+                    tag_i += 1;
+                }
+            }
+
+            $("#searchInputReal").val(query);
+            $("#searchInputRealSizer").attr("data-value", query);
+
+        })
+
+
+        function searchQuery() {
+            let tags = "";
+
+            $(".searchTagInput").each(function (index, item) {
+                tags += "#" + $(item).val() + " "
+            })
+            let finalQuery = $("#searchInputReal").val() + " " + tags;
+            render_munhak_card(finalQuery, 1, "init");
+
+            {#location.href = `./board?q=${finalQuery}`#}
+
+        }
+
+        $.fn.getCursorPosition = function () {
+            var el = $(this).get(0);
+            var pos = 0;
+            if ('selectionStart' in el) {
+                pos = el.selectionStart;
+            } else if ('selection' in document) {
+                el.focus();
+                var Sel = document.selection.createRange();
+                var SelLength = document.selection.createRange().text.length;
+                Sel.moveStart('character', -el.value.length);
+                pos = Sel.text.length - SelLength;
+            }
+            return pos;
+        }
+
+        function render_munhak_card(query, page, type) {
+            current_page = page;
+            current_query = query;
+            $.ajax({
                 type: "GET",
                 url: "{{ url_for("board.munhak_board_render_card") }}",
                 data: {
@@ -43,52 +172,130 @@
             }).done(function (data) {
                 $(".hiddenValue[key='maxPage']").remove();
 
-                if(type === "init"){
+                if (type === "init") {
                     $("#cardContainer").html(data);
-                }
-                else if(type === "next"){
+                } else if (type === "next") {
                     $("#cardContainer").append(data);
-                }
-                else if(type === "prev"){
+                } else if (type === "prev") {
                     $("#cardContainer").prepend(data);
                 }
 
 
                 let maxPage = $(".hiddenValue[key='maxPage']").attr("value") * 1;
                 {#alert(maxPage);#}
-                if(rendered_min_page > 1){
+                if (rendered_min_page > 1) {
                     $("#goPrevPage").css("display", "unset");
-                }else{
+                } else {
                     $("#goPrevPage").css("display", "none");
                 }
-                if(rendered_max_page < maxPage){
+                if (rendered_max_page < maxPage) {
                     $("#goNextPage").css("display", "unset");
-                }else{
-                     $("#goNextPage").css("display", "none");
+                } else {
+                    $("#goNextPage").css("display", "none");
                 }
 
             })
         }
 
         $(document).ready(function () {
-            current_query = `{{ data.query }}`;
+            current_query = b64DecodeUnicode(getCookie("query"));
             current_page = {{ data.page }};
             rendered_min_page = current_page;
             rendered_max_page = current_page;
             render_munhak_card(current_query, current_page, "init");
         })
 
-        $("#goNextPage").on("click", function() {
+        $("#goNextPage").on("click", function () {
             current_page += 1;
             rendered_max_page += 1;
-           render_munhak_card(current_query, rendered_max_page, "next");
+            render_munhak_card(current_query, rendered_max_page, "next");
         });
 
-         $("#goPrevPage").on("click", function() {
+        $("#goPrevPage").on("click", function () {
             current_page -= 1;
             rendered_min_page -= 1;
-           render_munhak_card(current_query, rendered_min_page, "prev");
+            render_munhak_card(current_query, rendered_min_page, "prev");
         });
+
+        $("#searchInputReal").on("keyup", function (key) {
+
+
+            if (key.keyCode === 8 && $(this).getCursorPosition() == 0) {
+                $("#searchInputRealSizer").prev().remove();
+            } else if (key.keyCode === 13) {
+                searchQuery();
+            }
+        })
+
+
+        $("#searchInputReal").on("keypress", function (key) {
+
+            if (key.key == "#") {
+
+                if ($(`#searchTagInput${selected_tag}`).val() == "") {
+                    {#console.log("SDDDDDDDDDDDDDDDDDD")#}
+                    $(`#searchTagInput${selected_tag}`).parents('.searchTag').remove();
+                }
+
+                $("#searchInputRealSizer").before(
+                    `
+                   <span class="tag searchTag">
+                        # <label class="input-sizer">
+                        <input class="searchTagInput" id="searchTagInput${tag_i}" type="text" onInput="this.parentNode.dataset.value = this.value"
+                               size="1" maxlength="15" onChange="this.parentNode.dataset.value = this.value"
+                        >
+                    </label>
+
+                    <i class="fa fa-times searchTagDelete" ></i>
+
+                    </span>
+                   `
+                )
+
+                $(`#searchTagInput${tag_i}`).focus();
+                selected_tag = tag_i;
+                tag_i += 1;
+            }
+        })
+
+
+        $(document).on("click", ".searchTagDelete", function (e) {
+            let target = e.target;
+            $(target).parent().remove()
+        })
+
+
+        $("#searchInputReal").on("change", function (key) {
+            $(this).val($(this).val().replace("#", ""))
+        })
+
+
+        $("#searchWrapper").on("click", function (e) {
+            if (e.target !== this)
+                return;
+            $("#searchInputReal").focus();
+        })
+        $("#searchButton").on("click", function () {
+            searchQuery();
+
+        })
+
+        $(document).on("keyup", ".searchTagInput", function (key) {
+            {#console.log(key.keyCode)#}
+            if (key.keyCode == 9 || key.keyCode == 13 || key.keyCode == 32) {
+
+                $("#searchInputReal").focus();
+            }
+        })
+
+
+        $(document).on("change", ".searchTagInput", function () {
+            console.log("DD")
+            var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
+            $(`#searchTagInput${selected_tag}`).val($(`#searchTagInput${selected_tag}`).val().replace(regExp, ""))
+            console.log("ee", $(`#searchTagInput${selected_tag}`).val())
+
+        })
 
     </script>
 {% endblock %}

@@ -37,7 +37,7 @@
                 <div class="pgContent">
                     <div id="tagContainer">
 
-                        <span>
+                        <span id="userTagContainer">
                              {% for tag in data.tags %}
                                  <span class="tag userTag {{ "userTagLiked" if tag.liked == "true" else "" }}"
                                        tag_name="{{ tag.tag_name }}"
@@ -323,6 +323,20 @@
             })
         })
 
+        $(document).on("click", "#tagPopoverSearchButton", function () {
+            location.href = `/board?tag=${clicked_tag.tag_name}`
+        })
+
+        var options = {
+            source: {{ TAG_SOURCE | safe }},
+            minLength: 1
+        };
+        var selector = 'input';
+        $(document).on('keydown.addTagInput', selector, function () {
+            $(this).autocomplete(options);
+        });
+
+
         $(document).on("click", "#videoPopoverDeleteButton", function () {
              if (!is_logined) {
                 not_logined();
@@ -423,8 +437,11 @@
                 },
                 dataType: "json",
                 statusCode: {
+                    400: function (data) {
+                        warningToast("꼬리말은 1~10자 사이여야 합니다.")
+                    },
                     409: function (data) {
-                        location.href = "./result";
+                        warningToast("중복된 태그입니다.")
                     },
                     200: function (data) {
                         window.location.reload();

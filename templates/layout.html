@@ -31,6 +31,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     {% block style %}{% endblock %}
 </head>
 <body>
@@ -68,7 +72,7 @@
                     <a href="#"><span class="fa fa-home"></span> 홈</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('board.munhak_board_list') }}"><span class="fa fa-file-alt"></span> 기출작품</a>
+                    <a href="/board?clear=1"><span class="fa fa-file-alt"></span> 기출작품</a>
                 </li>
                 <li>
                     <a href="{{ url_for('quiz.index') }}"><span class="fa fa-sticky-note"></span> 문학퀴즈</a>

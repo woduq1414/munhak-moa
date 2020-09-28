@@ -1,18 +1,29 @@
 {% for munhak_row in data.munhak_rows %}
     <a class="munhakCardWrapper" href="{{ url_for("board.munhak_board_detail", munhak_seq = munhak_row.munhak_seq) }}">
         <div class="munhakCard">
+
             <div class="upperText">
                 {{ munhak_row.writer }}, 『{{ munhak_row.title }}』
             </div>
             <div class="bottomText">
-                     <span id="source">
+                     <span class="source">
                      {{ munhak_row.source }}
                 </span>
                 &nbsp;·&nbsp;
-                <span id="category">
+                <span class="category">
                     {{ munhak_row.category }}
                 </span>
             </div>
+
+            <div class="searchResultTagContainer">
+                {%  for tag in munhak_row.tags %}
+
+                    <span class="tag searchResultTag {{ "searchQueryTag" if tag in data.search_query_tags else ""}}">
+                        #&nbsp;{{ tag }}
+                    </span>
+                {%  endfor %}
+            </div>
+
         </div>
     </a>
 {% endfor %}
