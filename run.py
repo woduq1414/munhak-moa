@@ -36,9 +36,9 @@ def catch_all(path):
 
 
 # 404 not found > react_router
-@app.errorhandler(404)
-def not_found(error):
-    return redirect(url_for("others.index"))
+# @app.errorhandler(404)
+# def not_found(error):
+#     return redirect(url_for("others.index"))
 
 
 @app.errorhandler(500)
