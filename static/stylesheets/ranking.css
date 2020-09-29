@@ -1,0 +1,80 @@
+#openRanking {
+    background-color: var(--primary-color);
+    border-bottom-right-radius: 99999px;
+    color: white;
+    padding: 1.5rem 3rem 3rem 1.5rem;
+    font-size: 3rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+#rankingTable {
+    margin-top: 0.5rem;
+    text-align: center;
+    width: 100%;
+}
+
+#rankingTable tr {
+    border-bottom: 1px solid grey;
+    height: 2.5rem;
+}
+
+
+.rankingText {
+    font-size: 1.3rem;
+    text-align: center;
+    margin: 0 auto;
+}
+
+
+.rankingNo {
+    width: 12%;
+}
+
+.rankingNickname {
+    width: 48%;
+}
+
+.rankingScore {
+    width: 40%;
+}
+
+#rankingMyTable {
+    margin-top: 0.5rem;
+    text-align: center;
+    width: 100%;
+}
+
+
+#rankingMyTable tr {
+
+    border-bottom: 1px solid grey;
+    border-top: 1px solid grey;
+    height: 2.5rem;
+}
+
+
+.rankingBottomText {
+    font-size: 1rem;
+    margin: 0 auto;
+    text-align: center;
+
+}
+
+
+@media screen and (max-width: 768px) {
+    #rankingMyTable, #rankingTable{
+        font-size: 1.5rem;
+    }
+
+     .rankingText {
+         font-size : 1.8rem;
+     }
+
+     .rankingBottomText {
+         font-size: 1.5rem;
+     }
+}
+

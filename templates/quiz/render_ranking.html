@@ -1,0 +1,77 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ranking.css') }}">
+<div class="rankingText">
+    순위표
+</div>
+<table id="rankingTable">
+    <tr>
+        <th class="rankingNo">
+            #
+        </th>
+        <th class="rankingNickname">
+            별명(닉네임)
+        </th>
+        <th class="rankingScore">
+            최고 점수
+        </th>
+    </tr>
+
+
+
+    {% for record_row in data.record_rows %}
+        <tr>
+            <td>
+                {{ loop.index }}
+            </td>
+            <td>
+                {{ record_row.nickname }}
+            </td>
+            <td>
+                {{ record_row.score }}
+            </td>
+
+
+        </tr>
+
+    {% endfor %}
+
+</table>
+
+<br>
+
+{% if data.my_row != None %}
+
+    <div class="rankingText">
+        나의 등수
+    </div>
+
+    <table id="rankingMyTable">
+
+        <tr>
+            <td class="rankingNo">
+                {{ data.my_row.no }}
+            </td>
+            <td class="rankingNickname">
+                {{ data.my_row.nickname }}
+            </td>
+            <td class="rankingScore">
+                {{ data.my_row.score }}
+            </td>
+
+
+        </tr>
+    </table>
+
+
+{% endif %}
+
+
+{% if "user" not in session %}
+    <div class="rankingBottomText">
+
+        로그인하면 순위표에 오를 수 있어요! &nbsp;&nbsp;
+        <a class="btn btn-light" href="{{ url_for("user.login_form") }}">
+            로그인 / 회원가입
+        </a>
+    </div>
+
+{% endif %}

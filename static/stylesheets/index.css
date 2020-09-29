@@ -79,3 +79,17 @@ body, main {
   width: 100%;
     font-family: 'Noto Serif KR', serif;
 }
+
+
+
+#openRanking {
+    background-color: var(--primary-color);
+    border-bottom-right-radius: 99999px;
+    color: white;
+    padding: 1.5rem 3rem 3rem 1.5rem;
+    font-size: 3rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}

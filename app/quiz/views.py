@@ -13,12 +13,15 @@ import json
 import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
+from sqlalchemy import desc
 
 from config import credentials, SECRET_KEY
 from app.cache import cache
 from app.common.function import fetch_spread_sheet
+from app.db import *
 
 quiz_bp = Blueprint('quiz', __name__)
+from datetime import datetime
 
 
 @quiz_bp.route('/')
@@ -46,8 +49,6 @@ def quiz():
         session["solved_quiz"] = []
         session["current_munhak"] = None
         session["is_end"] = False
-
-
 
     if "quiz_count" not in session:
         session["quiz_count"] = 0
@@ -170,15 +171,59 @@ def result():
     is_success = session["result"]
     session["is_end"] = True
 
+    # session["quiz_count"] = 0
+    # session["solved_quiz"] = []
+    # session["current_munhak"] = None
+
+    if "user" in session:
+        user_seq = session["user"]["user_seq"]
+        old_record_row = QuizRanking.query.filter_by(user_seq=user_seq).first()
+        if old_record_row is None:
+            if session["quiz_count"] >= 1:
+                record_row = QuizRanking(user_seq=user_seq, score=session["quiz_count"], record_date=datetime.now())
+                db.session.add(record_row)
+                db.session.commit()
+        else:
+            if session["quiz_count"] >= 1 and session["quiz_count"] >= old_record_row.score:
+                old_record_row.score = session["quiz_count"]
+            db.session.commit()
+
     data = {
         "is_success": is_success,
         "solved_count": session["quiz_count"],
         "correct": session["correct"],
         "current_munhak": session["current_munhak"]
     }
-    # session["quiz_count"] = 0
-    # session["solved_quiz"] = []
-    # session["current_munhak"] = None
 
     print(data)
     return render_template("quiz/result.html", data=data)
+
+
+@quiz_bp.route("/render-ranking", methods=["GET", "POST"])
+def render_ranking():
+    record_rows = QuizRanking.query.order_by(desc(QuizRanking.score), desc(QuizRanking.record_date)).all()
+    print(record_rows)
+
+    if "user" in session:
+        user_seq = session["user"]["user_seq"]
+    else:
+        user_seq = -1
+
+    my_row = None
+    for i, record_row in enumerate(record_rows):
+        if record_row.user.user_seq == user_seq:
+            my_row = {
+                "no": i + 1,
+                "nickname": record_row.user.nickname,
+                "score": record_row.score
+            }
+
+    data = {
+        "record_rows": [{
+            "nickname": record_row.user.nickname,
+            "score": record_row.score
+        } for record_row in record_rows[:min(len(record_rows), 10)]],
+        "my_row" : my_row
+
+    }
+    return render_template("quiz/render_ranking.html", data=data)

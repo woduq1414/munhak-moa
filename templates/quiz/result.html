@@ -2,6 +2,7 @@
 
 {% block style %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ranking.css') }}">
 {% endblock %}
 
 {% block main %}
@@ -83,6 +84,23 @@
         </div>
     </div>
 
+    <div class="modal fade" id="rankingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-body rankingModalBody">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div id="openRanking">
+        <i class="fas fa-trophy"></i>
+    </div>
+
 {% endblock %}
 
 {% block script %}
@@ -91,6 +109,28 @@
             $(this).html(`『${$(this).attr("title")}』 더 공부하러 가기`);
         }, function () {
             $(this).html($(this).attr("data"));
+        })
+
+
+        $("#openRanking").on("click", function () {
+            $("#rankingModal").modal();
+            $.ajax({
+                type: "GET",
+                url: "./render-ranking",
+                statusCode: {
+                    404: function (data) {
+                        location.href = "./result";
+                    },
+                    200: function (data) {
+                        console.log(data);
+                        $(".rankingModalBody").html(data);
+                    }
+                }
+
+            })
+        })
+        $(document).ready(function () {
+
         })
 
 

@@ -84,3 +84,13 @@ class Video(db.Model):
     youtube_thumbnail = db.Column(db.String(100), nullable=False)
 
     add_date = db.Column(db.DateTime, nullable=False)
+
+
+class QuizRanking(db.Model):
+    record_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
+    user = relationship("User", backref=backref('QuizRanking', order_by=user_seq))
+
+    score = db.Column(db.Integer, nullable=False)
+
+    record_date = db.Column(db.DateTime, nullable=False)
