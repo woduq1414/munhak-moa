@@ -155,9 +155,13 @@
 
         $(document).ready(function () {
             {#alert("hdl")#}
+            try {
+                current_query = b64DecodeUnicode(getCookie("query"));
+            } catch {
+                current_query = "";
+            }
 
-
-            let tags = b64DecodeUnicode(getCookie("query")).split(" ")
+            let tags = current_query.split(" ")
 
 
             let query = [];
@@ -288,7 +292,12 @@
         }
 
         $(document).ready(function () {
-            current_query = b64DecodeUnicode(getCookie("query"));
+            try {
+                current_query = b64DecodeUnicode(getCookie("query"));
+            } catch {
+                current_query = "";
+            }
+
             current_page = getCookie("page") == undefined ? 1 : getCookie("page") * 1;
             rendered_min_page = current_page;
             rendered_max_page = current_page;

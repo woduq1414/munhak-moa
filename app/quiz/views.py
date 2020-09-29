@@ -13,7 +13,7 @@ import json
 import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 
 from config import credentials, SECRET_KEY
 from app.cache import cache
@@ -205,7 +205,7 @@ def result():
 
 @quiz_bp.route("/render-ranking", methods=["GET", "POST"])
 def render_ranking():
-    record_rows = QuizRanking.query.order_by(desc(QuizRanking.score), desc(QuizRanking.record_date)).all()
+    record_rows = QuizRanking.query.order_by(desc(QuizRanking.score), asc(QuizRanking.record_date)).all()
     print(record_rows)
 
     if "user" in session:
