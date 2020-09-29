@@ -11,6 +11,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 import base64
 from collections import namedtuple
+
+from app.common.decorator import return_500_if_errors
+
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
@@ -87,34 +90,6 @@ else:
 
 update()
 
-
-# class CustomModel(Model):
-#     def as_dict(self):
-#         temp = {}
-#         for x in self.__table__.columns:
-#             if str(type(getattr(self, x.name))) == "<class 'datetime.datetime'>":
-#                 temp[x.name] = str(getattr(self, x.name))
-#             else:
-#                 temp[x.name] = getattr(self, x.name)
-#         return temp
-#
-#
-# db = SQLAlchemy(app, model_class=CustomModel)
-#
-#
-# class Munhak(db.Model):
-#     __table_args__ = {'mysql_collate': 'utf8_general_ci'}
-#
-#     munhak_seq = db.Column(db.Integer, primary_key=True, nullable=False)
-#
-#     category = db.Column(db.String(20), nullable=True)
-#     source = db.Column(db.String(50), nullable=True)
-#
-#     title = db.Column(db.String(100), nullable=False)
-#     writer = db.Column(db.String(50), nullable=True)
-#     keywords = db.Column(db.JSON, nullable=True)
-#
-#     is_available = db.Column(db.Boolean, nullable=False)
 
 
 @app.route('/')
@@ -214,6 +189,7 @@ def quiz():
         print(data)
         #
         return render_template("quiz/quiz.html", data=data)
+
 
 @app.route("/answer", methods=["GET", "POST"])
 def answer():

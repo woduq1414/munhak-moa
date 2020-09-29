@@ -6,7 +6,8 @@ from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
 
 from config import credentials
-
+import requests
+from config import DISCORD_WEBHOOK_URL
 
 def is_local():
     import socket
@@ -60,3 +61,7 @@ def format_url_title(title):
     return title.replace(" ", "-")
 
 
+def send_discord_webhook(webhook_body):
+    requests.post(
+        DISCORD_WEBHOOK_URL,
+        json=webhook_body)

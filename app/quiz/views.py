@@ -168,6 +168,10 @@ def answer():
 
 @quiz_bp.route("/result", methods=["GET", "POST"])
 def result():
+    if "result" not in session:
+        return redirect(url_for("quiz.index"))
+
+
     is_success = session["result"]
     session["is_end"] = True
 

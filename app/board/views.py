@@ -16,7 +16,7 @@ import base64
 from collections import namedtuple, defaultdict
 from flask_restful import Api, Resource, reqparse
 import re
-from app.common.decorator import login_required
+from app.common.decorator import login_required, return_500_if_errors
 from config import credentials, SECRET_KEY, YOUTUBE_KEY
 from app.cache import cache
 from app.common.function import *
@@ -25,12 +25,15 @@ from app.db import *
 
 from datetime import datetime
 from itertools import groupby
+
 board_bp = Blueprint('board', __name__)
+
 
 
 @board_bp.route('/test')
 def test():
     return render_template("test.html")
+
 
 
 @board_bp.route('/board/detail/<int:munhak_seq>/<munhak_title>/')
@@ -95,6 +98,7 @@ def munhak_board_detail(munhak_seq, munhak_title):
     return render_template("munhak_board_detail.html", data=data)
 
 
+
 @board_bp.route('/board/render-card')
 def munhak_board_render_card():
     munhak_rows_data = cache.get("munhak_rows_data")
@@ -103,7 +107,6 @@ def munhak_board_render_card():
     args = request.args
     query = args.get("q", "")
     # tags = args.get("tags", None)
-
 
     query_list = query.split()
     origin_query_list = copy.deepcopy(query_list)
@@ -156,8 +159,7 @@ def munhak_board_render_card():
         munhak_row for munhak_row in query_munhak_rows if munhak_row["source"] not in query_source_list and munhak_row[
             "category"] not in query_category_list]
 
-    query_munhak_rows = sorted(query_munhak_rows, key= lambda x : (x["source"][:5], x["source"]), reverse=True)
-
+    query_munhak_rows = sorted(query_munhak_rows, key=lambda x: (x["source"][:5], x["source"]), reverse=True)
 
     data = {
         "page": page,
@@ -182,7 +184,7 @@ def munhak_board_render_card():
             } for munhak_row in query_munhak_rows[(page - 1) * page_size:  page * page_size]
         ],
         "search_query_tags": [word[1:] for word in query_list if word[0] == "#"],
-        "total_rows" : len(query_munhak_rows)
+        "total_rows": len(query_munhak_rows)
     }
     print([word[1:] for word in query_list if word[0] == "#"])
     resp = make_response(render_template("munhak_board_card.html", data=data))
@@ -192,6 +194,7 @@ def munhak_board_render_card():
     # print( )
 
     return resp
+
 
 
 @board_bp.route('/board')
@@ -223,8 +226,6 @@ def munhak_board_list():
     for source in source_list:
         source_dict[source[:5]].append(source)
 
-
-
     data = {
         "source_dict": source_dict
     }
@@ -239,6 +240,7 @@ def munhak_board_list():
         resp = make_response(render_template("munhak_board_list.html", data=data))
         resp.set_cookie("page", str(page))
         return resp
+
 
 
 @board_bp.route("/tag/add", methods=["GET", "POST"])
@@ -280,6 +282,7 @@ def add_tag():
     return "", 200
 
 
+
 @board_bp.route("/tag/like", methods=["GET", "POST"])
 @login_required
 def like_tag():
@@ -304,6 +307,7 @@ def like_tag():
         return jsonify({"liked": False}), 200
 
 
+
 @board_bp.route("/tag/delete", methods=["GET", "POST"])
 @login_required
 def delete_tag():
@@ -325,6 +329,7 @@ def delete_tag():
     return "", 200
 
 
+
 @board_bp.route("/video/delete", methods=["GET", "POST"])
 @login_required
 def delete_video():
@@ -344,6 +349,7 @@ def delete_video():
     db.session.delete(old_video_row)
     db.session.commit()
     return "", 200
+
 
 
 @board_bp.route("/video/add", methods=["GET", "POST"])

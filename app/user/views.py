@@ -14,6 +14,7 @@ import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
 
+from app.common.decorator import return_500_if_errors
 from config import credentials, SECRET_KEY, YOUTUBE_KEY
 from app.cache import cache
 from app.common.function import *
@@ -25,14 +26,17 @@ from datetime import datetime
 user_bp = Blueprint('user', __name__)
 
 
+
 @user_bp.route('/login')
 def login_form():
     return render_template('user/login_form.html')
 
 
+
 @user_bp.route('/register')
 def register_form():
     return render_template('user/register_form.html')
+
 
 
 @user_bp.route('/register-query', methods=["GET", "POST"])
@@ -70,8 +74,11 @@ def register_query():
     return make_response("", 200)
 
 
+
 @user_bp.route('/login-query-kakao', methods=["GET", "POST"])
 def login_query_kakao():
+
+
     args = request.form
     access_token = args.get("access_token", None)
     print(access_token)
@@ -93,6 +100,7 @@ def login_query_kakao():
     session["user"] = user_row.as_dict()
 
     return make_response("", 200)
+
 
 
 @user_bp.route('/logout')

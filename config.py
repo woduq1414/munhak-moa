@@ -29,6 +29,7 @@ if socket.gethostname()[:7] == "DESKTOP":
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(config['DEFAULT']['GOOGLE_CREDENTIALS_PATH'], scope)
     YOUTUBE_KEY = config["DEFAULT"]["YOUTUBE_KEY"]
+    DISCORD_WEBHOOK_URL = config["DEFAULT"]["DISCORD_WEBHOOK_URL"]
 
 else:
 
