@@ -21,12 +21,9 @@ def catch_all(path):
     return render_template('index.html')
 
 # 404 not found > react_router
-# @app.errorhandler(404)
-# def not_found(error):
-#     print("SDF")
-#
-#
-#     return render_template('index.html')
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('index.html')
 
 
 

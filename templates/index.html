@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-asdasd
-</body>
-</html>
+{% extends "layout.html" %}
+
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+{% endblock %}
+
+{% block main %}
+    <div id="contentContainer">
+       <h1>
+           메인 페이지
+       </h1>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+
+
+
+    </script>
+{% endblock %}

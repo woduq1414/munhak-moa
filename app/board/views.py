@@ -13,7 +13,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 import base64
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from flask_restful import Api, Resource, reqparse
 import re
 from app.common.decorator import login_required
@@ -24,7 +24,7 @@ import requests
 from app.db import *
 
 from datetime import datetime
-
+from itertools import groupby
 board_bp = Blueprint('board', __name__)
 
 
@@ -103,14 +103,24 @@ def munhak_board_render_card():
     args = request.args
     query = args.get("q", "")
     # tags = args.get("tags", None)
-    print(query)
+
+
     query_list = query.split()
+    origin_query_list = copy.deepcopy(query_list)
     try:
         page = int(args.get("page", 1))
     except:
         page = 1
     page_size = 10
     # query_list.remove("#")
+    print(query)
+    print(query_list)
+    query_source_list = [word[1:].replace("-", " ") for word in query_list if word[0] == "@"]
+    print("qsl", query_source_list)
+    query_category_list = [word[1:] for word in query_list if word[0] == "$"]
+    print("qcl", query_category_list)
+
+    query_list = [word for word in query_list if word[0] != "@" and word[0] != "$"]
 
     if len(query_list) != 0:
         query_munhak_seq_set = set()
@@ -142,6 +152,13 @@ def munhak_board_render_card():
     else:
         query_munhak_rows = munhak_rows
 
+    query_munhak_rows = [
+        munhak_row for munhak_row in query_munhak_rows if munhak_row["source"] not in query_source_list and munhak_row[
+            "category"] not in query_category_list]
+
+    query_munhak_rows = sorted(query_munhak_rows, key= lambda x : (x["source"][:5], x["source"]), reverse=True)
+
+
     data = {
         "page": page,
         "max_page": (len(query_munhak_rows) - 1) // page_size + 1,
@@ -162,15 +179,15 @@ def munhak_board_render_card():
                              .all()
                          ][:5],
 
-
             } for munhak_row in query_munhak_rows[(page - 1) * page_size:  page * page_size]
         ],
-        "search_query_tags": [word[1:] for word in query_list if word[0] == "#"]
+        "search_query_tags": [word[1:] for word in query_list if word[0] == "#"],
+        "total_rows" : len(query_munhak_rows)
     }
     print([word[1:] for word in query_list if word[0] == "#"])
     resp = make_response(render_template("munhak_board_card.html", data=data))
 
-    query_cookie = " ".join(query_list)
+    query_cookie = " ".join(origin_query_list)
     resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
     # print( )
 
@@ -179,6 +196,9 @@ def munhak_board_render_card():
 
 @board_bp.route('/board')
 def munhak_board_list():
+    munhak_rows_data = cache.get("munhak_rows_data")
+    munhak_rows = copy.deepcopy(munhak_rows_data)
+
     args = request.args
     query = args.get("query", "")
     tag = args.get("tag", None)
@@ -187,6 +207,7 @@ def munhak_board_list():
     if clear is not None:
         resp = make_response(redirect(url_for("board.munhak_board_list")))
         resp.set_cookie('query', "")
+        resp.set_cookie("page", "1")
         return resp
 
     # print(query, tags)
@@ -196,19 +217,28 @@ def munhak_board_list():
     except:
         page = 1
     page_size = 10
-    data = {
-        "page": page,
-        "query": query
-    }
 
+    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))
+    source_dict = defaultdict(list)
+    for source in source_list:
+        source_dict[source[:5]].append(source)
+
+
+
+    data = {
+        "source_dict": source_dict
+    }
     if tag is not None:
         resp = make_response(redirect(url_for("board.munhak_board_list")))
         query_cookie = "#" + tag
         resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
+        resp.set_cookie("page", str(page))
+
         return resp
     else:
-
-        return render_template("munhak_board_list.html", data=data)
+        resp = make_response(render_template("munhak_board_list.html", data=data))
+        resp.set_cookie("page", str(page))
+        return resp
 
 
 @board_bp.route("/tag/add", methods=["GET", "POST"])

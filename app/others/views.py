@@ -48,3 +48,8 @@ def get_image(path):
         attachment_filename='snapshot.png',
         cache_timeout=0
     )
+
+
+@others_bp.route("/index")
+def index():
+    return render_template("index.html")

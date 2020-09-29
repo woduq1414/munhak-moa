@@ -332,7 +332,7 @@
             minLength: 1
         };
         var selector = 'input';
-        $(document).on('keydown.addTagInput', selector, function () {
+        $(document).on('keyup.addTagInput', selector, function () {
             $(this).autocomplete(options);
         });
 

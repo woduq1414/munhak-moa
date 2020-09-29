@@ -34,9 +34,58 @@
             </div>
         </div>
 
+
+        <a class="" id="openDetailSearch" data-toggle="collapse" href="#collapseDetailSearch" role="button"
+           aria-expanded="false" aria-controls="collapseExample">
+            고급
+        </a>
+        <div class="collapse" id="collapseDetailSearch">
+            <div class="">
+                <span>갈래 :</span>
+                <span id="categoryCheckAll">모두 선택</span>
+                <span id="categoryCheckNone">모두 해제</span>
+                <div id="categoryCheckContainer">
+                    {% for category in ["고전시가", "현대시", "고전산문", "현대소설", "극", "수필"] %}
+                        <div class="custom-control custom-checkbox categoryCheckWrapper">
+                            <input type="checkbox" class="custom-control-input categoryCheckBox"
+                                   id="categoryCheck{{ loop.index }}" data="{{ category }}" checked>
+                            <label class="custom-control-label"
+                                   for="categoryCheck{{ loop.index }}">{{ category }}</label>
+                        </div>
+
+                    {% endfor %}
+                </div>
+
+                <span>출처 :</span>
+                <span id="sourceCheckAll">모두 선택</span>
+                <span id="sourceCheckNone">모두 해제</span>
+                <div id="sourceCheckContainer">
+                    {% for key, source_group in data.source_dict.items() %}
+                        <div class="sourceCheckGroup">
+                            {% set t = loop.index %}
+                            {% for source in source_group %}
+                                <div class="custom-control custom-checkbox sourceCheckWrapper">
+                                    <input type="checkbox" class="custom-control-input sourceCheckBox"
+                                           id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}" checked>
+                                    <label class="custom-control-label"
+                                           for="sourceCheck{{ t * 100 + loop.index }}">{{ source }}</label>
+                                </div>
+
+                            {% endfor %}
+                        </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
     </div>
 
     <div id="contentContainer">
+        <span id="searchResult">
+
+        </span>
         <div id="goPrevPage">
             더 보기
         </div>
@@ -66,9 +115,22 @@
             minLength: 1
         };
         var selector = 'input';
-        $(document).on('keydown.searchTagInput', selector, function () {
+        $(document).on('keyup.searchTagInput', selector, function () {
             $(this).autocomplete(options);
         });
+
+        $("#categoryCheckAll").on("click", function () {
+            $(".categoryCheckBox").prop("checked", true)
+        })
+        $("#categoryCheckNone").on("click", function () {
+            $(".categoryCheckBox").prop("checked", false)
+        })
+        $("#sourceCheckAll").on("click", function () {
+            $(".sourceCheckBox").prop("checked", true)
+        })
+        $("#sourceCheckNone").on("click", function () {
+            $(".sourceCheckBox").prop("checked", false)
+        })
 
 
         function b64DecodeUnicode(str) {
@@ -101,9 +163,8 @@
             let query = [];
 
             for (let tag of tags) {
-                if (tag[0] != "#") {
-                    query.push(tag)
-                } else {
+                if (tag[0] == "#") {
+
                     $("#searchInputRealSizer").before(
                         `
                    <span class="tag searchTag">
@@ -121,6 +182,13 @@
                     )
 
                     tag_i += 1;
+
+                } else if (tag[0] == "@") {
+                    $(`.sourceCheckBox[data='${tag.slice(1, tag.length).replaceAll("-", " ")}']`).prop("checked", false)
+                } else if (tag[0] == "$") {
+                    $(`.categoryCheckBox[data='${tag.slice(1, tag.length)}']`).prop("checked", false)
+                } else {
+                    query.push(tag)
                 }
             }
 
@@ -136,6 +204,19 @@
             $(".searchTagInput").each(function (index, item) {
                 tags += "#" + $(item).val() + " "
             })
+
+            $(".sourceCheckBox").each(function (index, item) {
+                if ($(item).is(":checked") == false) {
+                    tags += "@" + $(item).attr("data").replaceAll(" ", "-") + " "
+                }
+            })
+
+            $(".categoryCheckBox").each(function (index, item) {
+                if ($(item).is(":checked") == false) {
+                    tags += "$" + $(item).attr("data") + " "
+                }
+            })
+
             let finalQuery = $("#searchInputReal").val() + " " + tags;
             render_munhak_card(finalQuery, 1, "init");
 
@@ -159,6 +240,7 @@
         }
 
         function render_munhak_card(query, page, type) {
+            var ajaxTime = new Date().getTime();
             current_page = page;
             current_query = query;
             $.ajax({
@@ -171,6 +253,8 @@
 
             }).done(function (data) {
                 $(".hiddenValue[key='maxPage']").remove();
+                $(".hiddenValue[key='totalRows']").remove();
+
 
                 if (type === "init") {
                     $("#cardContainer").html(data);
@@ -194,12 +278,18 @@
                     $("#goNextPage").css("display", "none");
                 }
 
+                var totalTime = (new Date().getTime() - ajaxTime) / 1000;
+                $("#searchResult").html(
+                    `
+                    총 ${$(".hiddenValue[key='totalRows']").attr("value")}개의 검색결과가 있습니다. (${totalTime}초)
+                    `
+                )
             })
         }
 
         $(document).ready(function () {
             current_query = b64DecodeUnicode(getCookie("query"));
-            current_page = {{ data.page }};
+            current_page = getCookie("page") == undefined ? 1 : getCookie("page") * 1;
             rendered_min_page = current_page;
             rendered_max_page = current_page;
             render_munhak_card(current_query, current_page, "init");
