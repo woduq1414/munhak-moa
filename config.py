@@ -41,3 +41,4 @@ else:
         json.loads(os.environ.get('GOOGLE_CREDENTIALS', None)), scope)
 
     YOUTUBE_KEY = os.environ.get("YOUTUBE_KEY", None)
+    DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", None)
