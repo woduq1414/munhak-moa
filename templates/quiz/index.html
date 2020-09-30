@@ -70,7 +70,9 @@
         </div>
     </div>
 
-
+    <div id="goMainPage">
+        <i class="fas fa-home"></i>
+    </div>
 
 {% endblock %}
 
@@ -78,6 +80,12 @@
 
 {% block script %}
     <script>
+
+        $("#goMainPage").on("click", function () {
+            location.href = "{{ url_for("others.index") }}"
+        })
+
+
         $("#openInfo").on("click", function () {
             $("#infoModal").modal();
         })

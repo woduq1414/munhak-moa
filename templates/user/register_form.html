@@ -32,6 +32,19 @@
 
 
     <script type="text/javascript">
+
+        function getCookie(cookieName) {
+            var cookieValue = null;
+            if (document.cookie) {
+                var array = document.cookie.split((escape(cookieName) + '='));
+                if (array.length >= 2) {
+                    var arraySub = array[1].split(';');
+                    cookieValue = unescape(arraySub[0]);
+                }
+            }
+            return cookieValue;
+        }
+
         function getStringLength(str) {
             var retCode = 0;
             var strLength = 0;
@@ -108,7 +121,14 @@
                         location.href = "{{ url_for("user.login_form") }}"
                     },
                     200: function (data) {
-                        location.href = "{{ url_for("board.munhak_board_list") }}";
+                        if (getCookie("after-login-redirect") != undefined) {
+                            let t = getCookie("after-login-redirect");
+                            setCookie('after-login-redirect', '', '-1');
+                            location.href = t;
+                        } else {
+
+                            location.href = "{{ url_for("board.munhak_board_list") }}";
+                        }
                     }
                 }
             })

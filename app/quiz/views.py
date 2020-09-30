@@ -179,6 +179,8 @@ def result():
     # session["solved_quiz"] = []
     # session["current_munhak"] = None
 
+    is_best_record = False
+
     if "user" in session:
         user_seq = session["user"]["user_seq"]
         old_record_row = QuizRanking.query.filter_by(user_seq=user_seq).first()
@@ -187,16 +189,19 @@ def result():
                 record_row = QuizRanking(user_seq=user_seq, score=session["quiz_count"], record_date=datetime.now())
                 db.session.add(record_row)
                 db.session.commit()
+                is_best_record = True
         else:
-            if session["quiz_count"] >= 1 and session["quiz_count"] >= old_record_row.score:
+            if session["quiz_count"] >= 1 and session["quiz_count"] > old_record_row.score:
                 old_record_row.score = session["quiz_count"]
-            db.session.commit()
+                db.session.commit()
+                is_best_record = True
 
     data = {
         "is_success": is_success,
         "solved_count": session["quiz_count"],
         "correct": session["correct"],
-        "current_munhak": session["current_munhak"]
+        "current_munhak": session["current_munhak"],
+        "is_best_record" : is_best_record
     }
 
     print(data)

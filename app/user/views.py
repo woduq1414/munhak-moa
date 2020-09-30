@@ -99,6 +99,9 @@ def login_query_kakao():
 
     session["user"] = user_row.as_dict()
 
+
+
+
     return make_response("", 200)
 
 

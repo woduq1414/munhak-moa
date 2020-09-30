@@ -1,16 +1,17 @@
 #container {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
 
 }
+
 #content {
-    width : 70%;
+    width: 70%;
     display: flex;
     flex-direction: column;
-    box-shadow:  0px 0px 14px -5px rgba(0,0,0,0.5);
+    box-shadow: 0px 0px 14px -5px rgba(0, 0, 0, 0.5);
     border-radius: 5px;
 }
 
@@ -20,21 +21,21 @@
     /*height : 3rem;*/
 
     justify-content: space-between;
-    padding: 20px    ;
+    padding: 20px;
 
 }
 
 
 #quizNo {
     font-size: 1.5rem;
-    background-color : gold;
+    background-color: gold;
     padding: 5px 20px;
     border-radius: 10px;
 }
 
-#category{
+#category {
     font-size: 1.5rem;
-    background-color : mediumpurple;
+    background-color: mediumpurple;
     padding: 5px 20px;
     border-radius: 10px;
     color: white;
@@ -42,7 +43,7 @@
 
 #hint {
     font-size: 2rem;
-    padding: 0 20px    ;
+    padding: 0 20px;
     text-align: center;
     margin-top: 10px;
 }
@@ -59,21 +60,18 @@
     margin: 10px 15px;
     padding: 10px;
     /*border : 2px solid grey;*/
-    box-shadow:  0px 0px 11px -5px rgba(0,0,0,0.3);
-    width : 40%;
+    box-shadow: 0px 0px 11px -5px rgba(0, 0, 0, 0.3);
+    width: 40%;
     text-align: center;
     font-size: 1.5rem;
     cursor: pointer;
-    transition : 0.5s;
+    transition: 0.5s;
 
 }
 
-.optionResult{
+.optionResult {
     margin: 10px auto;
 }
-
-
-
 
 
 .option:hover {
@@ -104,7 +102,6 @@
 }
 
 
-
 /*q::before {*/
 /*    content: "“";*/
 /*}*/
@@ -119,12 +116,10 @@ q {
 
 q::before,
 q::after {
-  /*animation: dancing 1s linear infinite;*/
-  display: inline-block;
-  transform: scale(2)
+    /*animation: dancing 1s linear infinite;*/
+    display: inline-block;
+    transform: scale(2)
 }
-
-
 
 
 #title {
@@ -133,13 +128,13 @@ q::after {
 }
 
 #startButton {
-    text-align: center  ;
-    color : white;
+    text-align: center;
+    color: white;
 }
 
 
 #message, .message {
-    font-size : 2rem;
+    font-size: 2rem;
     text-align: center;
 }
 
@@ -148,7 +143,9 @@ q::after {
     text-align: center;
     font-size: 1.5rem;
     margin-bottom: 15px;
+    margin-top: 1rem;
 }
+
 #kakao-link-btn {
     margin-left: 15px;
 }
@@ -156,20 +153,42 @@ q::after {
 
 html,
 body, main {
-  height: 100%;
-  width: 100%;
+    height: 100%;
+    width: 100%;
     font-family: 'Noto Serif KR', serif;
 }
 
 
-
 @media screen and (max-width: 768px) {
     #content {
-        width : 95%;
+        width: 95%;
     }
 
     .option {
-        width : 93%;
+        width: 93%;
     }
 }
 
+
+#goLoginButton {
+    border-radius: 15px;
+    padding: 10px;
+    /* border: 2px solid grey; */
+    box-shadow: 0px 0px 11px -5px rgba(0, 0, 0, 0.3);
+    width: 40%;
+    text-align: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.5s;
+    margin: 1rem auto 0rem auto;
+}
+
+
+@media screen and (max-width: 768px) {
+    #goLoginButton {
+
+        width: 80%;
+
+    }
+
+}

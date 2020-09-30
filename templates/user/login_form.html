@@ -31,6 +31,18 @@
             document.cookie = cookie_name + '=' + cookie_value;
         }
 
+        function getCookie(cookieName) {
+            var cookieValue = null;
+            if (document.cookie) {
+                var array = document.cookie.split((escape(cookieName) + '='));
+                if (array.length >= 2) {
+                    var arraySub = array[1].split(';');
+                    cookieValue = unescape(arraySub[0]);
+                }
+            }
+            return cookieValue;
+        }
+
         Kakao.init("7c6363be08358dc7ce7079459bfe67de");
 
         Kakao.Auth.createLoginButton({
@@ -48,7 +60,16 @@
                             location.href = "{{ url_for("user.register_form") }}";
                         },
                         200: function (data) {
-                            location.href = "{{ url_for("board.munhak_board_list") }}";
+
+                            if (getCookie("after-login-redirect") != undefined) {
+                                let t = getCookie("after-login-redirect");
+                                setCookie('after-login-redirect', '', '-1');
+                                location.href = t;
+                            } else {
+
+                                location.href = "{{ url_for("board.munhak_board_list") }}";
+                            }
+
                         }
                     }
                 }).done(function (data) {

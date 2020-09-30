@@ -37,8 +37,8 @@ class Tag(db.Model):
     munhak_seq = db.Column(db.Integer, nullable=False)
     tag_name = db.Column(db.String(20), nullable=False)
 
-    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
-    user = relationship("User", backref=backref('tag', order_by=tag_seq))
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq' , ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('tag', order_by=tag_seq, cascade='all,delete'))
     add_date = db.Column(db.DateTime, nullable=False)
 
 
@@ -47,8 +47,8 @@ class Tip(db.Model):
 
     tip_seq = db.Column(db.Integer, primary_key=True, nullable=False)
 
-    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
-    user = relationship("User", backref=backref('tip', order_by=user_seq))
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('tip', order_by=user_seq, cascade='all,delete'))
 
     munhak_seq = db.Column(db.Integer, nullable=False)
     tip_content = db.Column(db.String(1500), nullable=False)
@@ -58,22 +58,22 @@ class Tip(db.Model):
 class Like(db.Model):
     like_seq = db.Column(db.Integer, primary_key=True, nullable=False)
 
-    tip_seq = db.Column(db.Integer, ForeignKey('tip.tip_seq'), nullable=True)
-    tip = relationship("Tip", backref=backref('like1', order_by=like_seq))
+    tip_seq = db.Column(db.Integer, ForeignKey('tip.tip_seq', ondelete='CASCADE'), nullable=True)
+    tip = relationship("Tip", backref=backref('like1', order_by=like_seq, cascade='all,delete'))
 
-    tag_seq = db.Column(db.Integer, ForeignKey('tag.tag_seq'), nullable=True)
-    tag = relationship("Tag", backref=backref('like2', order_by=like_seq))
+    tag_seq = db.Column(db.Integer, ForeignKey('tag.tag_seq', ondelete='CASCADE'), nullable=True)
+    tag = relationship("Tag", backref=backref('like2', order_by=like_seq, cascade='all,delete'))
 
-    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
-    user = relationship("User", backref=backref('like3', order_by=user_seq))
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('like3', order_by=user_seq, cascade='all,delete'))
 
     add_date = db.Column(db.DateTime, nullable=False)
 
 
 class Video(db.Model):
     video_seq = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
-    user = relationship("User", backref=backref('video', order_by=user_seq))
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('video', order_by=user_seq, cascade='all,delete'))
 
     munhak_seq = db.Column(db.Integer, nullable=True)
     munhak_source = db.Column(db.String, nullable=True)
@@ -88,8 +88,8 @@ class Video(db.Model):
 
 class QuizRanking(db.Model):
     record_seq = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq'), nullable=False)
-    user = relationship("User", backref=backref('QuizRanking', order_by=user_seq))
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('QuizRanking', order_by=user_seq, cascade='all,delete'))
 
     score = db.Column(db.Integer, nullable=False)
 

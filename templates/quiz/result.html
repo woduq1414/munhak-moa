@@ -36,7 +36,14 @@
             <div class="message">
                 총 {{ data.solved_count }}개를 맞히셨어요!
             </div>
-            <hr>
+
+            {% if "user" not in session and data.solved_count >= 1 %}
+                <div id="goLoginButton">
+                    로그인하고 순위표 등록하기
+                </div>
+            {% endif %}
+
+
             <div id="share">
                 공유 : <a id="kakao-link-btn" href="javascript:sendLink()">
                 <img
@@ -101,10 +108,64 @@
         <i class="fas fa-trophy"></i>
     </div>
 
+
+    <div id="goMainPage">
+        <i class="fas fa-home"></i>
+    </div>
+
 {% endblock %}
 
 {% block script %}
     <script>
+
+        $("#goMainPage").on("click",function(){
+          location.href = "{{ url_for("others.index") }}"
+        })
+
+
+        let is_best_record = {{ "true" if data.is_best_record == True else "false" }}
+
+
+
+            $(document).ready(function () {
+                if (is_best_record == true) {
+                    toastr.options = {
+                        "closeButton": true,
+                        "debug": false,
+                        "newestOnTop": true,
+                        "progressBar": false,
+                        "positionClass": "toast-top-right",
+                        "preventDuplicates": true,
+                        "onclick": null,
+                        "showDuration": "300",
+                        "hideDuration": "1000",
+                        "timeOut": "2000",
+                        "extendedTimeOut": "1000",
+                        "showEasing": "swing",
+                        "hideEasing": "linear",
+                        "showMethod": "fadeIn",
+                        "hideMethod": "fadeOut"
+                    }
+                    toastr["success"]("최고기록 갱신!", "알림")
+                }
+            })
+
+
+        function setCookie(cookie_name, value, days) {
+            var exdate = new Date();
+            exdate.setDate(exdate.getDate() + days);
+            // 설정 일수만큼 현재시간에 만료값으로 지정
+
+            var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+            document.cookie = cookie_name + '=' + cookie_value + ";PATH=/";
+        }
+
+        $("#goLoginButton").on("click", function () {
+            setCookie("after-login-redirect", "{{ url_for("quiz.result") }}")
+            location.href = "{{ url_for("user.login_form") }}"
+        })
+
+
         $(".optionResult").hover(function () {
             $(this).html(`『${$(this).attr("title")}』 더 공부하러 가기`);
         }, function () {
@@ -124,6 +185,7 @@
                     200: function (data) {
                         console.log(data);
                         $(".rankingModalBody").html(data);
+
                     }
                 }
 
