@@ -522,10 +522,13 @@ img.videoThumbnail {
 }
 
 #openDetailSearch {
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    /*margin: 0 0rem 0 1rem;*/
-    padding: 0 0.8rem;
+    /*background-color: #f9f9f9;*/
+    /*border-radius: 5px;*/
+    margin: 0 0rem 0 1rem;
+    /*padding: 0 0.8rem;*/
+
+
+
     cursor: pointer;
     text-align: center;
 
