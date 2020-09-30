@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/add_tip_form.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+
+{% endblock %}
+
+{% block main %}
+
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+
+
+    <div id="contentContainer">
+        <div id="title">
+            {{ data.munhak_row.title }}
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <div id="writer">
+                {{ data.munhak_row.writer }}
+            </div>
+
+            <div id="category_source">
+                <span id="source">
+                     {{ data.munhak_row.source }}
+                </span>
+                &nbsp;·&nbsp;
+                <span id="category">
+                    {{ data.munhak_row.category }}
+                </span>
+            </div>
+        </div>
+        <div id="bottomContent">
+            <textarea id="writeTipForm"></textarea>
+
+            <div class="d-flex justify-content-between">
+                <span class="btn btn-outline-secondary" id="goBackButton">
+                    뒤로 가기
+                </span>
+
+                <span class="btn btn-primary" id="{{ "editTipButton" if "content" in data else "addTipButton" }}">
+                    {{ "수정" if "content" in data else "작성" }}
+                </span>
+            </div>
+
+        </div>
+
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        let initValue = ""
+        {% if "content" in data %}
+            initValue = `{{ data.content }}`
+        {% endif %}
+
+
+        function warningToast(message) {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": false,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": true,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "2000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            toastr["warning"](message, "오류")
+        }
+
+        var easyMDE = new EasyMDE(
+            {
+                autoDownloadFontAwesome: false,
+                initialValue: initValue
+            }
+        );
+
+        $("#addTipButton").on("click", function () {
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for("board.add_tip") }}",
+                data: {
+                    munhak_seq: {{ data.munhak_row.munhak_seq }},
+                    content: easyMDE.value()
+                },
+                statusCode: {
+                    400: function (data) {
+                        warningToast("오류")
+                    },
+                    200: function (data) {
+                        location.href = `
+                        {{ url_for("board.munhak_board_detail", munhak_seq = data.munhak_row.munhak_seq) }}`
+                    }
+                }
+
+            })
+        })
+
+
+        $("#editTipButton").on("click", function () {
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for("board.edit_tip") }}",
+                data: {
+                    munhak_seq: {{ data.munhak_row.munhak_seq }},
+                    content: easyMDE.value()
+                },
+                statusCode: {
+                    400: function (data) {
+                        warningToast("오류")
+                    },
+                    200: function (data) {
+                        location.href = `
+                        {{ url_for("board.munhak_board_detail", munhak_seq = data.munhak_row.munhak_seq) }}`
+                    }
+                }
+
+            })
+        })
+
+
+        $("#goBackButton").on("click", function () {
+            window.history.back();
+        })
+
+    </script>
+{% endblock %}

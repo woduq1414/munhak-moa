@@ -29,11 +29,9 @@ from itertools import groupby
 board_bp = Blueprint('board', __name__)
 
 
-
 @board_bp.route('/test')
 def test():
     return render_template("test.html")
-
 
 
 @board_bp.route('/board/detail/<int:munhak_seq>/<munhak_title>/')
@@ -80,7 +78,26 @@ def munhak_board_detail(munhak_seq, munhak_title):
         Tag.tag_seq == Like.tag_seq).filter(Tag.munhak_seq == munhak_seq).group_by(Tag.tag_seq).order_by(
         desc("like_count")).all()
 
+    tip_rows = db.session.query(Tip, func.count(Like.like_seq).label("like_count"),
+                                func.count(Like.like_seq).filter(Like.user_seq == user_seq).label("liked")
+
+                                ).outerjoin(
+        Like,
+        Tip.tip_seq == Like.tip_seq).filter(Tip.munhak_seq == munhak_seq).group_by(Tip.tip_seq).order_by(
+        desc("like_count")).all()
+
     # return "DD"
+    tips = [dict(tip_row.Tip.as_dict(),
+                      **{"like_count": tip_row.like_count, "liked": "true" if tip_row.liked == 1 else "false",
+                         "is_mine": "true" if tip_row.Tip.user_seq == user_seq else "false",
+                         "user_nickname": tip_row.Tip.user.nickname}, ) for
+                 tip_row in tip_rows]
+
+    tip_mine_exist = False
+    for tip in tips:
+        tip_mine_exist = tip_mine_exist or tip["is_mine"]
+
+
     data = {
         "munhak_seq": munhak_seq,
         "title": target_munhak_row["title"],
@@ -93,10 +110,11 @@ def munhak_board_detail(munhak_seq, munhak_title):
         "tags": [dict(tag_row.Tag.as_dict(),
                       **{"like_count": tag_row.like_count, "liked": "true" if tag_row.liked == 1 else "false",
                          "is_mine": "true" if tag_row.Tag.user_seq == user_seq else "false"}) for
-                 tag_row in tag_rows]
+                 tag_row in tag_rows],
+        "tips": tips,
+        "tip_mine_exist" : tip_mine_exist
     }
     return render_template("munhak_board_detail.html", data=data)
-
 
 
 @board_bp.route('/board/render-card')
@@ -196,7 +214,6 @@ def munhak_board_render_card():
     return resp
 
 
-
 @board_bp.route('/board')
 def munhak_board_list():
     munhak_rows_data = cache.get("munhak_rows_data")
@@ -242,7 +259,6 @@ def munhak_board_list():
         return resp
 
 
-
 @board_bp.route("/tag/add", methods=["GET", "POST"])
 @login_required
 def add_tag():
@@ -282,7 +298,6 @@ def add_tag():
     return "", 200
 
 
-
 @board_bp.route("/tag/like", methods=["GET", "POST"])
 @login_required
 def like_tag():
@@ -307,7 +322,6 @@ def like_tag():
         return jsonify({"liked": False}), 200
 
 
-
 @board_bp.route("/tag/delete", methods=["GET", "POST"])
 @login_required
 def delete_tag():
@@ -329,7 +343,6 @@ def delete_tag():
     return "", 200
 
 
-
 @board_bp.route("/video/delete", methods=["GET", "POST"])
 @login_required
 def delete_video():
@@ -349,7 +362,6 @@ def delete_video():
     db.session.delete(old_video_row)
     db.session.commit()
     return "", 200
-
 
 
 @board_bp.route("/video/add", methods=["GET", "POST"])
@@ -444,3 +456,138 @@ def add_video():
         db.session.commit()
 
     return "", 200
+
+
+@board_bp.route("/tip/add", methods=["GET", "POST"])
+@login_required
+def add_tip():
+    args = request.form
+    munhak_seq = args.get("munhak_seq", None)
+    content = args.get("content", None)
+    print(args)
+    if munhak_seq is None or not munhak_seq.isdigit() or content is None or type(content) != str:
+        return abort(400)
+    if not (1 <= len(content) <= 1000):
+        return abort(400)
+    munhak_seq = int(munhak_seq)
+
+    munhak_rows_data = cache.get("munhak_rows_data")
+    munhak_rows = copy.deepcopy(munhak_rows_data)
+    if len([munhak_row for munhak_row in munhak_rows if munhak_row["munhak_seq"] == munhak_seq]) == 0:
+        return abort(404)
+
+    # tag_name = re.sub("[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]", "", tag_name)
+
+    user_seq = session["user"]["user_seq"]
+
+    old_tip_row = Tip.query.filter_by(user_seq=user_seq, munhak_seq=munhak_seq).first()
+    if old_tip_row is not None:
+        return abort(409)
+
+    tag_row = Tip(
+        tip_content=content,
+        user_seq=user_seq,
+        munhak_seq=munhak_seq,
+        add_date=datetime.now(),
+    )
+
+    db.session.add(tag_row)
+    db.session.commit()
+
+    return "", 200
+
+
+@board_bp.route("/tip/edit", methods=["GET", "POST"])
+@login_required
+def edit_tip():
+    args = request.form
+    munhak_seq = args.get("munhak_seq", None)
+    content = args.get("content", None)
+    print(args)
+    if munhak_seq is None or not munhak_seq.isdigit() or content is None or type(content) != str:
+        return abort(400)
+    if not (1 <= len(content) <= 1000):
+        return abort(400)
+    munhak_seq = int(munhak_seq)
+
+    user_seq = session["user"]["user_seq"]
+
+    old_tip_row = Tip.query.filter_by(user_seq=user_seq, munhak_seq=munhak_seq).first()
+    if old_tip_row is None:
+        return abort(404)
+
+    old_tip_row.tip_content = content
+
+    db.session.commit()
+
+    return "", 200
+
+
+@board_bp.route("/tip/like", methods=["GET", "POST"])
+@login_required
+def like_tip():
+    args = request.form
+    tip_seq = args.get("tip_seq", None)
+    print(args)
+    if tip_seq is None or not tip_seq.isdigit():
+        return abort(400)
+
+    tip_seq = int(tip_seq)
+    user_seq = session["user"]["user_seq"]
+    old_like_row = Like.query.filter_by(tip_seq=tip_seq, user_seq=user_seq).first()
+
+    if old_like_row is None:
+        like_row = Like(tip_seq=tip_seq, user_seq=user_seq, add_date=datetime.now())
+        db.session.add(like_row)
+        db.session.commit()
+        return jsonify({"liked": True}), 200
+    else:
+        db.session.delete(old_like_row)
+        db.session.commit()
+        return jsonify({"liked": False}), 200
+
+
+@board_bp.route("/tip/delete", methods=["GET", "POST"])
+@login_required
+def delete_tip():
+    args = request.form
+    tip_seq = args.get("tip_seq", None)
+    print(args)
+    if tip_seq is None or not tip_seq.isdigit():
+        return abort(400)
+
+    tip_seq = int(tip_seq)
+    user_seq = session["user"]["user_seq"]
+
+    old_tag_row = Tip.query.filter_by(user_seq=user_seq, tip_seq=tip_seq).first()
+    if old_tag_row is None:
+        return abort(404)
+
+    db.session.delete(old_tag_row)
+    db.session.commit()
+    return "", 200
+
+
+@board_bp.route("/board/tip/write/<int:munhak_seq>", methods=["GET", "POST"])
+@login_required
+def write_tip_form(munhak_seq):
+    munhak_seq = munhak_seq
+
+    munhak_rows_data = cache.get("munhak_rows_data")
+    munhak_rows = copy.deepcopy(munhak_rows_data)
+
+    try:
+        munhak_row = [munhak_row for munhak_row in munhak_rows if munhak_row["munhak_seq"] == munhak_seq][0]
+    except:
+        return "", 404
+    data = {
+        "munhak_row": munhak_row
+    }
+
+    user_seq = session["user"]["user_seq"]
+    tip_row = Tip.query.filter_by(munhak_seq=munhak_seq, user_seq=user_seq).first()
+
+    if tip_row is not None:
+        data["content"] = tip_row.tip_content
+
+    return render_template("munhak_board_tip_form.html", data=data)

@@ -69,6 +69,86 @@
                 </div>
             </div>
 
+
+            <div class="pgContainer">
+                <div class="pgTitle">
+                    감상 팁
+                </div>
+
+                <div class="pgContent">
+                    <div id="tipContainer">
+
+
+                        {% for tip in data.tips %}
+
+                            <div class="tipWrapper" data-toggle="false" tip_seq="{{ tip.tip_seq }}"
+                                 is_mine={{ tip.is_mine }}>
+                                <div class="tip">
+                                    {{ tip.tip_content | markdown }}
+
+                                    <div class="bottomTipInfo">
+                                        <div>
+
+                                            <span class="tipLikeHeart {{ "tipLike" if tip.liked == "true" else "" }}"
+                                            >
+                                                <i class="fas fa-heart"></i>
+                                            </span>
+                                            &nbsp;
+                                            <span class="tipLikeCount">{{ tip.like_count }}</span>
+
+                                        </div>
+
+                                        <div>
+                                            <span class="tipWriterNickname">
+                                                작성자 : {{ tip.user_nickname }}
+                                            </span>
+                                            {% if tip.is_mine == "true" %}
+                                                &nbsp; &nbsp;
+
+                                                <span class="btn btn-outline-secondary editTipButton">
+                                                    수정
+                                                 </span>
+
+                                                <span class="btn btn-outline-danger deleteTipButton">
+                                                    삭제
+                                                </span>
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="openTip">
+                                    펼쳐 보기&nbsp;<i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="closeTip">
+                                    <i class="fas fa-chevron-up"></i> 접기
+                                </div>
+                            </div>
+
+
+
+                        {% endfor %}
+
+                        {% if data.tip_mine_exist == false %}
+                            <div id="addTipWrapper">
+                                <div id="addTip">
+                                    + 추가하기
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                </div>
+            </div>
+
+
             <div class="pgContainer">
                 <div class="pgTitle">
                     강의 영상
@@ -156,6 +236,60 @@
         let clicked_video;
         let is_logined = {{ "true" if "user" in session else "false"}};
 
+        $("#addTip").on("click", function () {
+            if (!is_logined) {
+                not_logined();
+                return;
+            }
+
+            location.href = `{{ url_for("board.write_tip_form", munhak_seq = data.munhak_seq) }}`
+        })
+
+
+        $(document).on("click", ".openTip,.closeTip", function (e) {
+            let target = e.target
+            let $tipWrapper = $(target).parents(".tipWrapper")
+            let $tip = $tipWrapper.children(".tip")
+            if ($tipWrapper.attr("data-toggle") == "true") {
+                $tipWrapper.attr("data-toggle", false)
+
+                {#$tip.css("max-height", "5rem");#}
+                $tip.css("height", "5rem");
+                $tip.css("filter", "blur(3px)");
+                $tipWrapper.css("background-color", "#f8f8f8");
+                $tipWrapper.children(".openTip").css("display", "block")
+                $tipWrapper.children(".closeTip").css("display", "none")
+
+            } else {
+                $tipWrapper.attr("data-toggle", true)
+
+                {#$tip.css("max-height", "none");#}
+                $tip.css("height", "auto");
+                $tip.css("filter", "none");
+                $tipWrapper.css("background-color", "white");
+                $tipWrapper.children(".openTip").css("display", "none")
+                $tipWrapper.children(".closeTip").css("display", "block")
+
+            }
+
+
+        })
+
+
+        {#$(".closeTip").on("click", function () {#}
+        {#    let $tipWrapper = $(this).parents(".tipWrapper")#}
+        {#    let $tip = $tipWrapper.children(".tip")#}
+        {#    $tipWrapper.attr("data-toggle", false)#}
+        {##}
+        {#    $tip.css("height", "5rem");#}
+        {#    $tip.css("filter", "blur(3px)");#}
+        {##}
+        {#    $(this).toggleClass("openTip");#}
+        {#    $(this).toggleClass("closeTip");#}
+        {#})
+        #}
+
+
         function warningToast(message) {
             toastr.options = {
                 "closeButton": true,
@@ -179,7 +313,7 @@
 
 
         $("#openAddMunhakVideoModal").on("click", function () {
-             if (!is_logined) {
+            if (!is_logined) {
                 not_logined();
                 return;
             }
@@ -212,8 +346,8 @@
                             200: function (data) {
                                 window.location.reload();
                             },
-                            409 : function (data) {
-                                 warningToast("중복된 영상입니다.")
+                            409: function (data) {
+                                warningToast("중복된 영상입니다.")
                             }
                         }
 
@@ -254,8 +388,8 @@
                             200: function (data) {
                                 window.location.reload();
                             },
-                            409 : function (data) {
-                                 warningToast("중복된 영상입니다.")
+                            409: function (data) {
+                                warningToast("중복된 영상입니다.")
                             }
                         }
 
@@ -284,7 +418,7 @@
 
 
         $(document).on("click", "#tagPopoverDeleteButton", function () {
-             if (!is_logined) {
+            if (!is_logined) {
                 not_logined();
                 return;
             }
@@ -338,7 +472,7 @@
 
 
         $(document).on("click", "#videoPopoverDeleteButton", function () {
-             if (!is_logined) {
+            if (!is_logined) {
                 not_logined();
                 return;
             }
@@ -552,9 +686,102 @@
                 $(window._bsPopover).popover('hide')
             }
             window._bsPopover = this;
+        }).on('hide.bs.popover', function () {
+            window._bsPopover = null;
+        });
+
+
+        $(document).on("click", ".tipLikeHeart", function (e) {
+            if (!is_logined) {
+                not_logined();
+                return;
+            }
+
+            let target = e.target;
+            let $tipWrapper = $(target).parents(".tipWrapper")
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for("board.like_tip") }}",
+                data: {
+                    "tip_seq": $tipWrapper.attr("tip_seq")
+                },
+                dataType: "json",
+                statusCode: {
+                    200: function (data) {
+                        console.log(data);
+
+                        if (data.liked === true) {
+                            $(target).addClass("tipLike")
+
+
+                            $tipWrapper.find(".tipLikeCount").text($tipWrapper.find(".tipLikeCount").text() * 1 + 1)
+                            {#$("#tagLikeCount").text($("#tagLikeCount").text() * 1 + 1)#}
+
+                        } else {
+                            $(target).removeClass("tipLike")
+                            {#$temp.attr("tag_like_count", $temp.attr("tag_like_count") * 1 - 1);#}
+
+                            $tipWrapper.find(".tipLikeCount").text($tipWrapper.find(".tipLikeCount").text() * 1 - 1)
+                        }
+                    }
+                }
+
+            }).done(function (data) {
+                console.log(data);
+
+            })
         })
-            .on('hide.bs.popover', function () {
-                window._bsPopover = null;
-            });
+
+        $(document).on("click", ".deleteTipButton", function (e) {
+            if (!is_logined) {
+                not_logined();
+                return;
+            }
+
+            Swal.fire({
+                title: '경고',
+                text: "정말로 감상 팁을 삭제하시겠어요?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: 'grey',
+                confirmButtonText: '삭제',
+                cancelButtonText: "취소",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for("board.delete_tip") }}",
+                        data: {
+                            "tip_seq": $(e.target).parents(".tipWrapper").attr("tip_seq")
+                        },
+                        dataType: "json",
+                        statusCode: {
+                            404: function (data) {
+
+                            },
+                            200: function (data) {
+                                window.location.reload();
+                            }
+                        }
+
+                    }).done(function (data) {
+                        console.log(data);
+
+                    })
+                }
+            })
+        })
+
+
+        $(document).on("click", ".editTipButton", function () {
+            if (!is_logined) {
+                not_logined();
+                return;
+            }
+
+            location.href = `{{ url_for("board.write_tip_form", munhak_seq = data.munhak_seq) }}`
+        })
+
     </script>
 {% endblock %}

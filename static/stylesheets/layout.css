@@ -31,3 +31,7 @@ html {
 #sidebar #sidebarFixedMenu{
    position: relative;
 }
+
+.EasyMDEContainer a:link, .tip a:link, .tip a, .tip a:hover{
+    color: #3e64ff !important;
+}

@@ -5,7 +5,7 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.common.function import *
 import json
-
+from flaskext.markdown import Markdown
 
 class MyResponse(Response):
     default_mimetype = 'application/xml'
@@ -20,6 +20,8 @@ from werkzeug.exceptions import HTTPException
 
 # http://flask.pocoo.org/docs/0.10/patterns/appfactories/
 def create_app(config_filename):
+
+
     app = Flask(__name__, static_url_path='', static_folder='../static', template_folder='../templates')
 
     app.config.from_object(config_filename)
@@ -53,6 +55,8 @@ def create_app(config_filename):
     # app.register_blueprint(board_bp, url_prefix='/api/board')
 
     # sched.add_job(lambda: update_meal_board_views(), 'cron', second='05', id="update_meal_board_views")
+    Markdown(app, extensions=['nl2br', 'fenced_code'])
+
 
     fetch_spread_sheet()
 

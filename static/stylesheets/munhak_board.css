@@ -475,7 +475,9 @@ img.videoThumbnail {
     background-color: var(--primary-color-bright);
 }
 
-#ui-id-1 {z-index: 9999;}
+#ui-id-1 {
+    z-index: 9999;
+}
 
 
 #openDetailSearch {
@@ -518,3 +520,106 @@ img.videoThumbnail {
     font-size: 1rem;
 
 }
+
+#openDetailSearch {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    /*margin: 0 0rem 0 1rem;*/
+    padding: 0 0.8rem;
+    cursor: pointer;
+    text-align: center;
+
+}
+
+#openDetailSearchWrapper {
+    text-align: center;
+    margin-top: 0.3rem;
+}
+
+
+.tip {
+    /*transform: 1s all;*/
+    height: 5rem;
+    overflow: hidden;
+    filter: blur(3px);
+    padding: 0.2rem 1rem;
+
+    /*position: absolute;*/
+}
+
+.tipWrapper {
+    box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.3);
+    margin: 1rem 0rem;
+    width: 98%;
+    background-color: #f8f8f8;
+    /*position: absolute;*/
+}
+
+.openTip, .closeTip {
+
+    font-size: 1.2rem;
+
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+}
+
+.closeTip {
+    display: none;
+}
+
+#tipContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+#addTip {
+    background-color: var(--primary-color-bright);
+    color: black;
+    border-radius: 9999px;
+    width: 240px;
+    margin: 0 auto;
+    cursor: pointer;
+    text-align: center;
+
+}
+
+
+
+.bottomTipInfo {
+    margin-top: 2.5rem;
+
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.tipLikeCount {
+    font-size: 1.3rem;
+    margin-bottom: 0.3rem;
+}
+
+.tipLikeHeart {
+    margin-top: 1rem;
+    border-radius: 99999px;
+    padding: 0.5rem 0.7rem;
+    background-color: #eee;
+    text-align: center;
+    color: grey;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 2.4rem;
+    padding-right: 0.4rem;
+}
+
+.tipLike {
+    color: deeppink !important;
+}
+
+.tipWriterNickname {
+    font-size: 1.2rem;
+}
+
