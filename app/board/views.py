@@ -44,8 +44,7 @@ def munhak_board_detail(munhak_seq, munhak_title):
     for munhak_row in munhak_rows:
         if munhak_row["munhak_seq"] == munhak_seq:
             target_munhak_row = munhak_row
-    print(munhak_rows)
-    print(target_munhak_row)
+
     if target_munhak_row is None:
         return render_template("munhak_board_detail_404.html")
 
@@ -67,8 +66,6 @@ def munhak_board_detail(munhak_seq, munhak_title):
     exam_video_list = [
         dict(video_row.as_dict(), **{"is_mine": "true" if video_row.user_seq == user_seq else "false"}) for video_row
         in exam_video_rows]
-    print(munhak_video_list)
-    print(exam_video_list)
 
     tag_rows = db.session.query(Tag, func.count(Like.like_seq).label("like_count"),
                                 func.count(Like.like_seq).filter(Like.user_seq == user_seq).label("liked")
@@ -88,15 +85,37 @@ def munhak_board_detail(munhak_seq, munhak_title):
 
     # return "DD"
     tips = [dict(tip_row.Tip.as_dict(),
-                      **{"like_count": tip_row.like_count, "liked": "true" if tip_row.liked == 1 else "false",
-                         "is_mine": "true" if tip_row.Tip.user_seq == user_seq else "false",
-                         "user_nickname": tip_row.Tip.user.nickname}, ) for
-                 tip_row in tip_rows]
+                 **{"like_count": tip_row.like_count, "liked": "true" if tip_row.liked == 1 else "false",
+                    "is_mine": "true" if tip_row.Tip.user_seq == user_seq else "false",
+                    "user_nickname": tip_row.Tip.user.nickname}, ) for
+            tip_row in tip_rows]
 
     tip_mine_exist = False
     for tip in tips:
         tip_mine_exist = tip_mine_exist or tip["is_mine"]
 
+    try:
+        subject_last_word = target_munhak_row["subject"].split()[-1]
+    except:
+        subject_last_word = "N"
+    print(subject_last_word)
+    related_list = [munhak_row for munhak_row in munhak_rows
+                        if (
+                                munhak_row["title"] in target_munhak_row["title"] or
+                                (target_munhak_row["writer"] != "작자 미상" and
+                                 munhak_row["writer"] == target_munhak_row["writer"]) or
+                                target_munhak_row["title"] in munhak_row["title"]
+                        ) and (munhak_row["munhak_seq"] != target_munhak_row["munhak_seq"])]
+
+    related_list_subject = [munhak_row for munhak_row in munhak_rows if (subject_last_word in munhak_row["subject"].split(" ")) and (
+                munhak_row["munhak_seq"] != target_munhak_row["munhak_seq"]) and munhak_row not in related_list]
+
+    random.shuffle(related_list_subject)
+    related_list_subject = related_list_subject[:min(5, len(related_list_subject))]
+
+
+    # related_list = list(related_list)
+    print(related_list)
 
     data = {
         "munhak_seq": munhak_seq,
@@ -112,7 +131,9 @@ def munhak_board_detail(munhak_seq, munhak_title):
                          "is_mine": "true" if tag_row.Tag.user_seq == user_seq else "false"}) for
                  tag_row in tag_rows],
         "tips": tips,
-        "tip_mine_exist" : tip_mine_exist
+        "tip_mine_exist": tip_mine_exist,
+        "related_list": related_list,
+        "related_list_subject" : related_list_subject
     }
     return render_template("munhak_board_detail.html", data=data)
 

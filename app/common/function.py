@@ -42,6 +42,11 @@ def fetch_spread_sheet():
             #     data.append(row_tuple)
             temp_dict = dict(zip(rows[0], row))
             if temp_dict["is_available"] == "TRUE":
+
+                if temp_dict["title"] == "" or temp_dict["writer"] == "":
+                    break
+
+
                 temp_dict["keywords"] = json.loads(temp_dict["keywords"])
                 temp_dict["munhak_seq"] = int(temp_dict["munhak_seq"])
                 data.append(temp_dict)
@@ -51,7 +56,12 @@ def fetch_spread_sheet():
 
     # global munhak_rows_data
     munhak_rows_data = data
-    cache.set('munhak_rows_data', data, timeout=99999999999999999)
+
+    munhak_quiz_rows_data = [munhak_row for munhak_row in munhak_rows_data if len(munhak_row["keywords"]) != 0]
+
+
+    cache.set('munhak_rows_data', munhak_rows_data, timeout=99999999999999999)
+    cache.set('munhak_quiz_rows_data', munhak_quiz_rows_data, timeout=99999999999999999)
     print(data)
     # print(munhak_rows)
     return len(data)

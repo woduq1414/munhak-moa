@@ -626,3 +626,23 @@ img.videoThumbnail {
     font-size: 1.2rem;
 }
 
+
+
+#relatedContainer {
+    font-size: 1.2rem;
+}
+
+.related {
+    font-size: 1.1rem;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+    padding: 0.1rem 0.8rem;
+    margin-right: 0.5rem;
+    line-height: 2.3rem;
+}
+
+.relatedPrimary {
+    background-color: var(--primary-color-bright);
+    font-size: 1.3rem !important;
+
+}

@@ -26,7 +26,7 @@ from datetime import datetime
 
 @quiz_bp.route('/')
 def index():
-    munhak_rows_data = cache.get("munhak_rows_data")
+    munhak_rows_data = cache.get("munhak_quiz_rows_data")
 
     munhak_rows = copy.deepcopy(munhak_rows_data)
     data = {
@@ -41,7 +41,7 @@ def index():
 
 @quiz_bp.route('/play')
 def quiz():
-    munhak_rows_data = cache.get("munhak_rows_data")
+    munhak_rows_data = cache.get("munhak_quiz_rows_data")
 
     if "is_end" in session and session["is_end"] is True:
         session["quiz_count"] = 0
@@ -69,9 +69,9 @@ def quiz():
         not_solved_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                   munhak_row["munhak_seq"] not in solved_quiz]
 
-        if len(not_solved_munhak_rows) == 0:
+        if len(not_solved_munhak_rows) == 0: #다 맞았을 때
             session["result"] = True
-            return redirect(url_for("result"))
+            return redirect(url_for("quiz.result"))
 
         correct_munhak_row = random.choice(not_solved_munhak_rows)
 
