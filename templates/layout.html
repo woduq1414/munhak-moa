@@ -63,11 +63,14 @@
         {#            <h1><a href="index.html" class="logo">M.</a></h1>#}
 
         <div id="sidebarFixedMenu">
-            <span class="sidebarCollapse">
+            <div id="sidebarCollapseWrapper">
+                <span class="sidebarCollapse">
                 <i class="fa fa-bars"></i>
                 <span class="sr-only">Toggle Menu</span>
             </span>
-            <ul class="list-unstyled components mb-5">
+            </div>
+
+            <ul id="navMenus" class="list-unstyled components mb-5">
                 <li class="active">
                     <a href="{{ url_for('others.index') }}"><span class="fa fa-home"></span> 홈</a>
                 </li>
@@ -173,6 +176,9 @@
         });
         {#console.log($(this).scrollTop())#}
     });
+
+
+
 
     var fullHeight = function () {
 

@@ -99,7 +99,7 @@ h1, h2, h3, h4, h5,
 #sidebar {
     min-width: 270px;
     max-width: 270px;
-    background:  var(--primary-color);
+    background: var(--primary-color);
     color: #fff;
     -webkit-transition: all 0.3s;
     -o-transition: all 0.3s;
@@ -271,7 +271,7 @@ a[data-toggle="collapse"] {
 /*mine*/
 .sidebarCollapse {
     background: white;
-    color:  var(--primary-color);
+    color: var(--primary-color);
     margin-top: 1.5rem;
     margin-bottom: 1rem;
     border-radius: 5px;
@@ -295,7 +295,7 @@ a[data-toggle="collapse"] {
 
 
 #sidebar {
-    text-align: center;
+    /*text-align: center;*/
 
 
 }
@@ -316,6 +316,7 @@ a[data-toggle="collapse"] {
     #logo {
         height: 55px;
     }
+
     .navbar {
         margin: 0;
         padding: 0;
@@ -331,9 +332,11 @@ a[data-toggle="collapse"] {
     .sidebarCollapse {
         display: none;
     }
+
     #logo {
         height: 45px;
     }
+
     .navbar {
         margin: 0;
         padding: 5px 10px;
@@ -361,20 +364,22 @@ a[data-toggle="collapse"] {
 }
 
 
-#navSearchInput{
+#navSearchInput {
 
 }
-#navSearchButton{
+
+#navSearchButton {
 
 }
-#navSearchWrapper{
+
+#navSearchWrapper {
     width: 300px;
 }
 
 @media (max-width: 768px) {
-   #navSearchWrapper{
-       display: none;
-   }
+    #navSearchWrapper {
+        display: none;
+    }
 }
 
 #navRightButton {
@@ -384,3 +389,20 @@ a[data-toggle="collapse"] {
 .sidebarCollapseMobile i {
     color: white !important;
 }
+
+.sidebarCollapse {
+    cursor: pointer;
+
+}
+
+ .sidebarCollapse {
+    text-align: left !important;
+    /*margin-left: 21.11px;*/
+     position: fixed;
+     left: 21.11px;
+     top: 0;
+}
+
+ #navMenus {
+     margin-top: 80px;
+ }

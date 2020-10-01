@@ -245,7 +245,12 @@ def munhak_board_list():
     tag = args.get("tag", None)
     clear = args.get("clear", None)
 
+
+
+
+
     if clear is not None:
+        print("clear")
         resp = make_response(redirect(url_for("board.munhak_board_list")))
         resp.set_cookie('query', "")
         resp.set_cookie("page", "1")
@@ -254,9 +259,11 @@ def munhak_board_list():
     # print(query, tags)
 
     try:
-        page = int(args.get("page", 1))
+        page = int(request.cookies.get("page", 1))
     except:
         page = 1
+    print(page * 10000000)
+
     page_size = 10
 
     source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))

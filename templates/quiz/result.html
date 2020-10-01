@@ -104,13 +104,17 @@
     </div>
 
 
-    <div id="openRanking">
-        <i class="fas fa-trophy"></i>
+    <div id="goMainPage">
+        <div class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> 메인으로
+        </div>
+
+
     </div>
 
 
-    <div id="goMainPage">
-        <i class="fas fa-home"></i>
+    <div id="openRanking">
+        <i class="fas fa-trophy"></i>
     </div>
 
 {% endblock %}
@@ -118,8 +122,8 @@
 {% block script %}
     <script>
 
-        $("#goMainPage").on("click",function(){
-          location.href = "{{ url_for("others.index") }}"
+        $("#goMainPage").on("click", function () {
+            location.href = "{{ url_for("others.index") }}"
         })
 
 
@@ -134,7 +138,7 @@
                         "debug": false,
                         "newestOnTop": true,
                         "progressBar": false,
-                        "positionClass": "toast-top-right",
+                        "positionClass": "toast-top-center",
                         "preventDuplicates": true,
                         "onclick": null,
                         "showDuration": "300",

@@ -69,27 +69,26 @@ def quiz():
         not_solved_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                   munhak_row["munhak_seq"] not in solved_quiz]
 
-        if len(not_solved_munhak_rows) == 0: #다 맞았을 때
+        if len(not_solved_munhak_rows) == 0:  # 다 맞았을 때
             session["result"] = True
             return redirect(url_for("quiz.result"))
 
         correct_munhak_row = random.choice(not_solved_munhak_rows)
 
         for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
-            munhak_rows.remove(_)
+            munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
 
         random.shuffle(munhak_rows)
 
-        option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
+        if correct_munhak_row["category"] != "극" and correct_munhak_row["category"] != "수필" and random.random() >= 0.5:
+            option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+                                  munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
+        else:
+            option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
 
         random.shuffle(option_munhak_rows)
         correct = option_munhak_rows.index(correct_munhak_row)
-        print(correct)
 
-        # correct = random.randrange(0, 4)
-        #
-        # answer_row = not_solved_munhak_rows[correct]
-        #
         session["correct"] = correct
 
         hint = random.choice(correct_munhak_row["keywords"])
@@ -171,7 +170,6 @@ def result():
     if "result" not in session:
         return redirect(url_for("quiz.index"))
 
-
     is_success = session["result"]
     session["is_end"] = True
 
@@ -201,7 +199,7 @@ def result():
         "solved_count": session["quiz_count"],
         "correct": session["correct"],
         "current_munhak": session["current_munhak"],
-        "is_best_record" : is_best_record
+        "is_best_record": is_best_record
     }
 
     print(data)
@@ -232,7 +230,7 @@ def render_ranking():
             "nickname": record_row.user.nickname,
             "score": record_row.score
         } for record_row in record_rows[:min(len(record_rows), 10)]],
-        "my_row" : my_row
+        "my_row": my_row
 
     }
     return render_template("quiz/render_ranking.html", data=data)

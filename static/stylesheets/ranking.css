@@ -1,29 +1,36 @@
 #openRanking {
     background-color: var(--primary-color);
-    border-bottom-right-radius: 99999px;
+    border-bottom-left-radius: 99999px;
     color: white;
-    padding: 1.5rem 3rem 3rem 1.5rem;
+    padding: 1.5rem 1.5rem 3rem 3rem;
     font-size: 3rem;
     position: fixed;
     top: 0;
-    left: 0;
+    right: 0;
     cursor: pointer;
+    transition: all 1s;
 }
 
 
 #goMainPage {
-    background-color: var(--primary-color);
-    border-top-right-radius: 99999px;
-    color: white;
-    padding: 3rem 3rem 1.5rem 1.5rem;
-    font-size: 3rem;
+    /*background-color: var(--primary-color);*/
+    border-radius: 5px;
+    /*color: white;*/
+    padding: 1.5rem;
+
     position: fixed;
-    bottom: 0;
-    left : 0;
+    top: 0;
+    left: 0;
     cursor: pointer;
+    transition: all 1s;
 }
 
+#openRanking:hover {
+    /*background-color: var(--primary-color);*/
+    padding: 2.5rem 2.5rem 5rem 5rem;
+    font-size: 4rem;
 
+}
 
 
 #rankingTable {
@@ -81,16 +88,16 @@
 
 
 @media screen and (max-width: 768px) {
-    #rankingMyTable, #rankingTable{
+    #rankingMyTable, #rankingTable {
         font-size: 1.5rem;
     }
 
-     .rankingText {
-         font-size : 1.8rem;
-     }
+    .rankingText {
+        font-size: 1.8rem;
+    }
 
-     .rankingBottomText {
-         font-size: 1.5rem;
-     }
+    .rankingBottomText {
+        font-size: 1.5rem;
+    }
 }
 

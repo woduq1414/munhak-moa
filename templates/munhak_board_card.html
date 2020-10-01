@@ -1,5 +1,6 @@
 {% for munhak_row in data.munhak_rows %}
-    <a class="munhakCardWrapper" href="{{ url_for("board.munhak_board_detail", munhak_seq = munhak_row.munhak_seq) }}">
+    <a class="munhakCardWrapper"
+       munhak_seq="{{ munhak_row.munhak_seq }}" page="{{ data.page }}">
         <div class="munhakCard">
 
             <div class="upperText">
@@ -16,12 +17,12 @@
             </div>
 
             <div class="searchResultTagContainer">
-                {%  for tag in munhak_row.tags %}
+                {% for tag in munhak_row.tags %}
 
-                    <span class="tag searchResultTag {{ "searchQueryTag" if tag in data.search_query_tags else ""}}">
+                    <span class="tag searchResultTag {{ "searchQueryTag" if tag in data.search_query_tags else "" }}">
                         #&nbsp;{{ tag }}
                     </span>
-                {%  endfor %}
+                {% endfor %}
             </div>
 
         </div>
@@ -33,3 +34,25 @@
 
 <div class="hiddenValue" key="totalRows" value="{{ data.total_rows }}">
 </div>
+
+
+<script>
+
+    function setCookie(cookie_name, value, days) {
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + days);
+        // 설정 일수만큼 현재시간에 만료값으로 지정
+
+        var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+        document.cookie = cookie_name + '=' + cookie_value + ";PATH=/";
+    }
+
+    $(".munhakCardWrapper").on("click", function () {
+
+        setCookie("page", $(this).attr("page"), 1)
+        location.href = `/board/detail/${$(this).attr("munhak_seq")}`
+
+    })
+
+
+</script>
