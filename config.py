@@ -31,6 +31,8 @@ if socket.gethostname()[:7] == "DESKTOP":
     YOUTUBE_KEY = config["DEFAULT"]["YOUTUBE_KEY"]
     DISCORD_WEBHOOK_URL = config["DEFAULT"]["DISCORD_WEBHOOK_URL"]
 
+    REDIS_URL = config['DEFAULT']['REDIS_URL']
+
 else:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
@@ -42,3 +44,5 @@ else:
 
     YOUTUBE_KEY = os.environ.get("YOUTUBE_KEY", None)
     DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", None)
+
+    REDIS_URL = os.environ.get('REDIS_URL', None)

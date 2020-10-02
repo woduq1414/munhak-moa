@@ -14,6 +14,7 @@ import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
 from sqlalchemy import desc, asc
+import uuid
 
 from config import credentials, SECRET_KEY
 from app.cache import cache
@@ -60,6 +61,11 @@ def quiz():
     quiz_no = session["quiz_count"] + 1
     solved_quiz = session["solved_quiz"]
 
+    if "_id" not in session:
+        session["_id"] = uuid.uuid4()
+
+
+
     if "current_munhak" not in session or session["current_munhak"] is None:
 
         # munhak_rows = Munhak.query.filter_by(is_available=True).all()
@@ -89,7 +95,10 @@ def quiz():
         random.shuffle(option_munhak_rows)
         correct = option_munhak_rows.index(correct_munhak_row)
 
-        session["correct"] = correct
+        # session["correct"] = correct
+        cache.set(f"{session['_id']}-correct", correct, timeout=9999)
+
+
 
         hint = random.choice(correct_munhak_row["keywords"])
         hint = hint.replace("\\", "")
@@ -135,12 +144,18 @@ def quiz():
 
 @quiz_bp.route("/answer", methods=["GET", "POST"])
 def answer():
+
+    if "_id" not in session:
+        session["_id"] = uuid.uuid4()
+
     print(session)
     option = request.form.get("option", None)
     if option is None or (not type(option) != int):
         return abort(400)
     option = int(option)
-    correct = session["correct"]
+    correct = cache.get(f"{session['_id']}-correct")
+    print(correct)
+
     if correct is None:
         return abort(401)
 
@@ -170,6 +185,9 @@ def result():
     if "result" not in session:
         return redirect(url_for("quiz.index"))
 
+    if "_id" not in session:
+        session["_id"] = uuid.uuid4()
+
     is_success = session["result"]
     session["is_end"] = True
 
@@ -197,7 +215,7 @@ def result():
     data = {
         "is_success": is_success,
         "solved_count": session["quiz_count"],
-        "correct": session["correct"],
+        "correct": cache.get(f"{session['_id']}-correct"),
         "current_munhak": session["current_munhak"],
         "is_best_record": is_best_record
     }
