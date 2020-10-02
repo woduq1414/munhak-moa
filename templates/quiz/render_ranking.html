@@ -69,9 +69,29 @@
     <div class="rankingBottomText">
 
         로그인하면 순위표에 오를 수 있어요! &nbsp;&nbsp;
-        <a class="btn btn-light" href="{{ url_for("user.login_form") }}">
+        <a class="btn btn-light" id="goLoginButtonRanking">
             로그인 / 회원가입
         </a>
     </div>
 
+
+
 {% endif %}
+
+
+<script>
+    function setCookie(cookie_name, value, days) {
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + days);
+        // 설정 일수만큼 현재시간에 만료값으로 지정
+
+        var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+        document.cookie = cookie_name + '=' + cookie_value + ";PATH=/";
+    }
+
+    $("#goLoginButtonRanking").on("click", function () {
+        setCookie("after-login-redirect", location.href)
+        location.href = "{{ url_for("user.login_form") }}"
+    })
+
+</script>
