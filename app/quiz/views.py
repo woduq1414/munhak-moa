@@ -96,8 +96,8 @@ def quiz():
         correct = option_munhak_rows.index(correct_munhak_row)
 
         # session["correct"] = correct
-        cache.set(f"{session['_id']}-correct", correct, timeout=9999)
-
+        cache.set(f"{session['_id']}-correct", correct, timeout=99999999999999999999999999999)
+        print(session['_id'])
 
 
         hint = random.choice(correct_munhak_row["keywords"])
@@ -146,6 +146,7 @@ def quiz():
 def answer():
 
     if "_id" not in session:
+        print("!!!!!!!!!!!!!")
         session["_id"] = uuid.uuid4()
 
     print(session)
