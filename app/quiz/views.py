@@ -16,6 +16,7 @@ from flask_restful import Api, Resource, reqparse
 from sqlalchemy import desc, asc
 import uuid
 
+from app.common.encrypt import simpleEnDecrypt
 from config import credentials, SECRET_KEY
 from app.cache import cache
 from app.common.function import fetch_spread_sheet
@@ -95,9 +96,8 @@ def quiz():
         random.shuffle(option_munhak_rows)
         correct = option_munhak_rows.index(correct_munhak_row)
 
-        # session["correct"] = correct
-        cache.set(f"{session['_id']}-correct", correct, timeout=99999999999999999999999999999)
-        print(session['_id'])
+        session["correct"] = simpleEnDecrypt.encrypt(f"{correct}:{uuid.uuid4()}")
+
 
 
         hint = random.choice(correct_munhak_row["keywords"])
@@ -145,17 +145,19 @@ def quiz():
 @quiz_bp.route("/answer", methods=["GET", "POST"])
 def answer():
 
-    if "_id" not in session:
-        print("!!!!!!!!!!!!!")
-        session["_id"] = uuid.uuid4()
+
 
     print(session)
     option = request.form.get("option", None)
     if option is None or (not type(option) != int):
         return abort(400)
     option = int(option)
-    correct = cache.get(f"{session['_id']}-correct")
-    print(correct)
+
+    try:
+
+        correct = int(simpleEnDecrypt.decrypt(session["correct"]).split(":")[0])
+    except:
+        return abort(401)
 
     if correct is None:
         return abort(401)
@@ -213,10 +215,12 @@ def result():
                 db.session.commit()
                 is_best_record = True
 
+
+
     data = {
         "is_success": is_success,
         "solved_count": session["quiz_count"],
-        "correct": cache.get(f"{session['_id']}-correct"),
+        "correct": int(simpleEnDecrypt.decrypt(session["correct"]).split(":")[0]),
         "current_munhak": session["current_munhak"],
         "is_best_record": is_best_record
     }

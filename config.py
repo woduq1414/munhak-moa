@@ -32,6 +32,7 @@ if socket.gethostname()[:7] == "DESKTOP":
     DISCORD_WEBHOOK_URL = config["DEFAULT"]["DISCORD_WEBHOOK_URL"]
 
     REDIS_URL = config['DEFAULT']['REDIS_URL']
+    FERNET_KEY = config['DEFAULT']['FERNET_KEY']
 
 else:
 
@@ -46,3 +47,4 @@ else:
     DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", None)
 
     REDIS_URL = os.environ.get('REDIS_URL', None)
+    FERNET_KEY = os.environ.get('FERNET_KEY', None)
