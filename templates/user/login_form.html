@@ -3,6 +3,8 @@
 {% block style %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/login_form.css') }}">
+    <link rel='stylesheet' href='https://unpkg.com/nprogress@0.2.0/nprogress.css'/>
+    <script src='https://unpkg.com/nprogress@0.2.0/nprogress.js'></script>
 {% endblock %}
 
 {% block main %}
@@ -48,6 +50,7 @@
         Kakao.Auth.createLoginButton({
             container: '#kakaoLoginButton',
             success: function (response) {
+                NProgress.start();
                 $.ajax({
                     type: "POST",
                     url: "./login-query-kakao",
@@ -61,12 +64,14 @@
                         },
                         200: function (data) {
 
-                            if (getCookie("after-login-redirect") != undefined) {
+                            if (getCookie("after-login-redirect") != undefined && getCookie("after-login-redirect") != "") {
                                 let t = getCookie("after-login-redirect");
                                 setCookie('after-login-redirect', '', '-1');
+                                NProgress.done();
+                       
                                 location.href = t;
                             } else {
-
+                                NProgress.done();
                                 location.href = "{{ url_for("board.munhak_board_list") }}";
                             }
 

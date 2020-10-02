@@ -650,3 +650,14 @@ img.videoThumbnail {
 .munhakCardWrapper {
     cursor: pointer;
 }
+
+#centerContent {
+    margin: auto;
+    text-align: center;
+    word-break: keep-all;
+}
+
+#goRandomMunhak {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+}

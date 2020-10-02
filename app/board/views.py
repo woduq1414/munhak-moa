@@ -235,6 +235,17 @@ def munhak_board_render_card():
     return resp
 
 
+@board_bp.route('/board/random-munhak')
+def random_munhak():
+    munhak_rows_data = cache.get("munhak_rows_data")
+    munhak_rows = copy.deepcopy(munhak_rows_data)
+
+    random_munhak_row = random.choice(munhak_rows)
+
+    return redirect(url_for("board.munhak_board_detail", munhak_seq = random_munhak_row["munhak_seq"]))
+
+
+
 @board_bp.route('/board')
 def munhak_board_list():
     munhak_rows_data = cache.get("munhak_rows_data")

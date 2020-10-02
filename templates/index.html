@@ -8,9 +8,19 @@
 
 {% block main %}
     <div id="contentContainer">
-       <h1>
-           메인 페이지
-       </h1>
+       <div id="centerContent">
+
+           <h1>
+               모두가 함께 모아가는 문학 나눔터,
+           </h1>
+           <h2>
+               문학모아에 오신 것을 환영합니다!
+           </h2>
+
+           <div class="btn btn-outline-secondary" id="goRandomMunhak">
+               <i class="fas fa-random"></i>&nbsp;아무 문학이나 일단 둘러보기
+           </div>
+       </div>
     </div>
 
 {% endblock %}
@@ -18,7 +28,9 @@
 {% block script %}
     <script>
 
-
+        $("#goRandomMunhak").on("click",function(){
+          location.href=`{{ url_for("board.random_munhak") }}`
+        })
 
     </script>
 {% endblock %}

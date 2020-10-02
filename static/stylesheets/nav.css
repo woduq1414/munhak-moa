@@ -395,14 +395,23 @@ a[data-toggle="collapse"] {
 
 }
 
- .sidebarCollapse {
+.sidebarCollapse {
     text-align: left !important;
     /*margin-left: 21.11px;*/
-     position: fixed;
-     left: 21.11px;
-     top: 0;
+    position: fixed;
+    left: 21.11px;
+    top: 0;
 }
 
- #navMenus {
-     margin-top: 80px;
- }
+
+@media (min-width: 768px) {
+    #navMenus {
+        margin-top: 80px;
+    }
+}
+@media (max-width: 768px) {
+    #navMenus {
+        margin-top: 10px;
+    }
+}
+
