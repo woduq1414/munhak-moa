@@ -116,7 +116,7 @@
             source: {{ TAG_SOURCE | safe }},
             minLength: 1
         };
-        var selector = 'input';
+        var selector = 'input.searchTagInput';
         $(document).on('keyup.searchTagInput', selector, function () {
             $(this).autocomplete(options);
         });

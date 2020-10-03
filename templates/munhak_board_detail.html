@@ -499,7 +499,7 @@
             source: {{ TAG_SOURCE | safe }},
             minLength: 1
         };
-        var selector = 'input';
+        var selector = 'input.addTagInput';
         $(document).on('keyup.addTagInput', selector, function () {
             $(this).autocomplete(options);
         });

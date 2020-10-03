@@ -18,18 +18,19 @@ from app.common.decorator import return_500_if_errors
 from config import credentials, SECRET_KEY
 from app.cache import cache
 from app.common.function import fetch_spread_sheet
+from config import SECRET_KEY
 
 others_bp = Blueprint('others', __name__)
 
 
 @others_bp.route('/update')
 def update_():
-    if request.args.get("key", None) != others_bp.config["SECRET_KEY"]:
+    if request.args.get("key", None) != SECRET_KEY:
         return "error"
 
     len_data = fetch_spread_sheet()
     session.clear()
-    return f"success! {len(len_data)}"
+    return f"success! {len_data}"
 
 
 @others_bp.route('/images/<path:path>')
