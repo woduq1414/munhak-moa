@@ -71,6 +71,9 @@ def register_query():
     db.session.add(user_row)
     db.session.commit()
     session["user"] = user_row.as_dict()
+
+    send_discord_alert_log(f"새로운 회원! {nickname}")
+
     return make_response("", 200)
 
 

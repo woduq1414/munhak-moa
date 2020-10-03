@@ -668,10 +668,10 @@
 
                             <div id="videoPopoverButtonWrapper">
                                 <a href="${clicked_video.video_url}" target="_blank">
-                                    <span id="videoPopoverLinkButton" class=""><i class="fas fa-link"></i></span>
+                                    <span id="videoPopoverLinkButton" class="popoverButton"><i class="fas fa-link"></i></span>
                                 </a>
                                 ${
-                        clicked_video.is_mine == "true" ? '<span id="videoPopoverDeleteButton" class=""><i class="far fa-trash-alt"></i></span>' : ''
+                        clicked_video.is_mine == "true" ? '<span id="videoPopoverDeleteButton" class="popoverButton"><i class="far fa-trash-alt"></i></span>' : ''
                     }
                             </div>
 
@@ -703,9 +703,9 @@
                             </span>
                             <br>
                             <div id="tagPopoverButtonWrapper">
-                                <span id="tagPopoverSearchButton" class=""><i class="fas fa-search"></i></span>
+                                <span id="tagPopoverSearchButton" class="popoverButton"><i class="fas fa-search"></i></span>
                                 ${
-                        clicked_tag.is_mine == "true" ? '<span id="tagPopoverDeleteButton" class=""><i class="far fa-trash-alt"></i></span>' : ''
+                        clicked_tag.is_mine == "true" ? '<span id="tagPopoverDeleteButton" class="popoverButton"><i class="far fa-trash-alt"></i></span>' : ''
                     }
                             </div>
 

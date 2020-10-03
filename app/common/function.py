@@ -1,13 +1,17 @@
+import threading
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
-
+from datetime import datetime
 from config import credentials
 import requests
 from config import DISCORD_WEBHOOK_URL
+from flask import request
+
 
 def is_local():
     import socket
@@ -46,7 +50,6 @@ def fetch_spread_sheet():
                 if temp_dict["title"] == "" or temp_dict["writer"] == "":
                     break
 
-
                 temp_dict["keywords"] = json.loads(temp_dict["keywords"])
                 temp_dict["munhak_seq"] = int(temp_dict["munhak_seq"])
                 data.append(temp_dict)
@@ -58,7 +61,6 @@ def fetch_spread_sheet():
     munhak_rows_data = data
 
     munhak_quiz_rows_data = [munhak_row for munhak_row in munhak_rows_data if len(munhak_row["keywords"]) != 0]
-
 
     cache.set('munhak_rows_data', munhak_rows_data, timeout=99999999999999999)
     cache.set('munhak_quiz_rows_data', munhak_quiz_rows_data, timeout=99999999999999999)
@@ -75,3 +77,45 @@ def send_discord_webhook(webhook_body):
     requests.post(
         DISCORD_WEBHOOK_URL,
         json=webhook_body)
+
+
+def get_ip_address():
+    return request.headers[
+        'X-Forwarded-For'] if 'X-Forwarded-For' in request.headers else request.remote_addr
+
+
+def send_discord_alert_log(alert_string):
+
+    webhook_body = {
+
+        "embeds": [
+            {
+                "title": "=========ALERT=========",
+                "color": 14177041
+
+            },
+            {
+                "description" : alert_string
+            },
+            {
+                "fields": [
+                    {
+                        "name": "URI",
+                        "value": request.url,
+                        "inline": True
+                    },
+
+                ],
+                "color": 0
+
+            },
+
+            {
+                "title": str(datetime.now()) + ", " + (
+                    "로컬에서 발생" if is_local() else "외부에서 발생") + ", " + get_ip_address(),
+                "color": 0
+            },
+
+        ]
+    }
+    threading.Thread(target=lambda: send_discord_webhook(webhook_body=webhook_body)).start()

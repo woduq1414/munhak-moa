@@ -19,7 +19,7 @@ import uuid
 from app.common.encrypt import simpleEnDecrypt
 from config import credentials, SECRET_KEY
 from app.cache import cache
-from app.common.function import fetch_spread_sheet
+from app.common.function import fetch_spread_sheet, send_discord_alert_log
 from app.db import *
 
 quiz_bp = Blueprint('quiz', __name__)
@@ -188,8 +188,8 @@ def result():
     if "result" not in session:
         return redirect(url_for("quiz.index"))
 
-    if "_id" not in session:
-        session["_id"] = uuid.uuid4()
+    if "quiz_count" in session and session["quiz_count"] >= 10:
+        send_discord_alert_log(f"{session['quiz_count']}개를 맞혔어요!")
 
     is_success = session["result"]
     session["is_end"] = True
