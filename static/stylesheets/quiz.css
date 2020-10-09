@@ -162,6 +162,7 @@ body, main {
 @media screen and (max-width: 768px) {
     #content {
         width: 95%;
+
     }
 
     .option {
