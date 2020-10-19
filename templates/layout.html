@@ -35,6 +35,13 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     {% block style %}{% endblock %}
+
+
+    <script>
+
+
+    </script>
+
 </head>
 <body>
 <header>
@@ -177,8 +184,6 @@
     });
 
 
-
-
     var fullHeight = function () {
 
         $('.js-fullheight').css('height', $(window).height());
@@ -188,13 +193,6 @@
 
     };
     fullHeight();
-
-    if (matchMedia("screen and (min-width: 768px)").matches) {
-        $(".sidebar").addClass("active");
-    } else {
-        // 1024px 미만에서 사용할 JavaScript
-        $(".sidebar").removeClass("active");
-    }
 
 
     $('.sidebarCollapse').on('click', function () {
@@ -212,6 +210,19 @@
         $('.sidebarCollapse i').toggleClass("fa-arrow-left");
         $('#sidebar').toggleClass('active');
     });
+
+
+    if (matchMedia("screen and (min-width: 768px)").matches) {
+        $("#sidebar").addClass("active");
+    } else {
+        // 1024px 미만에서 사용할 JavaScript
+        $("#sidebar").toggleClass("active");
+        $(".sidebarCollapseMobile i").toggleClass("fa-bars");
+        $(".sidebarCollapseMobile i").toggleClass("fa-arrow-left");
+
+        {#$('.sidebarCollapse i').toggleClass("fa-bars");#}
+        {#$('.sidebarCollapse i').toggleClass("fa-arrow-left");#}
+    }
 
 </script>
 
