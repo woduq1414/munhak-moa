@@ -43,11 +43,13 @@ def index():
 
 @quiz_bp.route('/get-quiz', methods=["GET", "POST"])
 def get_quiz():
+    # import time
+    # time.sleep(3)
     if "quiz_source" not in session:
-        session["quia_source"] = "all"
+        session["quiz_source"] = "all"
 
     quiz_source = session["quiz_source"]
-    munhak_rows_data = cache.get("munhak_quiz_rows_data")
+    munhak_rows_data = copy.deepcopy(cache.get("munhak_quiz_rows_data"))
 
     if quiz_source == "s1":
         munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
