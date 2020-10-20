@@ -29,71 +29,80 @@
              style="width: {{ (data.quiz_no - 1) / data.total_munhak * 100 }}%"
              aria-valuemin="0" aria-valuemax="100"></div>
     </div>
+
+
+    <script>
+
+        $("#content .option").on("click", function () {
+
+            $("#content .option").off("click");
+
+
+
+
+            let option = $(this).attr("option");
+
+
+            $.ajax({
+                type: "POST",
+                url: "./answer",
+                data: {"option": option},
+
+                statusCode: {
+                    404: function (data) {
+                        location.href = "./result";
+                    },
+                    200: function (data) {
+
+                        $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
+                            setTimeout(function () {
+                                $("#container").animate({"background-color": "white"}, 100, function () {
+
+                                });
+                            }, 500);
+
+                        });
+
+                        $("#content").attr("id", "content2");
+                        $("#content2").css("position", "fixed");
+                        $("#content2").animate({top: -$("#content2").height() - 50}, 500, function () {
+                            $("#content2").remove();
+                        });
+
+
+                        $("#container").append(
+                            data
+                        );
+                        {#$("#content").hide();#}
+                        $("#content").css("position", "fixed");
+                        $("#content").css("top", "unset");
+                        $("#content").css("top", `${$(document).height()}px`);
+
+                        console.log(($(document).height() - $("#content").height()) / 2)
+
+                        $temp = $("#content");
+                        $temp.animate({top: ($(document).height() - $temp.height()) / 2}, 700, function () {
+                            setTimeout(function () {
+                                $temp.css("position", "unset");
+                            }, 500);
+
+                        });
+
+
+                        {#window.location.reload();#}
+                    },
+                    401: function (data) {
+                        location.href = "./";
+                    }
+                }
+
+            })
+
+        })
+    </script>
+
 </div>
 
 
-<script>
-    $("#content .option").on("click", function () {
-        let option = $(this).attr("option");
-        $.ajax({
-            type: "POST",
-            url: "./answer",
-            data: {"option": option},
-
-            statusCode: {
-                404: function (data) {
-                    location.href = "./result";
-                },
-                200: function (data) {
-
-                    $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
-                        setTimeout(function () {
-                             $("#container").animate({"background-color": "white"}, 100, function () {
-
-                        });
-                        }, 500);
-
-                    });
-
-                    $("#content").attr("id", "content2");
-
-                    $("#content2").css("position", "fixed");
-                    $("#content2").animate({top: -$("#content2").height() - 50}, 500, function () {
-                        $("#content2").remove();
-                    });
-
-
-                    $("#container").append(
-                        data
-                    );
-                    {#$("#content").hide();#}
-                    $("#content").css("position", "fixed");
-                    $("#content").css("top", "unset");
-                    $("#content").css("top", `${$(document).height()}px`);
-
-                    console.log(($(document).height() - $("#content").height()) / 2)
-
-                    $temp = $("#content");
-                    $temp.animate({top: ($(document).height() - $temp.height()) / 2}, 700, function () {
-                        setTimeout(function () {
-                            $temp.css("position", "unset");
-                        }, 500);
-
-                    });
-
-
-                    {#window.location.reload();#}
-                },
-                401: function (data) {
-                    location.href = "./";
-                }
-            }
-
-        }).done(function (data) {
-            console.log(data);
-
-        })
-    })
-</script>
 
 

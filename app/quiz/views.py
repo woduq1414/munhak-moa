@@ -44,7 +44,7 @@ def index():
 @quiz_bp.route('/get-quiz', methods=["GET", "POST"])
 def get_quiz():
     # import time
-    # time.sleep(3)
+    # time.sleep(1)
     if "quiz_source" not in session:
         session["quiz_source"] = "all"
 

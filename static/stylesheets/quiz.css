@@ -206,3 +206,8 @@ body, main {
 }
 
 
+.option {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
