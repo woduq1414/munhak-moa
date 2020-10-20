@@ -1,0 +1,46 @@
+{% extends "quiz/layout.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">
+    <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block main %}
+
+    <div id="container">
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        $(document).ready(function () {
+            $.ajax({
+                type: "POST",
+                url: "./get-quiz",
+                statusCode: {
+                    404: function (data) {
+                        location.href = "./result";
+                    },
+                    200: function (data) {
+
+                        $("#container").append(data);
+
+
+                    },
+                    401: function (data) {
+                        location.href = "./";
+                    }
+                }
+
+            })
+        })
+
+    </script>
+
+
+{% endblock %}

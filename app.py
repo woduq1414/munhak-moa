@@ -105,8 +105,8 @@ def index():
     return render_template("quiz/index.html", data=data)
 
 
-@app.route('/quiz')
-def quiz():
+@app.route("/get-quiz")
+def get_quiz():
     if "quiz_count" not in session:
         session["quiz_count"] = 0
         session["total_munhak"] = len(munhak_rows_data)
@@ -122,13 +122,11 @@ def quiz():
         # munhak_rows = Munhak.query.filter_by(is_available=True).all()
         munhak_rows = copy.deepcopy(munhak_rows_data)
 
-
         not_solved_munhak_rows = [munhak_row for munhak_row in munhak_rows if munhak_row.munhak_seq not in solved_quiz]
 
         if len(not_solved_munhak_rows) == 0:
             session["result"] = True
             return redirect(url_for("result"))
-
 
         correct_munhak_row = random.choice(not_solved_munhak_rows)
 
@@ -153,12 +151,12 @@ def quiz():
         hint = hint.replace("\\", "")
 
         session["current_munhak"] = {
-            "munhak_seq" : correct_munhak_row.munhak_seq,
-            "source" : correct_munhak_row.source,
-            "category" : correct_munhak_row.category,
-            "hint" : hint,
-            "title" : correct_munhak_row.title,
-            "writer" : correct_munhak_row.writer
+            "munhak_seq": correct_munhak_row.munhak_seq,
+            "source": correct_munhak_row.source,
+            "category": correct_munhak_row.category,
+            "hint": hint,
+            "title": correct_munhak_row.title,
+            "writer": correct_munhak_row.writer
         }
         session["options"] = [munhak_row._asdict() for munhak_row in option_munhak_rows]
         data = {
@@ -169,7 +167,7 @@ def quiz():
             "options": [
                 f"{munhak_row.writer}, 『{munhak_row.title}』" for munhak_row in option_munhak_rows
             ],
-            "total_munhak" : len(munhak_rows_data)
+            "total_munhak": len(munhak_rows_data)
         }
         print(data)
         #
@@ -189,6 +187,12 @@ def quiz():
         print(data)
         #
         return render_template("quiz/quiz.html", data=data)
+
+
+
+@app.route('/quiz')
+def quiz():
+    return render_template("quiz/quiz_container.html")
 
 
 @app.route("/answer", methods=["GET", "POST"])

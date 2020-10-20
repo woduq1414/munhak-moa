@@ -1,76 +1,99 @@
-{% extends "quiz/layout.html" %}
-
-{% block style %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">
-    <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
-{% endblock %}
-
-{% block main %}
-
-    <div id="container">
-        <div id="content">
-            <div id="upperBox">
-                <div id="quizNo">
-                    {{ data.quiz_no }}
-                </div>
-                <div id="category">
-                    {{ data.category }}
-                </div>
-            </div>
-
-            <div id="hint">
-                <q>&nbsp;{{ data.hint }}&nbsp;</q>
-            </div>
-            <hr>
-            <div id="options">
-                {% for option in data.options %}
-                    <div class="option" option="{{ loop.index0 }}" id="option{{ loop.index }}">
-                        {{ option }}
-                    </div>
-                {% endfor %}
-            </div>
-
-
-            <div id="total-munhak">
-                남은 문제수 : {{ data.total_munhak - data.quiz_no }}
-            </div>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar"
-                     style="width: {{ (data.quiz_no - 1) / data.total_munhak * 100 }}%"
-                     aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
+<div id="content">
+    <div id="upperBox">
+        <div id="quizNo">
+            {{ data.quiz_no }}
+        </div>
+        <div id="category">
+            {{ data.category }}
         </div>
     </div>
 
-{% endblock %}
+    <div id="hint">
+        <q>&nbsp;{{ data.hint }}&nbsp;</q>
+    </div>
+    <hr>
+    <div id="options">
+        {% for option in data.options %}
+            <div class="option" option="{{ loop.index0 }}" id="option{{ loop.index }}">
+                {{ option }}
+            </div>
+        {% endfor %}
+    </div>
 
-{% block script %}
-    <script>
-        $(".option").on("click", function () {
-            let option = $(this).attr("option");
-            $.ajax({
-                type: "POST",
-                url: "./answer",
-                data: {"option": option},
-                dataType: "json",
-                statusCode: {
-                    404: function (data) {
-                        location.href = "./result";
-                    },
-                    200: function (data) {
-                        window.location.reload();
-                    },
-                    401: function (data) {
-                         location.href = "./";
-                    }
+
+    <div id="total-munhak">
+        남은 문제수 : {{ data.total_munhak - data.quiz_no }}
+    </div>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar"
+             style="width: {{ (data.quiz_no - 1) / data.total_munhak * 100 }}%"
+             aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</div>
+
+
+<script>
+    $("#content .option").on("click", function () {
+        let option = $(this).attr("option");
+        $.ajax({
+            type: "POST",
+            url: "./answer",
+            data: {"option": option},
+
+            statusCode: {
+                404: function (data) {
+                    location.href = "./result";
+                },
+                200: function (data) {
+
+                    $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
+                        setTimeout(function () {
+                             $("#container").animate({"background-color": "white"}, 100, function () {
+
+                        });
+                        }, 500);
+
+                    });
+
+                    $("#content").attr("id", "content2");
+
+                    $("#content2").css("position", "fixed");
+                    $("#content2").animate({top: -$("#content2").height() - 50}, 500, function () {
+                        $("#content2").remove();
+                    });
+
+
+                    $("#container").append(
+                        data
+                    );
+                    {#$("#content").hide();#}
+                    $("#content").css("position", "fixed");
+                    $("#content").css("top", "unset");
+                    $("#content").css("top", `${$(document).height()}px`);
+
+                    console.log(($(document).height() - $("#content").height()) / 2)
+
+                    $temp = $("#content");
+                    $temp.animate({top: ($(document).height() - $temp.height()) / 2}, 700, function () {
+                        setTimeout(function () {
+                            $temp.css("position", "unset");
+                        }, 500);
+
+                    });
+
+
+                    {#window.location.reload();#}
+                },
+                401: function (data) {
+                    location.href = "./";
                 }
+            }
 
-            }).done(function (data) {
-                console.log(data);
+        }).done(function (data) {
+            console.log(data);
 
-            })
         })
-    </script>
+    })
+</script>
 
 
-{% endblock %}

@@ -41,8 +41,8 @@ def index():
     return render_template("quiz/index.html", data=data)
 
 
-@quiz_bp.route('/play')
-def quiz():
+@quiz_bp.route('/get-quiz', methods=["GET", "POST"])
+def get_quiz():
     munhak_rows_data = cache.get("munhak_quiz_rows_data")
 
     if "is_end" in session and session["is_end"] is True:
@@ -65,8 +65,6 @@ def quiz():
     if "_id" not in session:
         session["_id"] = uuid.uuid4()
 
-
-
     if "current_munhak" not in session or session["current_munhak"] is None:
 
         # munhak_rows = Munhak.query.filter_by(is_available=True).all()
@@ -78,7 +76,7 @@ def quiz():
 
         if len(not_solved_munhak_rows) == 0:  # 다 맞았을 때
             session["result"] = True
-            return redirect(url_for("quiz.result"))
+            return "wow", 404
 
         correct_munhak_row = random.choice(not_solved_munhak_rows)
 
@@ -97,8 +95,6 @@ def quiz():
         correct = option_munhak_rows.index(correct_munhak_row)
 
         session["correct"] = simpleEnDecrypt.encrypt(f"{correct}:{uuid.uuid4()}")
-
-
 
         hint = random.choice(correct_munhak_row["keywords"])
         hint = hint.replace("\\", "")
@@ -141,6 +137,10 @@ def quiz():
         #
         return render_template("quiz/quiz.html", data=data)
 
+@quiz_bp.route('/play')
+def quiz():
+   return render_template("quiz/quiz_container.html")
+
 
 @quiz_bp.route("/answer", methods=["GET", "POST"])
 def answer():
@@ -171,7 +171,7 @@ def answer():
         session["solved_quiz"].append(current_munhak["munhak_seq"])
         session["current_munhak"] = None
         # current_munhak = jsonify(current_munhak)
-        return "success"
+        return get_quiz()
     else:
 
         if "quiz_count" not in session:
