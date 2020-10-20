@@ -43,7 +43,18 @@ def index():
 
 @quiz_bp.route('/get-quiz', methods=["GET", "POST"])
 def get_quiz():
+    if "quiz_source" not in session:
+        session["quia_source"] = "all"
+
+    quiz_source = session["quiz_source"]
     munhak_rows_data = cache.get("munhak_quiz_rows_data")
+
+    if quiz_source == "s1":
+        munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
+                            munhak_row["source"].split()[-1] != "수능특강" and munhak_row["source"].split()[-1] != "수능완성"]
+    elif quiz_source == "s2":
+        munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
+                            munhak_row["source"].split()[-1] == "수능특강" or munhak_row["source"].split()[-1] == "수능완성"]
 
     if "is_end" in session and session["is_end"] is True:
         session["quiz_count"] = 0
@@ -85,7 +96,7 @@ def get_quiz():
 
         random.shuffle(munhak_rows)
 
-        if correct_munhak_row["category"] != "극" and correct_munhak_row["category"] != "수필" and random.random() >= 0.5:
+        if correct_munhak_row["category"] != "극" and correct_munhak_row["category"] != "수필" and random.random() >= 0.5: #50% 확률
             option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                   munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
         else:
@@ -137,16 +148,32 @@ def get_quiz():
         #
         return render_template("quiz/quiz.html", data=data)
 
+
 @quiz_bp.route('/play')
 def quiz():
-   return render_template("quiz/quiz_container.html")
+    args = request.args
+    re = "re" in args and args["re"] == "true"
+    s1 = "s1" in args and args["s1"] == "false"
+    s2 = "s2" in args and args["s2"] == "false"
+    if re:
+        if s1 and not s2:
+            session["quiz_source"] = "s2"
+        elif not s1 and s2:
+            session["quiz_source"] = "s1"
+        else:
+            session["quiz_source"] = "all"
+
+        session["quiz_count"] = 0
+        session["solved_quiz"] = []
+        session["current_munhak"] = None
+        session["is_end"] = False
+        return redirect(url_for("quiz.quiz"))
+
+    return render_template("quiz/quiz_container.html")
 
 
 @quiz_bp.route("/answer", methods=["GET", "POST"])
 def answer():
-
-
-
     print(session)
     option = request.form.get("option", None)
     if option is None or (not type(option) != int):
@@ -214,8 +241,6 @@ def result():
                 old_record_row.score = session["quiz_count"]
                 db.session.commit()
                 is_best_record = True
-
-
 
     data = {
         "is_success": is_success,

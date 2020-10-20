@@ -22,7 +22,30 @@
             </div>
 
 
-            <a id="startButton" class="btn btn-primary" href="{{ url_for("quiz.quiz") }}">시작하기</a>
+            <div id="sourceCheckContainer">
+                <div class="custom-control custom-checkbox sourceCheckWrapper">
+
+                    <input type="checkbox" class="custom-control-input "
+                           id="sourceCheck1" data="평가원" checked>
+                    <label class="custom-control-label"
+                           for="sourceCheck1">평가원 기출</label>
+
+
+                </div>
+                <div class="custom-control custom-checkbox sourceCheckWrapper">
+
+                    <input type="checkbox" class="custom-control-input "
+                           id="sourceCheck2" data="수특/수완" checked>
+                    <label class="custom-control-label"
+                           for="sourceCheck2">수특 · 수완</label>
+
+
+                </div>
+            </div>
+
+
+            <a id="startButton" class="btn btn-primary">시작하기</a>
+
 
             <span id="openInfo">정보</span>
 
@@ -42,6 +65,8 @@
                         <small>{{ ", ".join(data.source_list) }}</small>
                         <br>
                         입니다.
+
+
                         <div id="githubWrapper">
                             <a href="https://github.com/woduq1414">
                                 <img src="https://www.iconfinder.com/data/icons/octicons/1024/mark-github-512.png"
@@ -88,6 +113,15 @@
 
 {% block script %}
     <script>
+
+        $("#startButton").on("click", function () {
+
+            let s1 = $("#sourceCheck1").prop("checked");
+            let s2 = $("#sourceCheck2").prop("checked");
+            console.log(s1, s2);
+            location.href = `{{ url_for("quiz.quiz") }}?s1=${s1}&s2=${s2}&re=true`
+        })
+
 
         $("#goMainPage").on("click", function () {
             location.href = "{{ url_for("others.index") }}"
