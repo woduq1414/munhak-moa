@@ -48,3 +48,4 @@ PyOpenSSL==19.1.0
 Flask-HTTPAuth==4.1.0
 Flask-Markdown==0.3
 flask-socketio==4.3.1
+eventlet==0.29.1

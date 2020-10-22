@@ -65,7 +65,7 @@
     <script>
         let room_id = {{ data.room_id }}
             let
-        socket = io.connect("/live");
+        socket = io.connect("127.0.0.1:5000/live", { transports: ['polling'] });
 
 
         socket.on('connect', function () {
