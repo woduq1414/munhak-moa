@@ -663,10 +663,9 @@ img.videoThumbnail {
 }
 
 
-
 @media screen and (max-width: 768px) {
     .popoverButton {
-    font-size: 1.8rem !important;
-    margin: 1.5rem;
-}
+        font-size: 1.8rem !important;
+        margin: 1.5rem;
+    }
 }

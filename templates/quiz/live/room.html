@@ -1,0 +1,116 @@
+{% extends "quiz/layout.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
+
+    {#    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">#}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ranking.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/live.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/room.css') }}">
+    <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
+{% endblock %}
+
+{% block main %}
+
+
+
+    <div id="container">
+
+
+        <div id="content">
+
+            <div id="leftContainer">
+                <div id="userContainer">
+
+
+                </div>
+            </div>
+
+            <div id="rightContainer">
+                <div id="roomIdWrapper">
+                    방 번호 :
+                    <div id="roomId">
+                        {{ data.room_id }}
+                    </div>
+                </div>
+
+
+                <div id="roomButtonContainer">
+
+                    <div class="btn btn-outline-danger" id="exitButton">나가기</div>
+                    <div class="btn btn-outline-primary" id="startLiveButton">시작</div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.dev.js"
+            integrity="sha512-jJ6sFqh2ihNKr7SamUHpFAjdVHXTI7SWNEKZBEmYFFz/2WEr6wrHFYczX6GlGVIZ6Mu8JBrVuvdy8vji4CVbXA=="
+            crossorigin="anonymous"></script>
+
+
+    <script>
+        let room_id = {{ data.room_id }}
+            let
+        socket = io.connect("/live");
+
+
+        socket.on('connect', function () {
+            socket.emit('join_live_room', {
+                room_id: room_id
+            })
+        })
+
+        socket.on('error', function () {
+            {#alert("err");#}
+            location.href = "/quiz/live"
+        })
+
+
+        socket.on('update_room_info', function (data) {
+            console.log(data);
+            $("#userContainer").html("")
+            for (let user in data["users"]) {
+
+                $("#userContainer").append(`
+                    <div class="userWrapper">
+                        <i class="fas fa-user userIcon ${user === data['room_master'] ? 'roomMasterIcon' : ''}"></i>
+                        <span class="userNickname">${data["users"][user].nickname}</span>
+                    </div>
+                `)
+            }
+            if (socket.io.engine.id === data["room_master"]) {
+                $("#startLiveButton").show()
+            } else {
+                $("#startLiveButton").hide()
+            }
+
+
+        })
+
+        $("#exitButton").on("click", function () {
+            socket.emit('leave_live_room')
+
+            location.href = "/quiz/live";
+        })
+
+        $("#startLiveButton").on("click", function () {
+
+        })
+
+
+    </script>
+{% endblock %}

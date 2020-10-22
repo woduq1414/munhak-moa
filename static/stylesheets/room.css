@@ -1,0 +1,82 @@
+
+#content {
+    padding: 1rem !important;
+}
+
+@media screen and (max-width: 768px) {
+    #content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    #content {
+        width: 80%;
+        display: flex;
+        flex-direction: row;
+    }
+
+
+    #leftContainer {
+        flex-grow: 1;
+
+    }
+
+    #rightContainer {
+        width: 400px;
+        color: blue;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    #roomIdWrapper {
+        padding: 1rem 3rem;
+        background-color: var(--primary-color);
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    #roomId {
+        font-size: 3rem;
+    }
+
+
+    #startLiveButton, #exitButton {
+        width: 100%;
+    }
+
+}
+
+
+.userIcon {
+    background-color: #e2e2e2;
+    padding: 1rem;
+    border-radius: 1000px;
+    color: black;
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.roomMasterIcon {
+    background-color: var(--primary-color-bright);
+}
+
+
+
+.userNickname{
+    font-size: 1.6rem;
+}
+
+.userWrapper {
+    margin: 0.2rem;
+}
+
+#userContainer {
+    margin: 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+}

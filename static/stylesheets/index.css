@@ -101,3 +101,10 @@ body, main {
     display: inline-block;
 }
 
+
+
+.customInput {
+    width: 400px;
+    margin: 0 auto;
+    font-size: 1.3rem;
+}

@@ -27,6 +27,8 @@ def create_app(config_filename):
     # app.response_class = MyResponse
 
     from app.db import db
+    from app.socket import socketio
+    socketio.init_app(app)
     db.init_app(app)
     db.app = app
     # sched.init_app(app)

@@ -1,0 +1,119 @@
+{% extends "quiz/layout.html" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
+
+    {#    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">#}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ranking.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/live.css') }}">
+
+    <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+{% endblock %}
+
+{% block main %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.dev.js"
+            integrity="sha512-jJ6sFqh2ihNKr7SamUHpFAjdVHXTI7SWNEKZBEmYFFz/2WEr6wrHFYczX6GlGVIZ6Mu8JBrVuvdy8vji4CVbXA=="
+            crossorigin="anonymous"></script>
+
+
+    <div id="container">
+
+
+        <div id="content">
+
+            <div class="form-group">
+                <label for="nicknameInput" id="nicknameLabel">별명(닉네임) : </label>
+                {#                <br>#}
+                <input type="text" id="nicknameInput">
+                <small id="nicknameHelp" class="form-text text-muted">16바이트까지 가능(영문 - 1, 한글 - 2)
+                    <span id="nicknameLength"></span>
+                </small>
+            </div>
+
+            <div id="buttonWrapper">
+                <div class="btn btn-primary" id="makeRoom">
+                    방 만들기
+                </div>
+
+                <div class="btn btn-outline-secondary" id="enterExistRoom">
+                    다른 방 들어가기
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+
+
+    <div id="goMainPage">
+        <div class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> 뒤로가기
+        </div>
+
+
+    </div>
+
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+
+        function check_nickname(nickname) {
+            return nickname.length <= 15 && 1 <= nickname.length;
+        }
+
+
+        $("#makeRoom").on("click", function () {
+
+            if (check_nickname($("#nicknameInput").val())) {
+                location.href = `/quiz/live/make-room?nickname=${$("#nicknameInput").val()}`
+            } else {
+                Swal.fire(
+                    '닉네임이 올바르지 않습니다.',
+                    '1~15자로 설정해주세요.',
+                    'error'
+                )
+            }
+
+
+        })
+
+        $("#enterExistRoom").on("click", function () {
+            if (check_nickname($("#nicknameInput").val())) {
+                Swal.fire({
+                    title: '방 번호를 입력해주세요',
+                    text: "6자리의 숫자",
+                    input: 'number',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: '들어가기',
+                    cancelButtonText: "취소",
+                    showLoaderOnConfirm: true,
+                    preConfirm: function (room_id) {
+                        location.href = `/quiz/live/enter-room?nickname=${$("#nicknameInput").val()}&room_id=${room_id}`
+
+                    }
+                })
+            } else {
+                Swal.fire(
+                    '닉네임이 올바르지 않습니다.',
+                    '1~15자로 설정해주세요.',
+                    'error'
+                )
+            }
+
+
+        })
+
+    </script>
+{% endblock %}

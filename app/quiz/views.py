@@ -21,9 +21,13 @@ from config import credentials, SECRET_KEY
 from app.cache import cache
 from app.common.function import fetch_spread_sheet, send_discord_alert_log
 from app.db import *
+from datetime import datetime
+from flask_socketio import SocketIO
+from flask_socketio import emit, join_room, leave_room, rooms
+
+from app.socket import socketio
 
 quiz_bp = Blueprint('quiz', __name__)
-from datetime import datetime
 
 
 @quiz_bp.route('/')
@@ -98,7 +102,8 @@ def get_quiz():
 
         random.shuffle(munhak_rows)
 
-        if correct_munhak_row["category"] != "극" and correct_munhak_row["category"] != "수필" and random.random() >= 0.5: #50% 확률
+        if correct_munhak_row["category"] != "극" and correct_munhak_row[
+            "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
             option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                   munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
         else:
@@ -284,3 +289,157 @@ def render_ranking():
 
     }
     return render_template("quiz/render_ranking.html", data=data)
+
+
+######################################################################
+
+room_info = {}
+
+
+@quiz_bp.route('/live')
+def enter_live():
+    return render_template("./quiz/live/index.html")
+
+
+@quiz_bp.route('/live/make-room')
+def make_room():
+    args = request.args
+    if "nickname" in args:
+        if 1 <= len(args["nickname"]) <= 20:
+            session["live_nickname"] = args["nickname"]
+        else:
+            return redirect(url_for("quiz.enter_live"))
+    else:
+        return redirect(url_for("quiz.enter_live"))
+
+    random_num = -1
+    while random_num == -1:
+        print(random_num)
+        random_num = random.randint(100000, 999999)
+        if random_num in room_info.keys():
+            random_num = -1
+            continue
+        room_info[random_num] = {
+            "users": {},
+            "room_master": None
+        }
+
+    return redirect(url_for("quiz.live_room", room_id=random_num))
+
+
+@quiz_bp.route('/live/enter-room')
+def enter_room():
+    args = request.args
+    if "nickname" in args:
+        if 1 <= len(args["nickname"]) <= 20:
+            session["live_nickname"] = args["nickname"]
+        else:
+            return redirect(url_for("quiz.enter_live"))
+    else:
+        return redirect(url_for("quiz.enter_live"))
+
+    if "room_id" in args:
+
+        if not args["room_id"].isdigit():
+            return redirect(url_for("quiz.enter_live"))
+
+        if int(args["room_id"]) in room_info:
+            return redirect(url_for("quiz.live_room", room_id=int(args["room_id"])))
+        else:
+            return redirect(url_for("quiz.enter_live"))
+    else:
+        return redirect(url_for("quiz.enter_live"))
+
+
+@quiz_bp.route('/live/<int:room_id>')
+def live_room(room_id):
+    if room_id not in room_info:
+        return redirect(url_for("quiz.enter_live"))
+
+    return render_template("./quiz/live/room.html", data={"room_id": room_id})
+
+
+def messageReceived(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+
+@socketio.on('connect', namespace="/live")
+def on_connect():
+    print("connect")
+
+
+@socketio.on('disconnect')
+def on_disconnect():
+    leave_live_room(request.sid)
+
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
+
+
+@socketio.on('leave_live_room', namespace="/live")
+def leave_live_room(target_sid=None):
+    if target_sid is None:
+        target_sid = request.sid
+
+    for room in room_info:
+        for sid in room_info[room]["users"].keys():
+            if sid == target_sid:
+                del room_info[room]["users"][sid]
+                room_id = room
+
+                leave_room(room_id, sid=sid, namespace="/live")
+
+                if len(room_info[room_id]["users"]) == 0:
+                    del room_info[room_id]
+                else:
+
+                    if sid == room_info[room_id]["room_master"]:
+                        room_info[room_id]["room_master"] = list(room_info[room_id]["users"])[0]
+
+                    emit("update_room_info", {
+                        "users": room_info[room_id]["users"],
+                        "room_master": room_info[room_id]["room_master"]
+                    }, room=room_id, namespace="/live")
+
+
+@socketio.on('join_live_room', namespace="/live")
+def join_live_room(data, methods=['GET', 'POST']):
+    if "live_nickname" not in session:
+        emit("error")
+        return
+
+    print(request.sid)
+    room_id = data["room_id"]
+    # if "uid" not in session:
+    #     session["uid"] = uuid.uuid4()
+    # if "live_nickname" not in session:
+    #     return redirect(url_for("quiz.enter_live"))
+    print(room_id)
+    if room_id not in room_info:
+        emit("error")
+
+        return
+
+    join_room(room=room_id)
+    # print(rooms(sid=session["uid"], namespace="/live"))
+
+    for room in room_info:
+        for sid in room_info[room]["users"].keys():
+            if sid == request.sid:
+                del room_info[room]["users"][sid]
+
+    if room_info[room_id]["room_master"] is None:
+        room_info[room_id]["room_master"] = request.sid
+
+    print(room_info)
+    room_info[room_id]["users"][request.sid] = {
+        "nickname": session["live_nickname"]
+    }
+    print(room_info)
+
+    emit("update_room_info", {
+        "users": room_info[room_id]["users"],
+        "room_master": room_info[room_id]["room_master"]
+    }, room=room_id)
+
+    # print('received my event: ' + str(json)/)
+    # socketio.emit('my response', data[", callback=messageReceived)

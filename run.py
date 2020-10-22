@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 from app import create_app
+
+from app.socket import socketio
+
 from flask import render_template, redirect, url_for
 # app = create_app('config')
 # app.app_context().push()
@@ -17,6 +20,8 @@ from datetime import datetime
 import threading
 import socket
 import os
+from flask_socketio import SocketIO
+
 
 app = create_app('config')
 
@@ -105,6 +110,8 @@ def error_handler(e):
 
 
 if __name__ == '__main__':
-    app.run(host=app.config['HOST'],
-            port=app.config['PORT'],
-            debug=app.config['DEBUG'])
+    socketio.run(app, debug=True)
+    # app.run(host=app.config['HOST'],
+    #         port=app.config['PORT'],
+    #         debug=app.config['DEBUG'])
+# print(app.config["DEBUG"])

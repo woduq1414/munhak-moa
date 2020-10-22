@@ -34,6 +34,10 @@ if socket.gethostname()[:7] == "DESKTOP":
     REDIS_URL = config['DEFAULT']['REDIS_URL']
     FERNET_KEY = config['DEFAULT']['FERNET_KEY']
 
+    DEBUG = True
+    TEMPLATES_AUTO_RELOAD = True
+
+
 else:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
