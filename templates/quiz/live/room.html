@@ -63,9 +63,14 @@
 
 
     <script>
-        let room_id = {{ data.room_id }}
-            let
-        socket = io.connect("/live");
+        let room_id = {{ data.room_id }};
+
+        let socket;
+        if (window.location.host == "127.0.0.1:5000") {
+            socket = io.connect("/live");
+        }else{
+             socket = io.connect("/live", { transports: ['websocket'] });
+        }
 
 
         socket.on('connect', function () {
