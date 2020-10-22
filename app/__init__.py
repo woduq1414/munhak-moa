@@ -60,6 +60,9 @@ def create_app(config_filename):
 
     fetch_spread_sheet()
 
+    cache.set("room_info", {}, timeout=999999999999999)
+
+
     app.add_template_global(name="TAG_SOURCE",
                             f=list(
                                 {"건국신화", "고대가요", "설화", "향가", "4구체", "8구체", "한시", "전", "소악부", "시조", "한시", "고려속요", "가전체",

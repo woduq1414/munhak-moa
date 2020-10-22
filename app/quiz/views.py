@@ -293,7 +293,7 @@ def render_ranking():
 
 ######################################################################
 
-room_info = {}
+
 
 
 @quiz_bp.route('/live')
@@ -303,6 +303,7 @@ def enter_live():
 
 @quiz_bp.route('/live/make-room')
 def make_room():
+    room_info = cache.get("room_info")
     args = request.args
     if "nickname" in args:
         if 1 <= len(args["nickname"]) <= 20:
@@ -328,11 +329,14 @@ def make_room():
 
     print("room_info" , room_info)
 
+    cache.set("room_info", room_info)
+
     return redirect(url_for("quiz.live_room", room_id=random_num))
 
 
 @quiz_bp.route('/live/enter-room')
 def enter_room():
+    room_info = cache.get("room_info")
     args = request.args
     if "nickname" in args:
         if 1 <= len(args["nickname"]) <= 20:
@@ -357,6 +361,7 @@ def enter_room():
 
 @quiz_bp.route('/live/<int:room_id>')
 def live_room(room_id):
+    room_info = cache.get("room_info")
     print("room_info", room_info, room_id)
 
     if room_id not in room_info:
@@ -383,11 +388,12 @@ def on_disconnect():
 
 @socketio.on('leave_live_room', namespace="/live")
 def leave_live_room(target_sid=None):
+    room_info = cache.get("room_info")
     if target_sid is None:
         target_sid = request.sid
 
     for room in room_info:
-        for sid in room_info[room]["users"].keys():
+        for sid in list(room_info[room]["users"]):
             if sid == target_sid:
                 del room_info[room]["users"][sid]
                 room_id = room
@@ -406,9 +412,14 @@ def leave_live_room(target_sid=None):
                         "room_master": room_info[room_id]["room_master"]
                     }, room=room_id, namespace="/live")
 
+    cache.set("room_info", room_info)
+
 
 @socketio.on('join_live_room', namespace="/live")
 def join_live_room(data, methods=['GET', 'POST']):
+
+    room_info = cache.get("room_info")
+
     if "live_nickname" not in session:
         emit("error")
         return
@@ -446,6 +457,7 @@ def join_live_room(data, methods=['GET', 'POST']):
         "users": room_info[room_id]["users"],
         "room_master": room_info[room_id]["room_master"]
     }, room=room_id)
+    cache.set("room_info", room_info)
 
     # print('received my event: ' + str(json)/)
     # socketio.emit('my response', data[", callback=messageReceived)
