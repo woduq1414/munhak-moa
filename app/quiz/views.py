@@ -294,8 +294,6 @@ def render_ranking():
 ######################################################################
 
 
-
-
 @quiz_bp.route('/live')
 def enter_live():
     return render_template("./quiz/live/index.html")
@@ -327,7 +325,7 @@ def make_room():
             "room_master": None
         }
 
-    print("room_info" , room_info)
+    print("room_info", room_info)
 
     cache.set("room_info", room_info)
 
@@ -417,7 +415,6 @@ def leave_live_room(target_sid=None):
 
 @socketio.on('join_live_room', namespace="/live")
 def join_live_room(data, methods=['GET', 'POST']):
-
     room_info = cache.get("room_info")
 
     if "live_nickname" not in session:
