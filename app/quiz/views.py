@@ -308,8 +308,10 @@ def make_room():
         if 1 <= len(args["nickname"]) <= 20:
             session["live_nickname"] = args["nickname"]
         else:
+
             return redirect(url_for("quiz.enter_live"))
     else:
+
         return redirect(url_for("quiz.enter_live"))
 
     random_num = -1
@@ -323,6 +325,8 @@ def make_room():
             "users": {},
             "room_master": None
         }
+
+    print("room_info" , room_info)
 
     return redirect(url_for("quiz.live_room", room_id=random_num))
 
@@ -353,6 +357,8 @@ def enter_room():
 
 @quiz_bp.route('/live/<int:room_id>')
 def live_room(room_id):
+    print("room_info", room_info, room_id)
+
     if room_id not in room_info:
         return redirect(url_for("quiz.enter_live"))
 
