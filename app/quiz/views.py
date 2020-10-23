@@ -330,7 +330,7 @@ def make_room():
             "users": {},
             "room_master": None,
             "is_playing": False,
-            "quiz_data_list" : [],
+            "quiz_data_list": [],
         }
 
     print("room_info", room_info)
@@ -426,6 +426,10 @@ def leave_live_room(target_sid=None):
 
 @socketio.on('join_live_room', namespace="/live")
 def join_live_room(data, methods=['GET', 'POST']):
+    color_list = [
+        "red", "green", "blue", "orange", "pink", "yellow"
+    ]
+
     global room_info
     # room_info = cache.get("room_info")
 
@@ -457,8 +461,15 @@ def join_live_room(data, methods=['GET', 'POST']):
         room_info[room_id]["room_master"] = request.sid
 
     print(room_info)
+
+    exist_color_list = [v["color"] for k, v in room_info[room_id]["users"].items()]
+    available_color_list = list(set(color_list) - set(exist_color_list))
+    random.shuffle(available_color_list)
+
     room_info[room_id]["users"][request.sid] = {
-        "nickname": session["live_nickname"]
+        "nickname": session["live_nickname"],
+        "color": available_color_list[0],
+        "is_ready": False,
     }
     print(room_info)
 
@@ -472,6 +483,23 @@ def join_live_room(data, methods=['GET', 'POST']):
     # socketio.emit('my response', data[", callback=messageReceived)
 
 
+@socketio.on("ready_live", namespace="/live")
+def ready_live(data):
+    global room_info
+
+    room_id = data["room_id"]
+    if room_id not in room_info or room_info[room_id]["room_master"] == request.sid or room_info[room_id][
+        "is_playing"] is not False:
+        return
+
+    room_info[room_id]["users"][request.sid]["is_ready"] = not room_info[room_id]["users"][request.sid]["is_ready"]
+
+    emit("update_room_info", {
+        "users": room_info[room_id]["users"],
+        "room_master": room_info[room_id]["room_master"]
+    }, room=room_id, namespace="/live")
+
+
 @socketio.on('start_live', namespace="/live")
 def start_live(data):
     global room_info
@@ -481,14 +509,18 @@ def start_live(data):
         "is_playing"] is not False:
         emit("error")
 
+    for sid in room_info[room_id]["users"]:
+        if sid != request.sid and room_info[room_id]["users"][sid]["is_ready"] != True:
+            emit("alert_message", "모두 준비하지 않았습니다")
+            return
+
     munhak_rows_data = cache.get("munhak_quiz_rows_data")
     munhak_rows = copy.deepcopy(munhak_rows_data)
 
     selected_quiz_list = []
     quiz_data_list = []
 
-
-    for quiz_no in range(1, 16):
+    for quiz_no in range(1, 101):
         not_selected_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                     munhak_row["munhak_seq"] not in selected_quiz_list]
 
@@ -513,7 +545,7 @@ def start_live(data):
         hint = hint.replace("\\", "")
 
         quiz_data = {
-            "quiz_no" : quiz_no,
+            "quiz_no": quiz_no,
             "munhak_seq": correct_munhak_row["munhak_seq"],
             "source": correct_munhak_row["source"],
             "category": correct_munhak_row["category"],
@@ -533,8 +565,93 @@ def start_live(data):
 
     room_info[room_id]["quiz_data_list"] = quiz_data_list
 
-    room_info[room_id]["is_playing"] = True
+    for sid in room_info[room_id]["users"]:
+        room_info[room_id]["users"][sid]["quiz_no"] = 1
+        room_info[room_id]["users"][sid]["correct"] = 0
+        room_info[room_id]["users"][sid]["wrong"] = 0
+        room_info[room_id]["users"][sid]["score"] = 0
 
-    emit("live_started", room=room_id)
+    room_info[room_id]["is_playing"] = True
+    room_info[room_id]["goal_score"] = 20
+
+    emit("live_started", {
+        "users": room_info[room_id]["users"],
+        "goal_score": room_info[room_id]["goal_score"]
+    }, room=room_id)
 
     # cache.set("room_info", room_info)
+
+
+@socketio.on('mark_and_get_quiz', namespace="/live")
+def mark_and_get_quiz(data):
+    if data["room_id"] not in room_info:
+        return
+    is_correct = None
+    sid = request.sid
+    room_id = data["room_id"]
+    quiz_no = room_info[room_id]["users"][sid]["quiz_no"]
+
+    CORRECT_SCORE = 2
+    WRONG_SCORE = -1
+
+    if "answer" in data:
+        quiz = room_info[room_id]["quiz_data_list"][quiz_no - 1]
+        print(quiz)
+        if quiz["correct"] == data["answer"]:
+            is_correct = True
+            if room_info[room_id]["users"][sid]["score"] + WRONG_SCORE <= room_info[room_id]["goal_score"]:
+                room_info[room_id]["users"][sid]["score"] = room_info[room_id]["users"][sid]["score"] + CORRECT_SCORE
+            else:
+                room_info[room_id]["users"][sid]["score"] = room_info[room_id]["goal_score"]
+        else:
+            is_correct = False
+
+            if room_info[room_id]["users"][sid]["score"] + WRONG_SCORE >= 0:
+                room_info[room_id]["users"][sid]["score"] = room_info[room_id]["users"][sid]["score"] + WRONG_SCORE
+            else:
+                room_info[room_id]["users"][sid]["score"] = 0
+
+        emit("solve_progress", {
+            "sid": request.sid,
+            "score": room_info[room_id]["users"][sid]["score"]
+        }, room=room_id)
+
+        if room_info[room_id]["goal_score"] <= room_info[room_id]["users"][sid]["score"]:
+            user_list = copy.deepcopy(room_info[room_id]["users"])
+            user_list = {k: v for k, v in sorted(user_list.items(), key=lambda item: item[1]["score"], reverse=True)}
+
+            room_info[room_id]["is_playing"] = False
+
+            for sid in room_info[room_id]["users"]:
+                room_info[room_id]["users"][sid]["is_ready"] =False
+
+            emit("end_live", {
+                "users": user_list
+            }, room=room_id)
+
+            emit("update_room_info", {
+                "users": room_info[room_id]["users"],
+                "room_master": room_info[room_id]["room_master"]
+            }, room=room_id, namespace="/live")
+
+            return
+
+        quiz_no += 1
+        room_info[room_id]["users"][sid]["quiz_no"] = room_info[room_id]["users"][sid]["quiz_no"] + 1
+
+    print(quiz_no)
+
+    # next quiz
+    quiz_data_temp = room_info[room_id]["quiz_data_list"][quiz_no - 1]
+    quiz_data = {
+        "quiz_no": quiz_no,
+        "munhak_seq": quiz_data_temp["munhak_seq"],
+        "source": quiz_data_temp["source"],
+        "category": quiz_data_temp["category"],
+        "hint": quiz_data_temp["hint"],
+        "options": quiz_data_temp["options"],
+    }
+
+    emit("receive_quiz", {
+        "quiz_data": quiz_data, "is_correct": is_correct
+    })

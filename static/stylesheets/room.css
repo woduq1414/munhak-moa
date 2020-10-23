@@ -1,10 +1,22 @@
+#waitContent {
+    width: 800px;
+    display: flex;
+    flex-direction: column;
 
-#content {
+    border-radius: 15px;
+    margin: 10px 15px;
+    padding: 50px 50px 10px 50px;
+    /*border : 2px solid grey;*/
+    box-shadow: 0px 0px 11px -5px rgba(0, 0, 0, 0.3);
+
+}
+
+#waitContent {
     padding: 1rem !important;
 }
 
 @media screen and (max-width: 768px) {
-    #content {
+    #waitContent {
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -37,7 +49,7 @@
     }
 
 
-    #startLiveButton, #exitButton {
+    #startLiveButton, #exitButton, #readyButton {
         width: 100%;
     }
 
@@ -45,7 +57,7 @@
 }
 
 @media screen and (min-width: 768px) {
-    #content {
+    #waitContent {
         width: 80%;
         display: flex;
         flex-direction: row;
@@ -78,7 +90,7 @@
     }
 
 
-    #startLiveButton, #exitButton {
+    #startLiveButton, #exitButton, #readyButton {
         width: 100%;
     }
 
@@ -94,7 +106,25 @@
     margin-right: 0.5rem;
 }
 
-.roomMasterIcon {
+.roomMasterIconWrapper {
+    color: gold;
+    font-size: 1.5rem;
+    margin-left: 0.5rem;
+    display: inline-block;
+}
+
+.readyBadge {
+    font-size: 1.1rem;
+    margin-left: 0.5rem;
+}
+
+.userWrapper {
+    display: flex;
+    align-items: center;
+}
+
+
+.meIcon {
     background-color: var(--primary-color-bright);
 }
 
@@ -115,4 +145,85 @@
 
 #roomId {
     cursor: pointer;
+}
+
+
+@media screen and (max-width: 768px) {
+    #quizContent, #quizContent2 {
+        width: 95%;
+
+    }
+
+
+}
+
+#quizContent, #quizContent2 {
+    background-color: white;
+}
+
+#quizContent, #quizContent2 {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 0px 14px -5px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+}
+
+
+#myProgressBar {
+
+    background-color: skyblue;
+    height: 0%;
+    opacity: 0.5;
+}
+
+#myProgressBarWrapper {
+    background-color: #eee;
+    padding: 1rem 0;
+    height: 100vh;
+    width: 2.5rem;
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+
+.otherPlayerMarker {
+    position: fixed;
+    right: 1.5rem;
+    font-size: 2rem;
+    top: 1rem;
+    transform: rotate(-90deg);
+}
+
+.overlayBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    background: #dddddd;
+    opacity: .8;
+    z-index: 1000;
+
+}
+
+
+#countDownOverlay {
+    width: 250px;
+    height: 250px;
+    font-size: 5rem;
+    border-radius: 1000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameEndOverlay {
+    width: 60%;
+    padding: 2rem;
+    font-size: 3rem;
+    border-radius: 1000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

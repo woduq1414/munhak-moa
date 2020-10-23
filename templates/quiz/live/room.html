@@ -3,7 +3,7 @@
 {% block style %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
 
-    {#    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">#}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ranking.css') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/live.css') }}">
@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/room.css') }}">
     <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block main %}
@@ -20,7 +22,7 @@
     <div id="container">
 
 
-        <div id="content">
+        <div id="waitContent">
 
             <div id="leftContainer">
                 <div id="userContainer">
@@ -41,15 +43,42 @@
                 <div id="roomButtonContainer">
 
                     <div class="btn btn-outline-danger" id="exitButton">나가기</div>
+                    <div class="btn btn-outline-primary" id="readyButton">준비</div>
                     <div class="btn btn-outline-primary" id="startLiveButton">시작</div>
                 </div>
             </div>
 
 
         </div>
+
+        <div id="myProgressBarWrapper">
+            <div id="myProgressBar">
+
+            </div>
+
+        </div>
+
+
+    </div>
+    <div class="overlayBox" id="countDownOverlay">
+
     </div>
 
+    <div class="overlayBox" id="gameEndOverlay">
+        게임 끝!
+    </div>
 
+    <div class="modal fade" id="liveRankingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-body liveRankingModalBody">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 
 
@@ -66,9 +95,15 @@
     <script>
         new ClipboardJS('#roomId');
 
-        $("#startLiveButton").hide()
+        let is_playing = false;
+        $("#quizContent").hide();
+        {#$("#waitContent").hide();#}
 
+        $("#startLiveButton").hide()
+        $("#myProgressBarWrapper").hide()
+        $(".overlayBox").hide();
         let room_id = {{ data.room_id }};
+
 
         let socket;
         if (window.location.host == "127.0.0.1:5000") {
@@ -85,8 +120,8 @@
         })
 
         socket.on('error', function () {
-            alert("err");
-            {#location.href = "/quiz/live"#}
+            {#alert("err");#}
+            location.href = "/quiz/live"
         })
 
 
@@ -97,14 +132,40 @@
 
                 $("#userContainer").append(`
                     <div class="userWrapper">
-                        <i class="fas fa-user userIcon ${user === data['room_master'] ? 'roomMasterIcon' : ''}"></i>
-                        <span class="userNickname">${data["users"][user].nickname}</span>
+                        <i class="fas fa-user userIcon ${user === socket.io.engine.id ? 'meIcon' : ''}"></i>
+                        <span class="userNickname" style="color:${data["users"][user].color}">${data["users"][user].nickname}</span>
+                       ${user === data["room_master"] ? `
+                        <div class="roomMasterIconWrapper">
+                            <i class="fas fa-crown"></i>
+
+                        </div>
+                     ` : `
+                        ${
+                    data["users"][user]["is_ready"] === true ? `<span class="badge badge-pill badge-primary readyBadge">준비완료</span>` : ``
+                }
+
+                     `}
+
                     </div>
+
+
+
                 `)
+
+
+                if(user === socket.io.engine.id){
+                    $("#readyButton").text(
+                         data["users"][user]["is_ready"] === true ? "준비 취소" : "준비"
+                    );
+                }
+
+
             }
             if (socket.io.engine.id === data["room_master"]) {
+                $("#readyButton").hide()
                 $("#startLiveButton").show()
             } else {
+                $("#readyButton").show()
                 $("#startLiveButton").hide()
             }
 
@@ -118,9 +179,277 @@
         })
 
         $("#startLiveButton").on("click", function () {
+
             socket.emit("start_live", {
-                room_id : room_id
+                room_id: room_id
             });
+        })
+
+        $("#readyButton").on("click", function () {
+
+            socket.emit("ready_live", {
+                room_id: room_id
+            });
+        })
+
+
+        socket.on('live_started', function (data) {
+            $("#quizContent").remove();
+            $("#waitContent").hide();
+
+
+            is_playing = true
+
+            $("#countDownOverlay").show();
+            $("#countDownOverlay").text("3");
+            setTimeout(function () {
+                $("#countDownOverlay").text("2");
+                setTimeout(function () {
+                    $("#countDownOverlay").text("1");
+
+                    setTimeout(function () {
+                        $("#countDownOverlay").hide();
+                        real_start();
+                    }, 500);
+                }, 500);
+
+            }, 500);
+
+
+            function real_start() {
+
+                $("#myProgressBarWrapper").attr("goal_score", data["goal_score"])
+
+
+                for (let sid in data["users"]) {
+                    if (sid == socket.io.engine.id) {
+                        {#$("#myProgressBarWrapper").css("background-color",data["users"][sid]["color"]);#}
+                        $("#myProgressBar").css("background-color", data["users"][sid]["color"]);
+                        $("#myProgressBar").height("0px")
+                    } else {
+                        $(".otherPlayerMarker").remove()
+                        $("#myProgressBarWrapper").append(
+                            `
+                    <div class="otherPlayerMarker" id="otherPlayerMarker${sid}" style="color:${data["users"][sid]["color"]}; top : 15px">
+                        <i class="fas fa-map-marker"></i>
+                    </div>
+                    `
+                        )
+                    }
+
+                }
+                $("#myProgressBarWrapper").show()
+
+                socket.emit("mark_and_get_quiz", {
+                    room_id: room_id
+                })
+            }
+
+
+        })
+
+        socket.on('solve_progress', function (data) {
+            console.log(data)
+            if (socket.io.engine.id == data["sid"]) {
+                $("#myProgressBar").animate({height: $("#myProgressBarWrapper").height() * data["score"] / $("#myProgressBarWrapper").attr("goal_score")}, 800, function () {
+                    {#$("#quizContent2").remove();#}
+                });
+            } else {
+                $(`#otherPlayerMarker${data["sid"]}`).animate({top: ($("#myProgressBarWrapper").height() - 25) * data["score"] / $("#myProgressBarWrapper").attr("goal_score") + 15}, 800, function () {
+                    {#$("#quizContent2").remove();#}
+                });
+            }
+
+        })
+
+
+        socket.on('end_live', function (data) {
+            is_playing = false
+
+            $("#gameEndOverlay").show()
+
+            setTimeout(function () {
+                {#alert("game end!")#}
+                console.log("result", data)
+
+                $("#quizContent").hide();
+                $("#waitContent").show();
+                $("#myProgressBarWrapper").hide();
+                $("#gameEndOverlay").hide()
+
+
+                $("#liveRankingModal .liveRankingModalBody").html(
+                    `
+                    <div class="rankingText">
+                        순위표
+                    </div>
+                    <table id="rankingTable">
+                        <tr>
+                            <th class="rankingNo">
+                                #
+                            </th>
+                            <th class="rankingNickname">
+                                별명(닉네임)
+                            </th>
+                            <th class="rankingScore">
+                                최고 점수
+                            </th>
+                        </tr>
+
+
+
+
+                        ${
+                        Object.keys(data["users"]).map(
+                            (sid, index) => {
+                                return `
+                                <tr>
+                                    <td>
+                                        ${index + 1}
+                                    </td>
+                                    <td>
+                                        ${data["users"][sid]["nickname"]}
+                                    </td>
+                                    <td>
+                                        ${data["users"][sid]["score"]}
+                                    </td>
+
+
+                                </tr>
+
+                                `
+                            }
+                        )
+
+                    }
+
+
+
+                    </table>
+
+                    `
+                )
+
+
+                $("#liveRankingModal").modal()
+
+
+            }, 1500);
+
+
+        })
+
+        socket.on('alert_message', function (data) {
+            alert(data)
+        })
+
+
+        socket.on('receive_quiz', function (data) {
+            console.log(data)
+
+            let quiz_html = `
+    <div id="quizContent">
+        <div id="upperBox">
+            <div id="quizNo">
+                ${data["quiz_data"].quiz_no}
+            </div>
+            <div id="category">
+                ${data["quiz_data"].category}
+            </div>
+        </div>
+
+        <div id="hint">
+            <q>&nbsp;${data["quiz_data"].hint}&nbsp;</q>
+        </div>
+        <hr>
+        <div id="options">
+            ${
+                data["quiz_data"].options.map(
+                    (option, index) => {
+                        return `
+                        <div  class="option" option="${index}" id="option${index + 1}">
+                            ${option}
+                        </div>
+                        `
+                    }
+                ).join(" ")
+            }
+        </div>
+
+    </div>
+`;
+
+
+            if (data["is_correct"] == null) {
+                $("#quizContent").remove();
+
+            } else if (data["is_correct"] === true) {
+                $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
+                    setTimeout(function () {
+                        $("#container").animate({"background-color": "white"}, 100, function () {
+
+                        });
+                    }, 500);
+
+                });
+
+                $("#quizContent").attr("id", "quizContent2");
+                $("#quizContent2").css("position", "fixed");
+                $("#quizContent2").animate({top: -$("#quizContent2").height() - 50}, 500, function () {
+                    $("#quizContent2").remove();
+                });
+            } else if (data["is_correct"] === false) {
+                $("#container").animate({"background-color": "#ff978e"}, 100, function () {
+                    setTimeout(function () {
+                        $("#container").animate({"background-color": "white"}, 100, function () {
+
+                        });
+                    }, 500);
+
+                });
+
+                $("#quizContent").attr("id", "quizContent2");
+                $("#quizContent2").css("position", "fixed");
+                $("#quizContent2").animate({top: -$("#quizContent2").height() - 50}, 500, function () {
+                    $("#quizContent2").remove();
+                });
+            }
+
+            $("#container").append(
+                quiz_html
+            );
+            $("#quizContent").css("position", "fixed");
+            $("#quizContent").css("top", `${$(document).height()}px`);
+
+            console.log($("#quizContent").css("top"));
+            $temp = $("#quizContent");
+            $temp.animate({top: ($(document).height() - $temp.height()) / 2}, 700, function () {
+                setTimeout(function () {
+                    $temp.css("position", "unset");
+                }, 500);
+
+            });
+
+
+        })
+
+
+        $(document).on("click", "#quizContent .option", function (e) {
+
+            if (is_playing == false) {
+                return
+            }
+
+            let $target = $(e.target);
+            $("#quizContent .option").off("click");
+
+            let answer = $target.attr("option");
+
+            socket.emit("mark_and_get_quiz", {
+                room_id: room_id,
+                answer: answer * 1
+            })
+
         })
 
 
