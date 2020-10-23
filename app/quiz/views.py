@@ -122,8 +122,8 @@ def get_quiz():
             "source": correct_munhak_row["source"],
             "category": correct_munhak_row["category"],
             "hint": hint,
-            "title": correct_munhak_row["title"],
-            "writer": correct_munhak_row["writer"]
+            # "title": correct_munhak_row["title"],
+            # "writer": correct_munhak_row["writer"]
         }
         session["options"] = [munhak_row for munhak_row in option_munhak_rows]
         data = {
@@ -249,13 +249,16 @@ def result():
                 db.session.commit()
                 is_best_record = True
 
+    correct = int(simpleEnDecrypt.decrypt(session["correct"]).split(":")[0])
     data = {
         "is_success": is_success,
         "solved_count": session["quiz_count"],
-        "correct": int(simpleEnDecrypt.decrypt(session["correct"]).split(":")[0]),
+        "correct": correct,
         "current_munhak": session["current_munhak"],
-        "is_best_record": is_best_record
+        "is_best_record": is_best_record,
+        "correct_option": session["options"][correct]
     }
+    print(session["options"][correct])
 
     print(data)
     return render_template("quiz/result.html", data=data)
@@ -293,6 +296,8 @@ def render_ranking():
 
 ######################################################################
 
+room_info = {}
+
 
 @quiz_bp.route('/live')
 def enter_live():
@@ -301,7 +306,8 @@ def enter_live():
 
 @quiz_bp.route('/live/make-room')
 def make_room():
-    room_info = cache.get("room_info")
+    global room_info
+    # room_info = cache.get("room_info")
     args = request.args
     if "nickname" in args:
         if 1 <= len(args["nickname"]) <= 20:
@@ -322,19 +328,22 @@ def make_room():
             continue
         room_info[random_num] = {
             "users": {},
-            "room_master": None
+            "room_master": None,
+            "is_playing": False,
+            "quiz_data_list" : [],
         }
 
     print("room_info", room_info)
 
-    cache.set("room_info", room_info)
+    # cache.set("room_info", room_info)
 
     return redirect(url_for("quiz.live_room", room_id=random_num))
 
 
 @quiz_bp.route('/live/enter-room')
 def enter_room():
-    room_info = cache.get("room_info")
+    global room_info
+    # room_info = cache.get("room_info")
     args = request.args
     if "nickname" in args:
         if 1 <= len(args["nickname"]) <= 20:
@@ -359,10 +368,11 @@ def enter_room():
 
 @quiz_bp.route('/live/<int:room_id>')
 def live_room(room_id):
-    room_info = cache.get("room_info")
+    global room_info
+    # room_info = cache.get("room_info")
     print("room_info", room_info, room_id)
 
-    if room_id not in room_info:
+    if room_id not in room_info or room_info[room_id]["is_playing"] is True:
         return redirect(url_for("quiz.enter_live"))
 
     return render_template("./quiz/live/room.html", data={"room_id": room_id})
@@ -386,7 +396,8 @@ def on_disconnect():
 
 @socketio.on('leave_live_room', namespace="/live")
 def leave_live_room(target_sid=None):
-    room_info = cache.get("room_info")
+    global room_info
+    # room_info = cache.get("room_info")
     if target_sid is None:
         target_sid = request.sid
 
@@ -415,7 +426,8 @@ def leave_live_room(target_sid=None):
 
 @socketio.on('join_live_room', namespace="/live")
 def join_live_room(data, methods=['GET', 'POST']):
-    room_info = cache.get("room_info")
+    global room_info
+    # room_info = cache.get("room_info")
 
     if "live_nickname" not in session:
         emit("error")
@@ -454,7 +466,75 @@ def join_live_room(data, methods=['GET', 'POST']):
         "users": room_info[room_id]["users"],
         "room_master": room_info[room_id]["room_master"]
     }, room=room_id)
-    cache.set("room_info", room_info)
+    # cache.set("room_info", room_info)
 
     # print('received my event: ' + str(json)/)
     # socketio.emit('my response', data[", callback=messageReceived)
+
+
+@socketio.on('start_live', namespace="/live")
+def start_live(data):
+    global room_info
+    # room_info = cache.get("room_info")
+    room_id = data["room_id"]
+    if room_id not in room_info or room_info[room_id]["room_master"] != request.sid or room_info[room_id][
+        "is_playing"] is not False:
+        emit("error")
+
+    munhak_rows_data = cache.get("munhak_quiz_rows_data")
+    munhak_rows = copy.deepcopy(munhak_rows_data)
+
+    selected_quiz_list = []
+    quiz_data_list = []
+
+
+    for quiz_no in range(1, 16):
+        not_selected_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+                                    munhak_row["munhak_seq"] not in selected_quiz_list]
+
+        correct_munhak_row = random.choice(not_selected_munhak_rows)
+
+        for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
+            munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+
+        random.shuffle(munhak_rows)
+
+        if correct_munhak_row["category"] != "극" and correct_munhak_row[
+            "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
+            option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+                                  munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
+        else:
+            option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
+
+        random.shuffle(option_munhak_rows)
+        correct = option_munhak_rows.index(correct_munhak_row)
+
+        hint = random.choice(correct_munhak_row["keywords"])
+        hint = hint.replace("\\", "")
+
+        quiz_data = {
+            "quiz_no" : quiz_no,
+            "munhak_seq": correct_munhak_row["munhak_seq"],
+            "source": correct_munhak_row["source"],
+            "category": correct_munhak_row["category"],
+            "hint": hint,
+            "correct": correct,
+            "options": [
+                f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in option_munhak_rows
+            ],
+            "title": correct_munhak_row["title"],
+            "writer": correct_munhak_row["writer"]
+        }
+
+        selected_quiz_list.append(correct_munhak_row["munhak_seq"])
+        quiz_data_list.append(quiz_data)
+
+    print(quiz_data_list)
+
+    room_info[room_id]["quiz_data_list"] = quiz_data_list
+
+    room_info[room_id]["is_playing"] = True
+
+    emit("live_started", room=room_id)
+
+    # cache.set("room_info", room_info)

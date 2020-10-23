@@ -10,6 +10,7 @@
 
     <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 {% endblock %}
 
 {% block main %}
@@ -27,7 +28,7 @@
                 <label for="nicknameInput" id="nicknameLabel">별명(닉네임) : </label>
                 {#                <br>#}
                 <input type="text" id="nicknameInput">
-                <small id="nicknameHelp" class="form-text text-muted">16바이트까지 가능(영문 - 1, 한글 - 2)
+                <small id="nicknameHelp" class="form-text text-muted">1~15자
                     <span id="nicknameLength"></span>
                 </small>
             </div>

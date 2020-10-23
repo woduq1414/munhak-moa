@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/room.css') }}">
     <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 {% endblock %}
 
 {% block main %}
@@ -31,7 +32,7 @@
             <div id="rightContainer">
                 <div id="roomIdWrapper">
                     방 번호 :
-                    <div id="roomId">
+                    <div id="roomId" data-clipboard-text="{{ data.room_id }}">
                         {{ data.room_id }}
                     </div>
                 </div>
@@ -63,13 +64,17 @@
 
 
     <script>
+        new ClipboardJS('#roomId');
+
+        $("#startLiveButton").hide()
+
         let room_id = {{ data.room_id }};
 
         let socket;
         if (window.location.host == "127.0.0.1:5000") {
             socket = io.connect("/live");
-        }else{
-             socket = io.connect("/live", { transports: ['websocket'] });
+        } else {
+            socket = io.connect("/live", {transports: ['websocket']});
         }
 
 
@@ -113,7 +118,9 @@
         })
 
         $("#startLiveButton").on("click", function () {
-
+            socket.emit("start_live", {
+                room_id : room_id
+            });
         })
 
 

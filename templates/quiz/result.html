@@ -24,9 +24,9 @@
                 </div>
                 <a href="{{ url_for('board.munhak_board_detail', munhak_seq=data.current_munhak.munhak_seq) }}">
                     <div id="option{{ data.correct + 1 }}" class="option optionResult"
-                         data="{{ data.current_munhak.writer }}, 『{{ data.current_munhak.title }}』"
-                         title="{{ data.current_munhak.title }}">
-                        {{ data.current_munhak.writer }}, 『{{ data.current_munhak.title }}』
+                         data="{{ data.correct_option.writer }}, 『{{ data.correct_option.title }}』"
+                         title="{{ data.correct_option.title }}">
+                        {{ data.correct_option.writer }}, 『{{ data.correct_option.title }}』
                     </div>
 
                 </a>

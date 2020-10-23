@@ -42,3 +42,7 @@
 #container {
     height: 100vh;
 }
+
+.form-group {
+    text-align: center;
+}
