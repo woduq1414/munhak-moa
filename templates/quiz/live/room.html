@@ -40,6 +40,18 @@
                 </div>
 
 
+                <div id="roomSettingWrapper">
+                    <div id="goalScore">목표 점수 : 20</div>
+                    <div id="correctScore">맞혔을 때 : +2</div>
+                    <div id="wrongScore">틀렸을 때 : -1</div>
+
+
+                    <div id="roomSettingIconWrapper">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                </div>
+
+
                 <div id="roomButtonContainer">
 
                     <div class="btn btn-outline-danger" id="exitButton">나가기</div>
@@ -68,6 +80,11 @@
         게임 끝!
     </div>
 
+    <div class="overlayBox" id="gameStartOverlay">
+
+    </div>
+
+
     <div class="modal fade" id="liveRankingModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -79,6 +96,46 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="roomSettingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-body roomSettingModalBody">
+                    <div class="form-group">
+                        <label for="goalScoreInput" id="goalScoreLabel">목표 점수 : </label>
+                        {#                <br>#}
+                        <input type="number" id="goalScoreInput" min="1" value="20">
+                        <small id="nicknameHelp" class="form-text text-muted" default="hello">도달하면 게임이 끝나는 점수(자연수)
+                            <span id="nicknameLength"></span>
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="correctScoreInput" id="correctScoreLabel">정답 점수 : </label>
+                        {#                <br>#}
+                        <input type="number" id="correctScoreInput" min="1" value="2">
+                        <small id="nicknameHelp" class="form-text text-muted" default="hello">맞혔을 때 얻는 점수(자연수)
+                            <span id="nicknameLength"></span>
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="wrongScoreInput" id="wrongScoreLabel">오답 점수 : </label>
+                        {#                <br>#}
+                        <input type="number" id="wrongScoreInput" min="0" value="1">
+                        <small id="nicknameHelp" class="form-text text-muted" default="hello">틀렸을 때 잃는 점수(0 이상 정수)
+                            <span id="nicknameLength"></span>
+                        </small>
+                    </div>
+
+                    <div class="btn-outline-primary btn" id="editRoomSettingButton">
+                        설정 수정
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 
 
 
@@ -153,9 +210,9 @@
                 `)
 
 
-                if(user === socket.io.engine.id){
+                if (user === socket.io.engine.id) {
                     $("#readyButton").text(
-                         data["users"][user]["is_ready"] === true ? "준비 취소" : "준비"
+                        data["users"][user]["is_ready"] === true ? "준비 취소" : "준비"
                     );
                 }
 
@@ -164,9 +221,22 @@
             if (socket.io.engine.id === data["room_master"]) {
                 $("#readyButton").hide()
                 $("#startLiveButton").show()
+
+
+                $("#roomSettingWrapper").on("click", function () {
+                    $("#roomSettingModal").modal();
+                })
+
+                $("#roomSettingIconWrapper").show();
+
+
             } else {
                 $("#readyButton").show()
                 $("#startLiveButton").hide()
+
+                $("#roomSettingWrapper").off("click");
+                $("#roomSettingIconWrapper").hide();
+
             }
 
 
@@ -185,6 +255,7 @@
             });
         })
 
+
         $("#readyButton").on("click", function () {
 
             socket.emit("ready_live", {
@@ -198,22 +269,32 @@
             $("#waitContent").hide();
 
 
+
+            $("#gameStartOverlay").html(`
+                <h1>${data["goal_score"]}점을 먼저 획득하세요!</h1>
+                <br>
+                <h4>맞혔을 때 : +${data["correct_score"]}</h4>
+                <h4>틀렸을 때 : -${data["wrong_score"]}</h4>
+            `);
+            $("#gameStartOverlay").show();
             is_playing = true
-
-            $("#countDownOverlay").show();
-            $("#countDownOverlay").text("3");
             setTimeout(function () {
-                $("#countDownOverlay").text("2");
+                $("#gameStartOverlay").hide();
+                $("#countDownOverlay").show();
+                $("#countDownOverlay").text("3");
                 setTimeout(function () {
-                    $("#countDownOverlay").text("1");
-
+                    $("#countDownOverlay").text("2");
                     setTimeout(function () {
-                        $("#countDownOverlay").hide();
-                        real_start();
-                    }, 500);
-                }, 500);
+                        $("#countDownOverlay").text("1");
 
-            }, 500);
+                        setTimeout(function () {
+                            $("#countDownOverlay").hide();
+                            real_start();
+                        }, 500);
+                    }, 500);
+
+                }, 500);
+            }, 1500);
 
 
             function real_start() {
@@ -450,6 +531,26 @@
                 answer: answer * 1
             })
 
+        })
+
+
+        $("#editRoomSettingButton").on("click", function () {
+            socket.emit("edit_room_setting", {
+                room_id: room_id,
+                correct_score: $("#correctScoreInput").val() * 1,
+                wrong_score: $("#wrongScoreInput").val() * 1,
+                goal_score: $("#goalScoreInput").val() * 1,
+            });
+
+            $("#roomSettingModal").modal("hide")
+
+
+        })
+
+        socket.on("room_setting_edited", function (data) {
+            $("#goalScore").html(`목표 점수 : ${data["goal_score"]}`)
+            $("#correctScore").html(`맞혔을 때 : +${data["correct_score"]}`)
+            $("#wrongScore").html(`틀렸을 때 : -${data["wrong_score"]}`)
         })
 
 

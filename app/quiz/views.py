@@ -331,6 +331,11 @@ def make_room():
             "room_master": None,
             "is_playing": False,
             "quiz_data_list": [],
+            "setting" : {
+                "correct_score" : 2,
+                "wrong_score" : -1,
+                "goal_score" : 20
+            }
         }
 
     print("room_info", room_info)
@@ -418,7 +423,8 @@ def leave_live_room(target_sid=None):
 
                     emit("update_room_info", {
                         "users": room_info[room_id]["users"],
-                        "room_master": room_info[room_id]["room_master"]
+                        "room_master": room_info[room_id]["room_master"],
+                        "setting": room_info[room_id]["setting"]
                     }, room=room_id, namespace="/live")
 
     cache.set("room_info", room_info)
@@ -475,8 +481,9 @@ def join_live_room(data, methods=['GET', 'POST']):
 
     emit("update_room_info", {
         "users": room_info[room_id]["users"],
-        "room_master": room_info[room_id]["room_master"]
-    }, room=room_id)
+        "room_master": room_info[room_id]["room_master"],
+        "setting": room_info[room_id]["setting"]
+    }, room=room_id, namespace="/live")
     # cache.set("room_info", room_info)
 
     # print('received my event: ' + str(json)/)
@@ -496,7 +503,8 @@ def ready_live(data):
 
     emit("update_room_info", {
         "users": room_info[room_id]["users"],
-        "room_master": room_info[room_id]["room_master"]
+        "room_master": room_info[room_id]["room_master"],
+        "setting": room_info[room_id]["setting"]
     }, room=room_id, namespace="/live")
 
 
@@ -572,11 +580,13 @@ def start_live(data):
         room_info[room_id]["users"][sid]["score"] = 0
 
     room_info[room_id]["is_playing"] = True
-    room_info[room_id]["goal_score"] = 20
+
 
     emit("live_started", {
         "users": room_info[room_id]["users"],
-        "goal_score": room_info[room_id]["goal_score"]
+        "goal_score": room_info[room_id]["setting"]["goal_score"],
+        "correct_score": room_info[room_id]["setting"]["correct_score"],
+        "wrong_score": room_info[room_id]["setting"]["wrong_score"]
     }, room=room_id)
 
     # cache.set("room_info", room_info)
@@ -591,18 +601,20 @@ def mark_and_get_quiz(data):
     room_id = data["room_id"]
     quiz_no = room_info[room_id]["users"][sid]["quiz_no"]
 
-    CORRECT_SCORE = 2
-    WRONG_SCORE = -1
+    CORRECT_SCORE = room_info[room_id]["setting"]["correct_score"]
+    WRONG_SCORE = room_info[room_id]["setting"]["wrong_score"]
+    GOAL_SCORE = room_info[room_id]["setting"]["goal_score"]
+
 
     if "answer" in data:
         quiz = room_info[room_id]["quiz_data_list"][quiz_no - 1]
         print(quiz)
         if quiz["correct"] == data["answer"]:
             is_correct = True
-            if room_info[room_id]["users"][sid]["score"] + WRONG_SCORE <= room_info[room_id]["goal_score"]:
+            if room_info[room_id]["users"][sid]["score"] + CORRECT_SCORE <= GOAL_SCORE:
                 room_info[room_id]["users"][sid]["score"] = room_info[room_id]["users"][sid]["score"] + CORRECT_SCORE
             else:
-                room_info[room_id]["users"][sid]["score"] = room_info[room_id]["goal_score"]
+                room_info[room_id]["users"][sid]["score"] = GOAL_SCORE
         else:
             is_correct = False
 
@@ -616,14 +628,14 @@ def mark_and_get_quiz(data):
             "score": room_info[room_id]["users"][sid]["score"]
         }, room=room_id)
 
-        if room_info[room_id]["goal_score"] <= room_info[room_id]["users"][sid]["score"]:
+        if room_info[room_id]["setting"]["goal_score"] <= room_info[room_id]["users"][sid]["score"]:
             user_list = copy.deepcopy(room_info[room_id]["users"])
             user_list = {k: v for k, v in sorted(user_list.items(), key=lambda item: item[1]["score"], reverse=True)}
 
             room_info[room_id]["is_playing"] = False
 
             for sid in room_info[room_id]["users"]:
-                room_info[room_id]["users"][sid]["is_ready"] =False
+                room_info[room_id]["users"][sid]["is_ready"] = False
 
             emit("end_live", {
                 "users": user_list
@@ -631,7 +643,8 @@ def mark_and_get_quiz(data):
 
             emit("update_room_info", {
                 "users": room_info[room_id]["users"],
-                "room_master": room_info[room_id]["room_master"]
+                "room_master": room_info[room_id]["room_master"],
+                "setting": room_info[room_id]["setting"]
             }, room=room_id, namespace="/live")
 
             return
@@ -655,3 +668,29 @@ def mark_and_get_quiz(data):
     emit("receive_quiz", {
         "quiz_data": quiz_data, "is_correct": is_correct
     })
+
+
+@socketio.on('edit_room_setting', namespace="/live")
+def edit_room_setting(data):
+    global room_info
+    # room_info = cache.get("room_info")
+    room_id = data["room_id"]
+    print(data)
+
+    if room_id not in room_info or room_info[room_id]["room_master"] != request.sid or room_info[room_id][
+        "is_playing"] is not False:
+        emit("error")
+
+    goal_score = data["goal_score"]
+    correct_score = data["correct_score"]
+    wrong_score = data["wrong_score"]
+
+    if data["goal_score"] // 1 >= 1:
+        room_info[room_id]["setting"]["goal_score"] = int(data["goal_score"] // 1)
+    if data["correct_score"] // 1 >= 1:
+        room_info[room_id]["setting"]["correct_score"] = int(data["correct_score"] // 1)
+    if data["wrong_score"] // 1 >= 0:
+        room_info[room_id]["setting"]["wrong_score"] = int(data["wrong_score"] // 1)
+
+    emit("room_setting_edited", room_info[room_id]["setting"], room=room_id, namespace="/live")
+    # cache.set("room_info", room_info)
