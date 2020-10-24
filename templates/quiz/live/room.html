@@ -68,6 +68,12 @@
 
             </div>
 
+
+        </div>
+
+
+        <div id="remainTime">
+            65
         </div>
 
 
@@ -155,7 +161,7 @@
         let is_playing = false;
         $("#quizContent").hide();
         {#$("#waitContent").hide();#}
-
+        $("#remainTime").hide();
         $("#startLiveButton").hide()
         $("#myProgressBarWrapper").hide()
         $(".overlayBox").hide();
@@ -269,12 +275,11 @@
             $("#waitContent").hide();
 
 
-
             $("#gameStartOverlay").html(`
                 <h1>${data["goal_score"]}점을 먼저 획득하세요!</h1>
                 <br>
                 <h4>맞혔을 때 : +${data["correct_score"]}</h4>
-                <h4>틀렸을 때 : -${data["wrong_score"]}</h4>
+                <h4>틀렸을 때 : ${data["wrong_score"]}</h4>
             `);
             $("#gameStartOverlay").show();
             is_playing = true
@@ -300,7 +305,16 @@
             function real_start() {
 
                 $("#myProgressBarWrapper").attr("goal_score", data["goal_score"])
+                $("#remainTime").show();
+                $("#remainTime").text("90");
 
+                let timerId = setInterval(() => {
+                    $("#remainTime").text($("#remainTime").text() * 1 - 1);
+                }, 1000);
+                setTimeout(() => {
+                    clearInterval(timerId);
+                    {#alert('정지');#}
+                }, 90000);
 
                 for (let sid in data["users"]) {
                     if (sid == socket.io.engine.id) {
@@ -348,7 +362,7 @@
             is_playing = false
 
             $("#gameEndOverlay").show()
-
+            $("#remainTime").hide();
             setTimeout(function () {
                 {#alert("game end!")#}
                 console.log("result", data)
@@ -427,9 +441,17 @@
 
         socket.on('receive_quiz', function (data) {
             console.log(data)
+            let quiz_html;
+            if (data["quiz_data"] == null) {
+                quiz_html = `
+                 <div id="quizContent">
+                    <h1 style="text-align:center;padding : 2rem"> 모든 문제를 풀었습니다! </h1>
+                 </div>
 
-            let quiz_html = `
-    <div id="quizContent">
+                `
+            } else {
+                quiz_html = `
+    <div id="quizContent" data="${data["quiz_data"].quiz_no}">
         <div id="upperBox">
             <div id="quizNo">
                 ${data["quiz_data"].quiz_no}
@@ -445,20 +467,21 @@
         <hr>
         <div id="options">
             ${
-                data["quiz_data"].options.map(
-                    (option, index) => {
-                        return `
+                    data["quiz_data"].options.map(
+                        (option, index) => {
+                            return `
                         <div  class="option" option="${index}" id="option${index + 1}">
                             ${option}
                         </div>
                         `
-                    }
-                ).join(" ")
-            }
+                        }
+                    ).join(" ")
+                }
         </div>
 
     </div>
 `;
+            }
 
 
             if (data["is_correct"] == null) {
@@ -505,6 +528,22 @@
             console.log($("#quizContent").css("top"));
             $temp = $("#quizContent");
             $temp.animate({top: ($(document).height() - $temp.height()) / 2}, 700, function () {
+                $(`#quizContent[data=${data["quiz_data"].quiz_no}] .option`).on("click", function () {
+                    if (is_playing == false) {
+                        return
+                    }
+
+                    $("#quizContent .option").off("click");
+
+                    let answer = $(this).attr("option");
+
+                    socket.emit("mark_and_get_quiz", {
+                        room_id: room_id,
+                        answer: answer * 1
+                    })
+                })
+
+
                 setTimeout(function () {
                     $temp.css("position", "unset");
                 }, 500);
@@ -517,19 +556,6 @@
 
         $(document).on("click", "#quizContent .option", function (e) {
 
-            if (is_playing == false) {
-                return
-            }
-
-            let $target = $(e.target);
-            $("#quizContent .option").off("click");
-
-            let answer = $target.attr("option");
-
-            socket.emit("mark_and_get_quiz", {
-                room_id: room_id,
-                answer: answer * 1
-            })
 
         })
 
@@ -550,7 +576,7 @@
         socket.on("room_setting_edited", function (data) {
             $("#goalScore").html(`목표 점수 : ${data["goal_score"]}`)
             $("#correctScore").html(`맞혔을 때 : +${data["correct_score"]}`)
-            $("#wrongScore").html(`틀렸을 때 : -${data["wrong_score"]}`)
+            $("#wrongScore").html(`틀렸을 때 : ${data["wrong_score"]}`)
         })
 
 

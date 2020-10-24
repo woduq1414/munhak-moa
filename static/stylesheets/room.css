@@ -274,3 +274,13 @@
     margin-top: 1rem;
     padding: 0.1rem;
 }
+
+#remainTime {
+    font-size: 1.3rem;
+    left : 3rem;
+    position: fixed;
+    top : 2rem;
+    padding: 1rem;
+    background-color: #eee;
+    border-radius: 1000px;
+}
