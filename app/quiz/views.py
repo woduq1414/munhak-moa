@@ -681,16 +681,13 @@ def edit_room_setting(data):
         "is_playing"] is not False:
         emit("error")
 
-    goal_score = data["goal_score"]
-    correct_score = data["correct_score"]
-    wrong_score = data["wrong_score"]
 
     if data["goal_score"] // 1 >= 1:
         room_info[room_id]["setting"]["goal_score"] = int(data["goal_score"] // 1)
     if data["correct_score"] // 1 >= 1:
         room_info[room_id]["setting"]["correct_score"] = int(data["correct_score"] // 1)
     if data["wrong_score"] // 1 >= 0:
-        room_info[room_id]["setting"]["wrong_score"] = int(data["wrong_score"] // 1)
+        room_info[room_id]["setting"]["wrong_score"] = int(data["wrong_score"] // 1) * -1
 
     emit("room_setting_edited", room_info[room_id]["setting"], room=room_id, namespace="/live")
     # cache.set("room_info", room_info)

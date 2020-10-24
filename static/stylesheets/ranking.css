@@ -25,6 +25,22 @@
     transition: all 1s;
 }
 
+
+#goLivePage {
+    /*background-color: var(--primary-color);*/
+    border-radius: 5px;
+    /*color: white;*/
+    padding: 1.5rem;
+
+    position: fixed;
+    top: 3rem;
+    left: 0;
+    cursor: pointer;
+    transition: all 1s;
+}
+
+
+
 #openRanking:hover {
     /*background-color: var(--primary-color);*/
     padding: 2.5rem 2.5rem 5rem 5rem;

@@ -102,6 +102,14 @@
 
     </div>
 
+        <div id="goLivePage">
+        <div class="btn btn-outline-danger">
+            <i class="fas fa-arrow-left"></i> Live로
+        </div>
+
+
+    </div>
+
 
     <div id="openRanking">
         <i class="fas fa-trophy"></i>
@@ -126,6 +134,11 @@
         $("#goMainPage").on("click", function () {
             location.href = "{{ url_for("others.index") }}"
         })
+
+         $("#goLivePage").on("click", function () {
+            location.href = "{{ url_for("quiz.enter_live") }}"
+        })
+
 
 
         $("#openInfo").on("click", function () {

@@ -66,6 +66,10 @@
 
 {% block script %}
     <script>
+        $("#goMainPage").on("click", function () {
+            location.href = "/quiz";
+        })
+
 
         function check_nickname(nickname) {
             return nickname.length <= 15 && 1 <= nickname.length;
