@@ -158,6 +158,8 @@
     <script>
         new ClipboardJS('#roomId');
 
+        let timerId;
+
         let is_playing = false;
         $("#quizContent").hide();
         {#$("#waitContent").hide();#}
@@ -308,7 +310,7 @@
                 $("#remainTime").show();
                 $("#remainTime").text("90");
 
-                let timerId = setInterval(() => {
+                timerId = setInterval(() => {
                     $("#remainTime").text($("#remainTime").text() * 1 - 1);
                 }, 1000);
                 setTimeout(() => {
@@ -360,6 +362,7 @@
 
         socket.on('end_live', function (data) {
             is_playing = false
+            clearInterval(timerId);
 
             $("#gameEndOverlay").show()
             $("#remainTime").hide();
