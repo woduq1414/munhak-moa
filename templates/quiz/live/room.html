@@ -308,7 +308,7 @@
 
                 $("#myProgressBarWrapper").attr("goal_score", data["goal_score"])
                 $("#remainTime").show();
-                $("#remainTime").text("90");
+                $("#remainTime").text("300");
 
                 timerId = setInterval(() => {
                     $("#remainTime").text($("#remainTime").text() * 1 - 1);
@@ -317,14 +317,15 @@
                     clearInterval(timerId);
                     {#alert('정지');#}
                 }, 300000);
-
+                
+                $(".otherPlayerMarker").remove()
                 for (let sid in data["users"]) {
                     if (sid == socket.io.engine.id) {
                         {#$("#myProgressBarWrapper").css("background-color",data["users"][sid]["color"]);#}
                         $("#myProgressBar").css("background-color", data["users"][sid]["color"]);
                         $("#myProgressBar").height("0px")
                     } else {
-                        $(".otherPlayerMarker").remove()
+
                         $("#myProgressBarWrapper").append(
                             `
                     <div class="otherPlayerMarker" id="otherPlayerMarker${sid}" style="color:${data["users"][sid]["color"]}; top : 15px">
