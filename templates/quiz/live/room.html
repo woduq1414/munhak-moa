@@ -316,7 +316,7 @@
                 setTimeout(() => {
                     clearInterval(timerId);
                     {#alert('정지');#}
-                }, 90000);
+                }, 300000);
 
                 for (let sid in data["users"]) {
                     if (sid == socket.io.engine.id) {

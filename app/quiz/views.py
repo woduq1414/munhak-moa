@@ -600,8 +600,8 @@ def start_live(data):
     }, room=room_id)
 
     import time
-    time.sleep(93)
-    if  room_info[room_id]["game_code" ] == game_code:
+    time.sleep(303)
+    if  room_info[room_id]["game_code" ] == game_code and room_info[room_id]["is_playing"] is True:
         end_live(room_id)
 
 
