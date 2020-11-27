@@ -38,6 +38,7 @@ if socket.gethostname()[:7] == "DESKTOP":
     TEMPLATES_AUTO_RELOAD = True
 
 
+
 else:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
@@ -52,3 +53,4 @@ else:
 
     REDIS_URL = os.environ.get('REDIS_URL', None)
     FERNET_KEY = os.environ.get('FERNET_KEY', None)
+

@@ -434,7 +434,7 @@ def leave_live_room(target_sid=None):
 @socketio.on('join_live_room', namespace="/live")
 def join_live_room(data, methods=['GET', 'POST']):
     color_list = [
-        "red", "green", "blue", "orange", "pink", "yellow"
+        "red", "green", "blue", "orange", "pink", "yellow", "black", "purple", "brown", "mediumaquamarine"
     ]
 
     global room_info
@@ -723,4 +723,28 @@ def edit_room_setting(data):
         room_info[room_id]["setting"]["wrong_score"] = int(data["wrong_score"] // 1) * -1
 
     emit("room_setting_edited", room_info[room_id]["setting"], room=room_id, namespace="/live")
+    # cache.set("room_info", room_info)
+
+
+
+@socketio.on('kick_player', namespace="/live")
+def kick_player(data):
+    global room_info
+    # room_info = cache.get("room_info")
+    room_id = data["room_id"]
+    print(data)
+
+    if room_id not in room_info or room_info[room_id]["room_master"] != request.sid or room_info[room_id][
+        "is_playing"] is not False:
+        emit("error")
+
+    leave_live_room(data["target_id"])
+
+    
+
+    emit("update_room_info", {
+        "users": room_info[room_id]["users"],
+        "room_master": room_info[room_id]["room_master"],
+        "setting": room_info[room_id]["setting"]
+    }, room=room_id, namespace="/live")
     # cache.set("room_info", room_info)

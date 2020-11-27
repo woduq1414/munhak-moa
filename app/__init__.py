@@ -7,6 +7,8 @@ from app.common.function import *
 import json
 from flaskext.markdown import Markdown
 
+from flask_pjax import PJAX
+
 
 class MyResponse(Response):
     default_mimetype = 'application/xml'
@@ -28,9 +30,14 @@ def create_app(config_filename):
 
     from app.db import db
     from app.socket import socketio
+    from app.pjax import pjax
+
     socketio.init_app(app)
     db.init_app(app)
     db.app = app
+
+    pjax.init_app(app)
+
     # sched.init_app(app)
     # redis_client.init_app(app)
 

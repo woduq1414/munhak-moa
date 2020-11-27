@@ -1,4 +1,6 @@
+import smtplib
 import threading
+from email.mime.multipart import MIMEMultipart
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -11,7 +13,7 @@ from config import credentials
 import requests
 from config import DISCORD_WEBHOOK_URL
 from flask import request
-
+import ssl
 
 def is_local():
     import socket
@@ -119,3 +121,5 @@ def send_discord_alert_log(alert_string):
         ]
     }
     threading.Thread(target=lambda: send_discord_webhook(webhook_body=webhook_body)).start()
+
+
