@@ -50,8 +50,8 @@
     $(".munhakCardWrapper").on("click", function () {
 
         setCookie("page", $(this).attr("page"), 1)
-        location.href = `/board/detail/${$(this).attr("munhak_seq")}`
-
+        {#location.href = `/board/detail/${$(this).attr("munhak_seq")}`#}
+        movePage(`/board/detail/${$(this).attr("munhak_seq")}`);
     })
 
 

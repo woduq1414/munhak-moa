@@ -36,7 +36,7 @@ def create_app(config_filename):
     db.init_app(app)
     db.app = app
 
-    pjax.init_app(app)
+    # pjax.init_app(app)
 
     # sched.init_app(app)
     # redis_client.init_app(app)

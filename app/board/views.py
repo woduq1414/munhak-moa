@@ -135,7 +135,11 @@ def munhak_board_detail(munhak_seq, munhak_title):
         "related_list": related_list,
         "related_list_subject" : related_list_subject
     }
-    return render_template("munhak_board_detail.html", data=data)
+    print(request.url)
+    r = make_response(render_template("munhak_board_detail.html", data=data))
+    r.set_cookie('PJAX-URL',  base64.b64encode(request.url.encode("UTF-8")))
+
+    return r
 
 
 @board_bp.route('/board/render-card')
@@ -291,10 +295,14 @@ def munhak_board_list():
         resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
         resp.set_cookie("page", str(page))
 
+        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")))
+
+
         return resp
     else:
         resp = make_response(render_template("munhak_board_list.html", data=data))
         resp.set_cookie("page", str(page))
+        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")))
         return resp
 
 
