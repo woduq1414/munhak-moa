@@ -37,6 +37,7 @@ def test():
 @board_bp.route('/board/detail/<int:munhak_seq>/<munhak_title>/')
 @board_bp.route('/board/detail/<int:munhak_seq>/', defaults={'munhak_title': None})
 def munhak_board_detail(munhak_seq, munhak_title):
+
     munhak_rows_data = cache.get("munhak_rows_data")
     munhak_rows = copy.deepcopy(munhak_rows_data)
 
