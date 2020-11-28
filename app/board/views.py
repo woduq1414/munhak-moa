@@ -281,6 +281,9 @@ def munhak_board_list():
         else:
             query_cookie += "".join([" @" + x.replace(" ", "-") + " " for x in source_list])
 
+        if tag is not None:
+            query_cookie += " #" + tag + " "
+
         print(query_cookie)
         resp = make_response(redirect(url_for("board.munhak_board_list")))
         resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
@@ -305,24 +308,14 @@ def munhak_board_list():
         "source_dict": source_dict
     }
 
-    if tag is not None:
-        resp = make_response(redirect(url_for("board.munhak_board_list")))
-        query_cookie += "#" + tag
+    resp = make_response(render_template("munhak_board_list.html", data=data))
 
-        resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
-        resp.set_cookie("page", str(page))
+    # resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
+    resp.set_cookie("page", str(page))
+    resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
+    return resp
 
-        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
 
-        return resp
-    else:
-
-        resp = make_response(render_template("munhak_board_list.html", data=data))
-
-        # resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
-        resp.set_cookie("page", str(page))
-        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
-        return resp
 
 
 @board_bp.route("/tag/add", methods=["GET", "POST"])

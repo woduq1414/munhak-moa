@@ -778,3 +778,7 @@ body.dark-mode #categoryCheckAll, body.dark-mode #categoryCheckNone, body.dark-m
 #writer, #source, #category {
     cursor: pointer;
 }
+
+body.dark-mode #goNextPage, body.dark-mode #goPrevPage {
+    background-color: #454545;
+}

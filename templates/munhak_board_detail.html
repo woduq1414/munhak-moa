@@ -480,7 +480,7 @@
             })
 
             $(document).on("click", "#tagPopoverSearchButton", function () {
-                location.href = `/board?tag=${clicked_tag.tag_name}`
+                movePage(`{{ url_for("board.munhak_board_list") }}?tag=${clicked_tag.tag_name}&clear=1`)
             })
 
             var options = {

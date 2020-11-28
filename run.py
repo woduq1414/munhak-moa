@@ -22,7 +22,6 @@ import socket
 import os
 from flask_socketio import SocketIO
 
-
 app = create_app('config')
 
 
@@ -40,6 +39,15 @@ def catch_all(path):
     return render_template('index.html')
 
 
+@app.before_request
+def before_request():
+    cookies = request.cookies
+    if "userTheme" in cookies:
+        g.user_theme = cookies["userTheme"]
+    else:
+        g.user_theme = "light"
+
+
 # 404 not found > react_router
 # @app.errorhandler(404)
 # def not_found(error):
@@ -48,13 +56,11 @@ def catch_all(path):
 
 @app.errorhandler(500)
 def error_handler(e):
-
     print(traceback.print_exc())
     if is_local():
         return jsonify({
             "message": "error"
         }), 500
-
 
     error_message = traceback.format_exc()
     ip_address = request.headers[

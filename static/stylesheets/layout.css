@@ -94,3 +94,10 @@ body.dark-mode #sidebar {
 body {
     transition : all 1s !important;
 }
+
+body.dark-mode .sidebarCollapse, body.dark-mode .sidebarCollapseMobile {
+    background-color: #454545;
+    color: #bbb;
+    border-bottom: 1px solid var(--primary-color-bright);
+}
+

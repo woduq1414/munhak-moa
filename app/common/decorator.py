@@ -106,3 +106,10 @@ def return_500_if_errors(f):
             return jsonify(response), 500
 
     return wrapper
+
+
+def set_user_theme(f):
+    def wrapper(*args, **kwargs):
+        print(request.cookies)
+
+    return wrapper

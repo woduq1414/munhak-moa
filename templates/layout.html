@@ -47,7 +47,7 @@
     </script>
 
 </head>
-<body class="">
+<body class="{{ "dark-mode" if g.user_theme == "dark" else "" }}">
 <header>
     {#    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">#}
     {#        <a class="navbar-brand" href="">게시판</a>#}
@@ -111,7 +111,7 @@
 
                     </button>
 
-                    <img id="logo" src="{{ url_for('others.get_image', path='logo6.png') }}">
+                    <img onclick="movePage(`{{ url_for('others.index') }}`);" id="logo" src="{{ url_for('others.get_image', path='logo6.png') }}">
                 </div>
 
 
@@ -376,11 +376,16 @@
         $(".sidebarCollapseMobile i").toggleClass("fa-bars");
         $(".sidebarCollapseMobile i").toggleClass("fa-arrow-left");
 
-       
+
     }
 
     function userTheme(toggle = false) {
+
+
+
         let userMode = localStorage.userThemeMode || 'auto';
+        userNode = getCookie("userTheme") || 'auto';
+
         const osMode = !!window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : 'light';
         if (toggle) {
             switch (userMode) {
@@ -401,6 +406,7 @@
                     break;
             }
             localStorage.userThemeMode = userMode;
+            setCookie("userTheme", userMode, 1000);
         }
         console.log(`current mode : ${userMode}`);
         window.__THEME_MODE = userMode === 'auto' ? osMode : userMode;
