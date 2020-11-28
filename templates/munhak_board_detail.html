@@ -262,16 +262,23 @@
             </div>
         </div>
     </div>
-
-
-{% endblock %}
-
-{% block script %}
     <script>
         (() => {
             let clicked_tag;
             let clicked_video;
             let is_logined = {{ "true" if "user" in session else "false"}};
+
+            $(document).off("click");
+
+            $("#navRightButton").on("click", function () {
+                if ($("#navbarSupportedContent").hasClass("show")) {
+                    $("#navbarSupportedContent").collapse("hide");
+                } else {
+                    $("#navbarSupportedContent").collapse("show");
+                }
+
+            })
+
 
             $("#addTip").on("click", function () {
                 if (!is_logined) {
@@ -284,6 +291,7 @@
 
 
             $(document).on("click", ".openTip,.closeTip", function (e) {
+
                 let target = e.target
                 let $tipWrapper = $(target).parents(".tipWrapper")
                 let $tip = $tipWrapper.children(".tip")
@@ -293,7 +301,7 @@
                     {#$tip.css("max-height", "5rem");#}
                     $tip.css("height", "5rem");
                     $tip.css("filter", "blur(3px)");
-                    $tipWrapper.css("background-color", "#f8f8f8");
+                    {#$tipWrapper.css("background-color", "#f8f8f8");#}
                     $tipWrapper.children(".openTip").css("display", "block")
                     $tipWrapper.children(".closeTip").css("display", "none")
 
@@ -303,7 +311,7 @@
                     {#$tip.css("max-height", "none");#}
                     $tip.css("height", "auto");
                     $tip.css("filter", "none");
-                    $tipWrapper.css("background-color", "white");
+                    {#$tipWrapper.css("background-color", "white");#}
                     $tipWrapper.children(".openTip").css("display", "none")
                     $tipWrapper.children(".closeTip").css("display", "block")
 
@@ -627,6 +635,7 @@
                     tag_liked: $(this).attr("tag_liked"),
                     is_mine: $(this).attr("is_mine")
                 }
+                console.log(clicked_tag)
             })
 
             $(".videoWrapper").on("click", function () {
@@ -798,5 +807,29 @@
             })
         })();
 
+
+        $("#writer").on("click", function () {
+            let writer = $(this).text().trim();
+            {#setCookie("query", btoa(unescape(encodeURIComponent(writer))), 100);#}
+            movePage(`{{ url_for("board.munhak_board_list") }}?query=${writer}&clear=1`)
+        })
+
+        $("#category").on("click", function () {
+            let category = $(this).text().trim();
+            {#setCookie("query", btoa(unescape(encodeURIComponent(writer))), 100);#}
+            movePage(`{{ url_for("board.munhak_board_list") }}?category=${category}&clear=1`)
+        })
+        $("#source").on("click", function () {
+            let source = $(this).text().trim();
+            {#setCookie("query", btoa(unescape(encodeURIComponent(writer))), 100);#}
+            movePage(`{{ url_for("board.munhak_board_list") }}?source=${source.replaceAll(" ", "-")}&clear=1`)
+        })
+
+
     </script>
+
+{% endblock %}
+
+{% block script %}
+
 {% endblock %}

@@ -528,7 +528,6 @@ img.videoThumbnail {
     /*padding: 0 0.8rem;*/
 
 
-
     cursor: pointer;
     text-align: center;
 
@@ -551,12 +550,18 @@ img.videoThumbnail {
 }
 
 .tipWrapper {
+    border-radius: 5px;
     box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.3);
     margin: 1rem 0rem;
     width: 98%;
     background-color: #f8f8f8;
     /*position: absolute;*/
 }
+
+.tipWrapper[data-toggle=true] {
+    background-color: white;
+}
+
 
 .openTip, .closeTip {
 
@@ -589,7 +594,6 @@ img.videoThumbnail {
     text-align: center;
 
 }
-
 
 
 .bottomTipInfo {
@@ -625,7 +629,6 @@ img.videoThumbnail {
 .tipWriterNickname {
     font-size: 1.2rem;
 }
-
 
 
 #relatedContainer {
@@ -668,4 +671,110 @@ img.videoThumbnail {
         font-size: 1.8rem !important;
         margin: 1.5rem;
     }
+}
+
+
+body.dark-mode #contentContainer, body.dark-mode #searchContainer {
+    background-color: #232323;
+}
+
+body.dark-mode .pgTitle {
+    background-color: #343434;
+    border-bottom: 1px solid var(--primary-color-bright);
+}
+
+body.dark-mode .tag {
+    background-color: #343434 !important;
+}
+
+body.dark-mode .related {
+    background-color: #343434;
+}
+
+body.dark-mode .popover-body {
+    color: #bbb;
+    background-color: #343434;
+}
+
+body.dark-mode .popover-header {
+    color: #bbb;
+    border-bottom-color: black;
+    background-color: #343434;
+}
+
+body.dark-mode .arrow::after {
+    border-top-color: #343434
+}
+
+body.dark-mode .swal2-modal {
+    background-color: #343434;
+
+}
+
+body.dark-mode .swal2-title, body.dark-mode .swal2-content {
+    color: #bbb;
+}
+
+
+body.dark-mode .relatedPrimary {
+    color: #bbb;
+    border: 1px solid var(--primary-color-bright);
+}
+
+
+body.dark-mode .userTagLiked {
+    border: 1px solid mediumpurple;
+    /*border-top: 1px solid deeppink;*/
+}
+
+body.dark-mode #tagLikeHeart, body.dark-mode .tipLikeHeart {
+    background-color: #666;
+
+}
+
+body.dark-mode .tagLike {
+    color: mediumpurple !important;
+}
+
+body.dark-mode .tipLike {
+    color: mediumpurple !important;
+}
+
+body.dark-mode .tipWrapper {
+    background-color: #343434;
+}
+
+body.dark-mode .tipWrapper[data-toggle=true] {
+    background-color: #343434;
+}
+
+body.dark-mode #openAddTagPopover, body.dark-mode #openAddMunhakVideoModal, body.dark-mode #openAddExamVideoModal, body.dark-mode #addTip {
+    background-color: #343434;
+    border-bottom: 1px solid var(--primary-color-bright);
+    color: #bbb;
+}
+
+body.dark-mode #searchWrapper {
+    background-color: #343434;
+}
+
+body.dark-mode #searchInputReal {
+    color: #bbb;
+}
+
+body.dark-mode .searchTag {
+    background-color: #555 !important;
+}
+
+body.dark-mode .searchTagInput {
+    color: #bbb;
+}
+
+
+body.dark-mode #categoryCheckAll, body.dark-mode #categoryCheckNone, body.dark-mode #sourceCheckAll, body.dark-mode #sourceCheckNone {
+    background-color: #343434;
+}
+
+#writer, #source, #category {
+    cursor: pointer;
 }

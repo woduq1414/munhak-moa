@@ -38,7 +38,7 @@ h1, h2, h3, h4, h5,
     line-height: 1.5;
     font-weight: 400;
     /*font-family: "Poppins", Arial, sans-serif;*/
-    color: #000;
+    /*color: #000;*/
 }
 
 .ftco-section {
@@ -267,13 +267,13 @@ a[data-toggle="collapse"] {
 }
 
 .btn.btn-primary {
-    background: #3e64ff;
-    border-color: #3e64ff;
+    background: var(--primary-color);
+    border-color:  var(--primary-color);
 }
 
 .btn.btn-primary:hover, .btn.btn-primary:focus {
-    background: #3e64ff !important;
-    border-color: #3e64ff !important;
+    background:  var(--primary-color) !important;
+    border-color:  var(--primary-color) !important;
 }
 
 
@@ -293,7 +293,7 @@ a[data-toggle="collapse"] {
 
 .sidebarCollapseMobile {
     color: white;
-    background: #3e64ff;
+    background:  var(--primary-color);
     border-radius: 5px;
     /*width: 80%;*/
     text-align: center;

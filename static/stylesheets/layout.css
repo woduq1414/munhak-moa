@@ -62,3 +62,35 @@ html {
 .EasyMDEContainer a:link, .tip a:link, .tip a, .tip a:hover {
     color: #3e64ff !important;
 }
+
+
+
+body.dark-mode{
+    /*--primary-color: #d9a70c;*/
+    /*--primary-color-bright: #9a730a;*/
+    --primary-color: #3e64ff;
+    --primary-color-bright: #3e64ff;
+    color: #bbb !important;
+    background-color: #121212;
+}
+body.dark-mode .navbar {
+    background-color: #232323 !important;
+}
+body.dark-mode #logo {
+    filter: invert(0.8);
+}
+
+
+body.dark-mode a:link, body.dark-mode a, body.dark-mode a:hover {
+    color : #bbb !important;
+}
+
+
+
+body.dark-mode #sidebar {
+    background-color: #343434;
+}
+
+body {
+    transition : all 1s !important;
+}

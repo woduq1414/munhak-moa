@@ -36,7 +36,7 @@
         </div>
 
         <span id="openDetailSearchWrapper">
-            <a class="" id="openDetailSearch" data-toggle="collapse" href="#collapseDetailSearch" role="button"
+            <a class="" id="openDetailSearch" data-toggle="collapse" role="button"
                aria-expanded="false" aria-controls="collapseExample">
                 <i class="fas fa-cog"></i> 고급
             </a>
@@ -51,7 +51,7 @@
                     {% for category in ["고전시가", "현대시", "고전산문", "현대소설", "극", "수필"] %}
                         <div class="custom-control custom-checkbox categoryCheckWrapper">
                             <input type="checkbox" class="custom-control-input categoryCheckBox"
-                                   id="categoryCheck{{ loop.index }}" data="{{ category }}" checked>
+                                   id="categoryCheck{{ loop.index }}" data="{{ category }}" >
                             <label class="custom-control-label"
                                    for="categoryCheck{{ loop.index }}">{{ category }}</label>
                         </div>
@@ -69,7 +69,7 @@
                             {% for source in source_group %}
                                 <div class="custom-control custom-checkbox sourceCheckWrapper">
                                     <input type="checkbox" class="custom-control-input sourceCheckBox"
-                                           id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}" checked>
+                                           id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}" >
                                     <label class="custom-control-label"
                                            for="sourceCheck{{ t * 100 + loop.index }}">{{ source }}</label>
                                 </div>
@@ -123,6 +123,15 @@
                 $(this).autocomplete(options);
             });
 
+            $("#openDetailSearch").on("click", function () {
+                if ($("#collapseDetailSearch").hasClass("show")) {
+                    $("#collapseDetailSearch").collapse("hide");
+                } else {
+                    $("#collapseDetailSearch").collapse("show");
+                }
+
+            })
+
             $("#categoryCheckAll").on("click", function () {
                 $(".categoryCheckBox").prop("checked", true)
             })
@@ -161,6 +170,7 @@
                 {#alert("hdl")#}
                 try {
                     current_query = b64DecodeUnicode(getCookie("query"));
+                    //console.log(current_query)
                 } catch {
                     current_query = "";
                 }
@@ -192,16 +202,16 @@
                         tag_i += 1;
 
                     } else if (tag[0] == "@") {
-                        $(`.sourceCheckBox[data='${tag.slice(1, tag.length).replaceAll("-", " ")}']`).prop("checked", false)
+                        $(`.sourceCheckBox[data='${tag.slice(1, tag.length).replaceAll("-", " ")}']`).prop("checked", true)
                     } else if (tag[0] == "$") {
-                        $(`.categoryCheckBox[data='${tag.slice(1, tag.length)}']`).prop("checked", false)
+                        $(`.categoryCheckBox[data='${tag.slice(1, tag.length)}']`).prop("checked", true)
                     } else {
                         query.push(tag)
                     }
                 }
 
-                $("#searchInputReal").val(query);
-                $("#searchInputRealSizer").attr("data-value", query);
+                $("#searchInputReal").val(query.join(" ").trim());
+                $("#searchInputRealSizer").attr("data-value", query.join(" ").trim());
 
             })
 
@@ -214,13 +224,13 @@
                 })
 
                 $(".sourceCheckBox").each(function (index, item) {
-                    if ($(item).is(":checked") == false) {
+                    if ($(item).is(":checked") === true) {
                         tags += "@" + $(item).attr("data").replaceAll(" ", "-") + " "
                     }
                 })
 
                 $(".categoryCheckBox").each(function (index, item) {
-                    if ($(item).is(":checked") == false) {
+                    if ($(item).is(":checked") === true) {
                         tags += "$" + $(item).attr("data") + " "
                     }
                 })

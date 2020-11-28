@@ -37,6 +37,8 @@ def test():
 @board_bp.route('/board/detail/<int:munhak_seq>/<munhak_title>/')
 @board_bp.route('/board/detail/<int:munhak_seq>/', defaults={'munhak_title': None})
 def munhak_board_detail(munhak_seq, munhak_title):
+    # import time
+    # time.sleep(2)
 
     munhak_rows_data = cache.get("munhak_rows_data")
     munhak_rows = copy.deepcopy(munhak_rows_data)
@@ -101,19 +103,20 @@ def munhak_board_detail(munhak_seq, munhak_title):
         subject_last_word = "N"
     print(subject_last_word)
     related_list = [munhak_row for munhak_row in munhak_rows
-                        if (
-                                munhak_row["title"] in target_munhak_row["title"] or
-                                (target_munhak_row["writer"] != "작자 미상" and
-                                 munhak_row["writer"] == target_munhak_row["writer"]) or
-                                target_munhak_row["title"] in munhak_row["title"]
-                        ) and (munhak_row["munhak_seq"] != target_munhak_row["munhak_seq"])]
+                    if (
+                            munhak_row["title"] in target_munhak_row["title"] or
+                            (target_munhak_row["writer"] != "작자 미상" and
+                             munhak_row["writer"] == target_munhak_row["writer"]) or
+                            target_munhak_row["title"] in munhak_row["title"]
+                    ) and (munhak_row["munhak_seq"] != target_munhak_row["munhak_seq"])]
 
-    related_list_subject = [munhak_row for munhak_row in munhak_rows if (subject_last_word in munhak_row["subject"].split(" ")) and (
-                munhak_row["munhak_seq"] != target_munhak_row["munhak_seq"]) and munhak_row not in related_list]
+    related_list_subject = [munhak_row for munhak_row in munhak_rows if
+                            (subject_last_word in munhak_row["subject"].split(" ")) and (
+                                    munhak_row["munhak_seq"] != target_munhak_row[
+                                "munhak_seq"]) and munhak_row not in related_list]
 
     random.shuffle(related_list_subject)
     related_list_subject = related_list_subject[:min(5, len(related_list_subject))]
-
 
     # related_list = list(related_list)
     print(related_list)
@@ -134,11 +137,11 @@ def munhak_board_detail(munhak_seq, munhak_title):
         "tips": tips,
         "tip_mine_exist": tip_mine_exist,
         "related_list": related_list,
-        "related_list_subject" : related_list_subject
+        "related_list_subject": related_list_subject
     }
     print(request.url)
     r = make_response(render_template("munhak_board_detail.html", data=data))
-    r.set_cookie('PJAX-URL',  base64.b64encode(request.url.encode("UTF-8")))
+    r.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
 
     return r
 
@@ -200,8 +203,8 @@ def munhak_board_render_card():
         query_munhak_rows = munhak_rows
 
     query_munhak_rows = [
-        munhak_row for munhak_row in query_munhak_rows if munhak_row["source"] not in query_source_list and munhak_row[
-            "category"] not in query_category_list]
+        munhak_row for munhak_row in query_munhak_rows if munhak_row["source"] in query_source_list and munhak_row[
+            "category"] in query_category_list]
 
     query_munhak_rows = sorted(query_munhak_rows, key=lambda x: (x["source"][:5], x["source"]), reverse=True)
 
@@ -247,8 +250,7 @@ def random_munhak():
 
     random_munhak_row = random.choice(munhak_rows)
 
-    return redirect(url_for("board.munhak_board_detail", munhak_seq = random_munhak_row["munhak_seq"]))
-
+    return redirect(url_for("board.munhak_board_detail", munhak_seq=random_munhak_row["munhak_seq"]))
 
 
 @board_bp.route('/board')
@@ -257,18 +259,31 @@ def munhak_board_list():
     munhak_rows = copy.deepcopy(munhak_rows_data)
 
     args = request.args
-    query = args.get("query", "")
+    query = args.get("query", None)
     tag = args.get("tag", None)
+    category = args.get("category", None)
+    source = args.get("source", None)
     clear = args.get("clear", None)
 
+    query_cookie = ""
+    if query is not None:
+        query_cookie += query + " "
 
-
-
-
+    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))
     if clear is not None:
-        print("clear")
+        if category is not None:
+            query_cookie += " $" + category + " "
+        else:
+            query_cookie += "".join([" $" + x + " " for x in ["고전시가", "현대시", "고전산문", "현대소설", "극", "수필"]])
+
+        if source is not None:
+            query_cookie += " @" + source + " "
+        else:
+            query_cookie += "".join([" @" + x.replace(" ", "-") + " " for x in source_list])
+
+        print(query_cookie)
         resp = make_response(redirect(url_for("board.munhak_board_list")))
-        resp.set_cookie('query', "")
+        resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
         resp.set_cookie("page", "1")
         return resp
 
@@ -282,7 +297,6 @@ def munhak_board_list():
 
     page_size = 10
 
-    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))
     source_dict = defaultdict(list)
     for source in source_list:
         source_dict[source[:5]].append(source)
@@ -290,20 +304,24 @@ def munhak_board_list():
     data = {
         "source_dict": source_dict
     }
+
     if tag is not None:
         resp = make_response(redirect(url_for("board.munhak_board_list")))
-        query_cookie = "#" + tag
+        query_cookie += "#" + tag
+
         resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
         resp.set_cookie("page", str(page))
 
-        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")))
-
+        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
 
         return resp
     else:
+
         resp = make_response(render_template("munhak_board_list.html", data=data))
+
+        # resp.set_cookie('query', base64.b64encode(query_cookie.encode("UTF-8")))
         resp.set_cookie("page", str(page))
-        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")))
+        resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
         return resp
 
 
