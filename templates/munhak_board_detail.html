@@ -810,6 +810,9 @@
 
         $("#writer").on("click", function () {
             let writer = $(this).text().trim();
+            if(writer == "작자 미상"){
+                return;
+            }
             {#setCookie("query", btoa(unescape(encodeURIComponent(writer))), 100);#}
             movePage(`{{ url_for("board.munhak_board_list") }}?query=${writer}&clear=1`)
         })
