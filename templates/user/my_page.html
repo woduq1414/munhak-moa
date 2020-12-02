@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+
+{% block style %}
+    <title>문학모아 : 모두의 문학 나눔터</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+
+
+{% endblock %}
+
+{% block main %}
+    <link rel='stylesheet' href='https://unpkg.com/nprogress@0.2.0/nprogress.css'/>
+    <script src='https://unpkg.com/nprogress@0.2.0/nprogress.js'></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/my_page.css') }}">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <div id="contentContainer">
+
+        <div id="myPageTitle">
+            회원 정보
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="myPageNicknameInput" id="myPageNicknameLabel">별명(닉네임) : </label>
+            {#                <br>#}
+            <input type="text" id="myPageNicknameInput">
+            <small id="myPageNicknameHelp" class="form-text text-muted">16바이트까지 가능(영문 - 1, 한글 - 2)
+                <span id="myPageNicknameLength"></span>
+            </small>
+        </div>
+
+
+        <div class="btn btn-secondary" id="changeNicknameButton">
+            변경
+        </div>
+    </div>
+
+
+
+
+    <script type="text/javascript">
+
+        function getCookie(cookieName) {
+            var cookieValue = null;
+            if (document.cookie) {
+                var array = document.cookie.split((escape(cookieName) + '='));
+                if (array.length >= 2) {
+                    var arraySub = array[1].split(';');
+                    cookieValue = unescape(arraySub[0]);
+                }
+            }
+            return cookieValue;
+        }
+
+        function getStringLength(str) {
+            var retCode = 0;
+            var strLength = 0;
+
+            for (i = 0; i < str.length; i++) {
+                var code = str.charCodeAt(i)
+                var ch = str.substr(i, 1).toUpperCase()
+
+                code = parseInt(code)
+
+                if ((ch < "0" || ch > "9") && (ch < "A" || ch > "Z") && ((code > 255) || (code < 0)))
+                    strLength = strLength + 2;
+                else
+                    strLength = strLength + 1;
+            }
+            return strLength;
+        }
+
+        $("#changeNicknameButton").on("click", function () {
+            let nicknameLength = getStringLength($("#myPageNicknameInput").val());
+            if (nicknameLength > 16 || nicknameLength < 1) {
+                return;
+            }
+            NProgress.start();
+            $.ajax({
+                type: "POST",
+                url: "/user/change-nickname",
+                data: {"nickname": $("#myPageNicknameInput").val()},
+                dataType: "json",
+                statusCode: {
+                    400: function (data) {
+                        toastr.options = {
+                            "closeButton": true,
+                            "debug": false,
+                            "newestOnTop": true,
+                            "progressBar": false,
+                            "positionClass": "toast-top-right",
+                            "preventDuplicates": true,
+                            "onclick": null,
+                            "showDuration": "300",
+                            "hideDuration": "1000",
+                            "timeOut": "2000",
+                            "extendedTimeOut": "1000",
+                            "showEasing": "swing",
+                            "hideEasing": "linear",
+                            "showMethod": "fadeIn",
+                            "hideMethod": "fadeOut"
+                        }
+                        toastr["warning"]("별명(닉네임)은 1~16바이트여야 합니다.", "오류")
+                    },
+                    409: function (data) {
+
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "debug": false,
+                            "newestOnTop": true,
+                            "progressBar": false,
+                            "positionClass": "toast-top-right",
+                            "preventDuplicates": true,
+                            "onclick": null,
+                            "showDuration": "300",
+                            "hideDuration": "1000",
+                            "timeOut": "2000",
+                            "extendedTimeOut": "1000",
+                            "showEasing": "swing",
+                            "hideEasing": "linear",
+                            "showMethod": "fadeIn",
+                            "hideMethod": "fadeOut"
+                        }
+                        toastr["warning"]("별명(닉네임)이 중복되었거나 이미 가입된 계정입니다.", "오류")
+                    },
+                    403: function (data) {
+                        location.href = "{{ url_for("user.login_form") }}"
+                    },
+                    200: function (data) {
+                        location.href = location.href;
+                    }
+                }
+            })
+        })
+
+
+        $("#myPageNicknameInput").on("input", function () {
+
+            let stringByteLength = getStringLength($(this).val());
+
+            $("#myPageNicknameLength").html(
+                `(${stringByteLength}/16)`
+            )
+        })
+
+
+        function setCookie(cookie_name, value, days) {
+            var exdate = new Date();
+            exdate.setDate(exdate.getDate() + days);
+            // 설정 일수만큼 현재시간에 만료값으로 지정
+
+            var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+            document.cookie = cookie_name + '=' + cookie_value;
+        }
+
+
+    </script>
+
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+
+    </script>
+{% endblock %}

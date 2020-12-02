@@ -6,3 +6,8 @@
 #goBackButton{
 
 }
+
+body.dark-mode .EasyMDEContainer {
+    background-color: white;
+    border-radius: 5px;
+}

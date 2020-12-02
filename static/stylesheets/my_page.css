@@ -1,0 +1,21 @@
+
+#myPageTitle {
+    font-size: 2rem;
+}
+
+
+
+#myPageNicknameInput {
+    width: 300px;
+    font-size: 1.5rem;
+    display: inline-block;
+    margin-left: 0.8rem;
+}
+#myPageNicknameLabel {
+    font-size: 1.5rem;
+
+}
+
+#registerButton {
+    margin-top: 1rem;
+}

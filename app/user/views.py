@@ -14,7 +14,7 @@ import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
 
-from app.common.decorator import return_500_if_errors
+from app.common.decorator import return_500_if_errors, login_required
 from config import credentials, SECRET_KEY, YOUTUBE_KEY
 from app.cache import cache
 from app.common.function import *
@@ -24,6 +24,39 @@ import datetime
 from datetime import datetime
 
 user_bp = Blueprint('user', __name__)
+
+
+
+@user_bp.route("/user/change-nickname", methods=["GET", "POST"])
+@login_required
+def change_nickname():
+    args = request.form
+    nickname = args.get("nickname", None)
+    if nickname is None or (not (1 <= len(nickname.encode("cp949")) <= 16)):
+        return abort(400)
+    user_seq = session["user"]["user_seq"]
+    user_row = User.query.filter_by(user_seq=user_seq).first()
+    if user_row is None:
+        return abort(401)
+
+    user_row.nickname = nickname
+
+    db.session.commit()
+
+    session["user"] = user_row.as_dict()
+    print(session)
+    return jsonify({
+        "message" : "정상적으로 처리되었습니다."
+    }), 200
+
+
+
+@user_bp.route('/my')
+def my_page():
+    print(session["user"]["nickname"])
+    return render_template('user/my_page.html')
+
+
 
 
 
