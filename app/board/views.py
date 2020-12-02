@@ -316,8 +316,6 @@ def munhak_board_list():
     return resp
 
 
-
-
 @board_bp.route("/tag/add", methods=["GET", "POST"])
 @login_required
 def add_tag():
@@ -492,7 +490,18 @@ def add_video():
 
     video_title = video["snippet"]["title"].replace("&#39;", "'")
 
-    video_thumbnail = video["snippet"]["thumbnails"]["standard"]["url"]
+    video_thumbnail = None
+    if "standard" in video["snippet"]["thumbnails"]:
+        video_thumbnail = video["snippet"]["thumbnails"]["standard"]["url"]
+    elif "high" in video["snippet"]["thumbnails"]:
+        video_thumbnail = video["snippet"]["thumbnails"]["high"]["url"]
+    elif "medium" in video["snippet"]["thumbnails"]:
+        video_thumbnail = video["snippet"]["thumbnails"]["medium"]["url"]
+    elif "default" in video["snippet"]["thumbnails"]:
+        video_thumbnail = video["snippet"]["thumbnails"]["default"]["url"]
+
+    if video_thumbnail is None:
+        return abort(404)
 
     if type == "munhak":
         old_video_row = Video.query.filter_by(munhak_seq=munhak_seq, youtube_code=video_code).first()
