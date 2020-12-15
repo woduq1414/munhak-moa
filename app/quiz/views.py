@@ -434,7 +434,9 @@ def leave_live_room(target_sid=None):
 @socketio.on('join_live_room', namespace="/live")
 def join_live_room(data, methods=['GET', 'POST']):
     color_list = [
-        "red", "green", "blue", "orange", "pink", "yellow", "black", "purple", "brown", "mediumaquamarine"
+        "red", "green", "blue", "orange", "pink", "yellow", "black", "purple", "brown", "mediumaquamarine",
+        "aqua", "bisque", "chocolate", "crimson", "darkgoldenrod", "darkslateblue", "deeppink", "gold", "greenyellow",
+        "indianred",
     ]
 
     global room_info
@@ -472,6 +474,10 @@ def join_live_room(data, methods=['GET', 'POST']):
     exist_color_list = [v["color"] for k, v in room_info[room_id]["users"].items()]
     available_color_list = list(set(color_list) - set(exist_color_list))
     random.shuffle(available_color_list)
+
+    if len(available_color_list) == 0 :
+        return
+
 
     room_info[room_id]["users"][request.sid] = {
         "nickname": session["live_nickname"],

@@ -255,6 +255,13 @@ def random_munhak():
 
 @board_bp.route('/board')
 def munhak_board_list():
+
+
+    cookies = request.cookies
+
+
+
+
     munhak_rows_data = cache.get("munhak_rows_data")
     munhak_rows = copy.deepcopy(munhak_rows_data)
 
@@ -264,6 +271,11 @@ def munhak_board_list():
     category = args.get("category", None)
     source = args.get("source", None)
     clear = args.get("clear", None)
+
+    if "query" not in cookies:
+        clear = True
+
+
 
     query_cookie = ""
     if query is not None:

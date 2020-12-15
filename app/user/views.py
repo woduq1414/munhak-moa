@@ -52,9 +52,12 @@ def change_nickname():
 
 
 @user_bp.route('/my')
+@login_required
 def my_page():
     print(session["user"]["nickname"])
-    return render_template('user/my_page.html')
+    resp = make_response(render_template("user/my_page.html"))
+    resp.set_cookie('PJAX-URL', base64.b64encode(request.url.encode("UTF-8")), max_age=None, expires=None, path='/')
+    return resp
 
 
 
