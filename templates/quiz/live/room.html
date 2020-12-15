@@ -317,7 +317,7 @@
                     clearInterval(timerId);
                     {#alert('정지');#}
                 }, 300000);
-                
+
                 $(".otherPlayerMarker").remove()
                 for (let sid in data["users"]) {
                     if (sid == socket.io.engine.id) {
@@ -328,9 +328,17 @@
 
                         $("#myProgressBarWrapper").append(
                             `
-                    <div class="otherPlayerMarker" id="otherPlayerMarker${sid}" style="color:${data["users"][sid]["color"]}; top : 15px">
-                        <i class="fas fa-map-marker"></i>
+                    <div class="otherPlayerMarkerWrapper" id="otherPlayerMarkerWrapper${sid}" style="top:15px;">
+                        <span class="otherPlayerMarkerNickname" style="color:${data["users"][sid]["color"]};">
+                                 ${data["users"][sid]["nickname"]}
+                        </span>
+
+                        <div class="otherPlayerMarker"  style="color:${data["users"][sid]["color"]};">
+                             <i class="fas fa-map-marker"></i>
+                        </div>
                     </div>
+
+
                     `
                         )
                     }
@@ -353,8 +361,10 @@
                     {#$("#quizContent2").remove();#}
                 });
             } else {
-                $(`#otherPlayerMarker${data["sid"]}`).animate({top: ($("#myProgressBarWrapper").height() - 25) * data["score"] / $("#myProgressBarWrapper").attr("goal_score") + 15}, 800, function () {
-                    {#$("#quizContent2").remove();#}
+                $(`#otherPlayerMarkerWrapper${data["sid"]}`).animate({
+                    top: ($("#myProgressBarWrapper").height() - 25) * data["score"] / $("#myProgressBarWrapper").attr("goal_score") + 15
+                }, 800, function () {
+
                 });
             }
 
@@ -585,4 +595,10 @@
 
 
     </script>
+
+
+
+
 {% endblock %}
+
+

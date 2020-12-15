@@ -188,12 +188,29 @@
 }
 
 .otherPlayerMarker {
-    position: fixed;
-    right: 1.5rem;
+
+    /*right: 1.5rem;*/
     font-size: 2rem;
-    top: 1rem;
+    /*top: 1rem;*/
     transform: rotate(-90deg);
 }
+
+.otherPlayerMarkerWrapper {
+    position: fixed;
+    right: 1.5rem;
+    top: 1rem;
+
+    display: flex;
+
+}
+
+.otherPlayerMarkerNickname {
+    font-size: 1rem;
+    text-align: right;
+    max-width: 6rem;
+    margin: auto 0.7rem auto 0;
+}
+
 
 .overlayBox {
     position: absolute;
@@ -277,9 +294,9 @@
 
 #remainTime {
     font-size: 1.3rem;
-    left : 3rem;
+    left: 3rem;
     position: fixed;
-    top : 2rem;
+    top: 2rem;
     padding: 1rem;
     background-color: #eee;
     border-radius: 1000px;

@@ -365,8 +365,12 @@ def enter_room():
             return redirect(url_for("quiz.enter_live"))
 
         if int(args["room_id"]) in room_info:
+
+
+
             return redirect(url_for("quiz.live_room", room_id=int(args["room_id"])))
         else:
+            # flash("방이 존재하지 않아요!")
             return redirect(url_for("quiz.enter_live"))
     else:
         return redirect(url_for("quiz.enter_live"))
@@ -379,6 +383,9 @@ def live_room(room_id):
     print("room_info", room_info, room_id)
 
     if room_id not in room_info or room_info[room_id]["is_playing"] is True:
+        if room_id not in room_info:
+            flash("방이 존재하지 않아요!")
+
         return redirect(url_for("quiz.enter_live"))
 
     return render_template("./quiz/live/room.html", data={"room_id": room_id})
@@ -675,7 +682,8 @@ def mark_and_get_quiz(data):
 
         emit("solve_progress", {
             "sid": request.sid,
-            "score": room_info[room_id]["users"][sid]["score"]
+            "score": room_info[room_id]["users"][sid]["score"],
+            # "nickname" : room_info[room_id]["users"][sid]["nickname"]
         }, room=room_id)
 
         if room_info[room_id]["setting"]["goal_score"] <= room_info[room_id]["users"][sid]["score"]:
