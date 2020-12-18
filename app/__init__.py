@@ -26,7 +26,7 @@ from werkzeug.exceptions import HTTPException
 # http://flask.pocoo.org/docs/0.10/patterns/appfactories/
 def create_app(config_filename):
     app = Flask(__name__, static_url_path='', static_folder='../static', template_folder='../templates')
-
+    app.secret_key = os.environ.get('SECRET_KEY', None)
     app.config.from_object(config_filename)
     # app.response_class = MyResponse
 
@@ -37,6 +37,8 @@ def create_app(config_filename):
     db.init_app(app)
     db.app = app
     sess.init_app(app)
+
+
     # pjax.init_app(app)
 
     # sched.init_app(app)

@@ -38,7 +38,7 @@ if socket.gethostname()[:7] == "DESKTOP":
 
     DEBUG = True
     TEMPLATES_AUTO_RELOAD = True
-
+    SESSION_TYPE = 'redis'
 
 
 else:
@@ -62,4 +62,3 @@ else:
                                 port=REDIS_URL.split("redis://:")[1].split(":")[1])
 
 
-SESSION_TYPE = 'redis'
