@@ -55,5 +55,8 @@ else:
 
     REDIS_URL = os.environ.get('REDIS_URL', None)
     FERNET_KEY = os.environ.get('FERNET_KEY', None)
-    SESSION_REDIS = redis.Redis(os.environ.get('REDIS_URL', None))
+    SESSION_REDIS = redis.Redis(host=os.environ.get('REDIS_URL', None).split("redis://:")[1].split(":")[0],
+                                port=os.environ.get('REDIS_URL', None).split("redis://:")[1].split(":")[1])
+
+
 SESSION_TYPE = 'redis'
