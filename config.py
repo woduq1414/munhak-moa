@@ -53,5 +53,5 @@ else:
 
     REDIS_URL = os.environ.get('REDIS_URL', None)
     FERNET_KEY = os.environ.get('FERNET_KEY', None)
-
+    SESSION_REDIS = os.environ.get('REDIS_URL', None)
 SESSION_TYPE = 'redis'

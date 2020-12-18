@@ -19,7 +19,7 @@ import uuid
 from app.common.encrypt import simpleEnDecrypt
 from config import credentials, SECRET_KEY
 from app.cache import cache
-from app.common.function import fetch_spread_sheet, send_discord_alert_log
+from app.common.function import fetch_spread_sheet, send_discord_alert_log, edit_distance
 from app.db import *
 from datetime import datetime
 from flask_socketio import SocketIO
@@ -43,6 +43,55 @@ def index():
 
     session["quiz_count"] = 0
     return render_template("quiz/index.html", data=data)
+
+
+def make_quiz(munhak_rows, not_selected_munhak_rows):
+    # import time
+    # start = time.time()  #
+
+    correct_munhak_row = random.choice(not_selected_munhak_rows)
+
+    for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
+        munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+
+    random.shuffle(munhak_rows)
+
+    if random.random() <= 0.3:  # 30% 확률
+        option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+                              munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
+    else:
+
+        if random.random() <= 0.4:  # 10% 확률
+            distance_sorted_munhak_rows = sorted(munhak_rows, key=
+            lambda x: edit_distance(x["title"].replace(" ", ""), correct_munhak_row["title"].replace(" ", "")
+                                    )
+                                                 )
+
+            option_munhak_rows = distance_sorted_munhak_rows[0:3] + [correct_munhak_row]
+        else:
+            option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
+
+    random.shuffle(option_munhak_rows)
+    correct = option_munhak_rows.index(correct_munhak_row)
+
+    hint = random.choice(correct_munhak_row["keywords"])
+    hint = hint.replace("\\", "")
+
+    quiz_data = {
+        "munhak_seq": correct_munhak_row["munhak_seq"],
+        "source": correct_munhak_row["source"],
+        "category": correct_munhak_row["category"],
+        "hint": hint,
+        "correct": correct,
+        "options": [
+            f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in option_munhak_rows
+        ],
+        "title": correct_munhak_row["title"],
+        "writer": correct_munhak_row["writer"],
+        "option_munhak_rows": option_munhak_rows
+    }
+    # print("time :", time.time() - start)
+    return quiz_data
 
 
 @quiz_bp.route('/get-quiz', methods=["GET", "POST"])
@@ -95,45 +144,44 @@ def get_quiz():
             session["result"] = True
             return "wow", 404
 
-        correct_munhak_row = random.choice(not_solved_munhak_rows)
+        # correct_munhak_row = random.choice(not_solved_munhak_rows)
+        #
+        # for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
+        #     munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+        #
+        # random.shuffle(munhak_rows)
+        #
+        # if correct_munhak_row["category"] != "극" and correct_munhak_row[
+        #     "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
+        #     option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+        #                           munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
+        # else:
+        #     option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
+        #
+        # random.shuffle(option_munhak_rows)
+        # correct = option_munhak_rows.index(correct_munhak_row)
+        # hint = random.choice(correct_munhak_row["keywords"])
+        # hint = hint.replace("\\", "")
 
-        for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
-            munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+        quiz_data = make_quiz(munhak_rows, not_solved_munhak_rows)
 
-        random.shuffle(munhak_rows)
-
-        if correct_munhak_row["category"] != "극" and correct_munhak_row[
-            "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
-            option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
-                                  munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
-        else:
-            option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
-
-        random.shuffle(option_munhak_rows)
-        correct = option_munhak_rows.index(correct_munhak_row)
-
-        session["correct"] = simpleEnDecrypt.encrypt(f"{correct}:{uuid.uuid4()}")
-
-        hint = random.choice(correct_munhak_row["keywords"])
-        hint = hint.replace("\\", "")
+        session["correct"] = simpleEnDecrypt.encrypt(f"{quiz_data['correct']}:{uuid.uuid4()}")
 
         session["current_munhak"] = {
-            "munhak_seq": correct_munhak_row["munhak_seq"],
-            "source": correct_munhak_row["source"],
-            "category": correct_munhak_row["category"],
-            "hint": hint,
+            "munhak_seq": quiz_data["munhak_seq"],
+            "source": quiz_data["source"],
+            "category": quiz_data["category"],
+            "hint": quiz_data["hint"],
             # "title": correct_munhak_row["title"],
             # "writer": correct_munhak_row["writer"]
         }
-        session["options"] = [munhak_row for munhak_row in option_munhak_rows]
+        session["options"] = [munhak_row for munhak_row in quiz_data["option_munhak_rows"]]
         data = {
             "quiz_no": quiz_no,
             "type": "객관식",
-            "category": correct_munhak_row["category"],
-            "hint": hint,
-            "options": [
-                f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in option_munhak_rows
-            ],
+            "category": quiz_data["category"],
+            "hint": quiz_data["hint"],
+            "options": quiz_data["options"],
             "total_munhak": len(munhak_rows_data)
         }
         print(data)
@@ -331,12 +379,12 @@ def make_room():
             "room_master": None,
             "is_playing": False,
             "quiz_data_list": [],
-            "setting" : {
-                "correct_score" : 2,
-                "wrong_score" : -1,
-                "goal_score" : 20
+            "setting": {
+                "correct_score": 2,
+                "wrong_score": -1,
+                "goal_score": 20
             },
-            "game_code" : "",
+            "game_code": "",
         }
 
     print("room_info", room_info)
@@ -365,8 +413,6 @@ def enter_room():
             return redirect(url_for("quiz.enter_live"))
 
         if int(args["room_id"]) in room_info:
-
-
 
             return redirect(url_for("quiz.live_room", room_id=int(args["room_id"])))
         else:
@@ -482,9 +528,8 @@ def join_live_room(data, methods=['GET', 'POST']):
     available_color_list = list(set(color_list) - set(exist_color_list))
     random.shuffle(available_color_list)
 
-    if len(available_color_list) == 0 :
+    if len(available_color_list) == 0:
         return
-
 
     room_info[room_id]["users"][request.sid] = {
         "nickname": session["live_nickname"],
@@ -554,41 +599,44 @@ def start_live(data):
         if not not_selected_munhak_rows:
             break
 
-        correct_munhak_row = random.choice(not_selected_munhak_rows)
+        # correct_munhak_row = random.choice(not_selected_munhak_rows)
+        #
+        # for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
+        #     munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+        #
+        # random.shuffle(munhak_rows)
+        #
+        # if correct_munhak_row["category"] != "극" and correct_munhak_row[
+        #     "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
+        #     option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+        #                           munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
+        # else:
+        #     option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
+        #
+        # random.shuffle(option_munhak_rows)
+        # correct = option_munhak_rows.index(correct_munhak_row)
+        #
+        # hint = random.choice(correct_munhak_row["keywords"])
+        # hint = hint.replace("\\", "")
+        #
+        # quiz_data = {
+        #     "quiz_no": quiz_no,
+        #     "munhak_seq": correct_munhak_row["munhak_seq"],
+        #     "source": correct_munhak_row["source"],
+        #     "category": correct_munhak_row["category"],
+        #     "hint": hint,
+        #     "correct": correct,
+        #     "options": [
+        #         f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in option_munhak_rows
+        #     ],
+        #     "title": correct_munhak_row["title"],
+        #     "writer": correct_munhak_row["writer"]
+        # }
 
-        for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
-            munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+        quiz_data = make_quiz(munhak_rows, not_selected_munhak_rows)
+        quiz_data["quiz_no"] = quiz_no
 
-        random.shuffle(munhak_rows)
-
-        if correct_munhak_row["category"] != "극" and correct_munhak_row[
-            "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
-            option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
-                                  munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
-        else:
-            option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
-
-        random.shuffle(option_munhak_rows)
-        correct = option_munhak_rows.index(correct_munhak_row)
-
-        hint = random.choice(correct_munhak_row["keywords"])
-        hint = hint.replace("\\", "")
-
-        quiz_data = {
-            "quiz_no": quiz_no,
-            "munhak_seq": correct_munhak_row["munhak_seq"],
-            "source": correct_munhak_row["source"],
-            "category": correct_munhak_row["category"],
-            "hint": hint,
-            "correct": correct,
-            "options": [
-                f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in option_munhak_rows
-            ],
-            "title": correct_munhak_row["title"],
-            "writer": correct_munhak_row["writer"]
-        }
-
-        selected_quiz_list.append(correct_munhak_row["munhak_seq"])
+        selected_quiz_list.append(quiz_data["munhak_seq"])
         quiz_data_list.append(quiz_data)
 
     print(quiz_data_list)
@@ -602,8 +650,7 @@ def start_live(data):
         room_info[room_id]["users"][sid]["score"] = 0
 
     game_code = uuid.uuid4()
-    room_info[room_id]["game_code" ] = game_code
-
+    room_info[room_id]["game_code"] = game_code
 
     emit("live_started", {
         "users": room_info[room_id]["users"],
@@ -614,9 +661,8 @@ def start_live(data):
 
     import time
     time.sleep(303)
-    if  room_info[room_id]["game_code" ] == game_code and room_info[room_id]["is_playing"] is True:
+    if room_info[room_id]["game_code"] == game_code and room_info[room_id]["is_playing"] is True:
         end_live(room_id)
-
 
     # cache.set("room_info", room_info)
 
@@ -645,7 +691,6 @@ def end_live(room_id):
     }, room=room_id, namespace="/live")
 
 
-
 @socketio.on('mark_and_get_quiz', namespace="/live")
 def mark_and_get_quiz(data):
     import time
@@ -661,7 +706,6 @@ def mark_and_get_quiz(data):
     CORRECT_SCORE = room_info[room_id]["setting"]["correct_score"]
     WRONG_SCORE = room_info[room_id]["setting"]["wrong_score"]
     GOAL_SCORE = room_info[room_id]["setting"]["goal_score"]
-
 
     if "answer" in data:
         quiz = room_info[room_id]["quiz_data_list"][quiz_no - 1]
@@ -714,8 +758,9 @@ def mark_and_get_quiz(data):
         })
     except:
         emit("receive_quiz", {
-            "quiz_data": None,  "is_correct": is_correct
+            "quiz_data": None, "is_correct": is_correct
         })
+
 
 @socketio.on('edit_room_setting', namespace="/live")
 def edit_room_setting(data):
@@ -728,7 +773,6 @@ def edit_room_setting(data):
         "is_playing"] is not False:
         emit("error")
 
-
     if data["goal_score"] // 1 >= 1:
         room_info[room_id]["setting"]["goal_score"] = min(int(data["goal_score"] // 1), 1000)
     if data["correct_score"] // 1 >= 1:
@@ -738,7 +782,6 @@ def edit_room_setting(data):
 
     emit("room_setting_edited", room_info[room_id]["setting"], room=room_id, namespace="/live")
     # cache.set("room_info", room_info)
-
 
 
 @socketio.on('kick_player', namespace="/live")
@@ -753,8 +796,6 @@ def kick_player(data):
         emit("error")
 
     leave_live_room(data["target_id"])
-
-    
 
     emit("update_room_info", {
         "users": room_info[room_id]["users"],
