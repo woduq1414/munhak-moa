@@ -4,6 +4,8 @@ import os
 # from app.common.function import is_local
 import json
 import socket
+import redis
+
 
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
@@ -53,5 +55,5 @@ else:
 
     REDIS_URL = os.environ.get('REDIS_URL', None)
     FERNET_KEY = os.environ.get('FERNET_KEY', None)
-    SESSION_REDIS = os.environ.get('REDIS_URL', None)
+    SESSION_REDIS = redis.Redis(os.environ.get('REDIS_URL', None))
 SESSION_TYPE = 'redis'
