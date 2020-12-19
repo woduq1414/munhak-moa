@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from flask import Blueprint
 from flask import Flask, render_template, session, request, flash, redirect, url_for, Response, abort, jsonify, \
     send_file
@@ -62,12 +64,36 @@ def make_quiz(munhak_rows, not_selected_munhak_rows):
     else:
 
         if random.random() <= 0.4:  # 10% 확률
-            distance_sorted_munhak_rows = sorted(munhak_rows, key=
-            lambda x: edit_distance(x["title"].replace(" ", ""), correct_munhak_row["title"].replace(" ", "")
-                                    )
-                                                 )
+            option_munhak_rows = []
+            for munhak_row in munhak_rows:
+                munhak_row["distance"] = edit_distance(munhak_row["title"].replace(" ", ""),
+                                                       correct_munhak_row["title"].replace(" ", ""))
 
-            option_munhak_rows = distance_sorted_munhak_rows[0:3] + [correct_munhak_row]
+            distance_sorted_munhak_rows = sorted(munhak_rows, key=lambda x: x["distance"])
+            distance_groupby_munhak_rows = groupby(distance_sorted_munhak_rows, key=lambda x: x["distance"], )
+ 
+            c = 0
+
+            for _, same_distance_munhak_rows in distance_groupby_munhak_rows:
+                temp_list = list(same_distance_munhak_rows)
+                random.shuffle(temp_list)
+                for munhak_row in temp_list:
+                    if c == 3:
+                        break
+
+                    if munhak_row["title"] in correct_munhak_row["title"] or correct_munhak_row["title"] in munhak_row[
+                        "title"]:
+                        continue
+
+                    if munhak_row["title"] in [x["title"] for x in option_munhak_rows]:
+                        continue
+
+                    option_munhak_rows.append(munhak_row)
+                    c += 1
+                if c == 3:
+                    break
+
+            option_munhak_rows.append(correct_munhak_row)
         else:
             option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
 
