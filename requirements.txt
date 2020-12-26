@@ -52,3 +52,4 @@ eventlet==0.29.1
 flask-pjax==0.0.1
 Flask-Session==0.3.2
 redis==3.5.3
+python-socketio==4.6.1

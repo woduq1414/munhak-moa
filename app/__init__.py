@@ -33,11 +33,11 @@ def create_app(config_filename):
     from app.db import db
     from app.socket import socketio
     from app.session import sess
-    socketio.init_app(app)
+
     db.init_app(app)
     db.app = app
     sess.init_app(app)
-
+    socketio.init_app(app, message_queue='redis://')
 
     # pjax.init_app(app)
 

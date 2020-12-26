@@ -71,7 +71,7 @@ def make_quiz(munhak_rows, not_selected_munhak_rows):
 
             distance_sorted_munhak_rows = sorted(munhak_rows, key=lambda x: x["distance"])
             distance_groupby_munhak_rows = groupby(distance_sorted_munhak_rows, key=lambda x: x["distance"], )
- 
+
             c = 0
 
             for _, same_distance_munhak_rows in distance_groupby_munhak_rows:
