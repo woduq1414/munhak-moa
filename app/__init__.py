@@ -37,7 +37,7 @@ def create_app(config_filename):
     db.init_app(app)
     db.app = app
     sess.init_app(app)
-    socketio.init_app(app, message_queue='redis://')
+    socketio.init_app(app)
 
     # pjax.init_app(app)
 
