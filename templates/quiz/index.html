@@ -35,9 +35,19 @@
                 <div class="custom-control custom-checkbox sourceCheckWrapper">
 
                     <input type="checkbox" class="custom-control-input "
-                           id="sourceCheck2" data="수특/수완" checked>
+                           id="sourceCheck2" data="수특/수완" >
                     <label class="custom-control-label"
-                           for="sourceCheck2">수특 · 수완</label>
+                           for="sourceCheck2">21 수특 · 수완</label>
+
+
+                </div>
+
+                      <div class="custom-control custom-checkbox sourceCheckWrapper">
+
+                    <input type="checkbox" class="custom-control-input "
+                           id="sourceCheck_2022" data="수특/수완" checked>
+                    <label class="custom-control-label"
+                           for="sourceCheck_2022">22 수특 · 수완</label>
 
 
                 </div>
@@ -126,8 +136,9 @@
 
             let s1 = $("#sourceCheck1").prop("checked");
             let s2 = $("#sourceCheck2").prop("checked");
+            let s3 = $("#sourceCheck_2022").prop("checked");
             console.log(s1, s2);
-            location.href = `{{ url_for("quiz.quiz") }}?s1=${s1}&s2=${s2}&re=true`
+            location.href = `{{ url_for("quiz.quiz") }}?s1=${s1}&s2=${s2}&s3=${s3}&re=true`
         })
 
 

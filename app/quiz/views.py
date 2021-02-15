@@ -125,17 +125,57 @@ def get_quiz():
     # import time
     # time.sleep(1)
     if "quiz_source" not in session:
-        session["quiz_source"] = "all"
+        session["quiz_source"] = {
+            "past_exam": True,
+            "2021": False,
+            "2022": True,
+        }
 
     quiz_source = session["quiz_source"]
     munhak_rows_data = copy.deepcopy(cache.get("munhak_quiz_rows_data"))
 
-    if quiz_source == "s1":
-        munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
-                            munhak_row["source"].split()[-1] != "수능특강" and munhak_row["source"].split()[-1] != "수능완성"]
-    elif quiz_source == "s2":
-        munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
-                            munhak_row["source"].split()[-1] == "수능특강" or munhak_row["source"].split()[-1] == "수능완성"]
+    # munhak_rows_data = []
+
+    def source_check(source):
+        b = True
+        if quiz_source["past_exam"] is False:  # 기출문제 제외
+            b = b and not (source.split()[-1] == "모의평가" or source.split()[
+                -1] == "수능")
+
+        if quiz_source["2021"] is False:
+            b = b and not (
+                    source.split()[0] == "2021학년도" and
+                    (source.split()[-1] == "수능특강" or source.split()[
+                        -1] == "수능완성"))
+
+        if quiz_source["2022"] is False:
+            b = b and not (
+                    source.split()[0] == "2022학년도" and
+                    (source.split()[-1] == "수능특강" or source.split()[
+                        -1] == "수능완성"))
+        return b
+    
+
+    munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if source_check(munhak_row["source"])]
+
+
+    # if quiz_source["past_exam"] is False:  # 기출문제 제외
+    #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
+    #                         not (munhak_row["source"].split()[-1] == "모의평가" or munhak_row["source"].split()[
+    #                             -1] == "수능")]
+    # if quiz_source["2021"] is False:
+    #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
+    #                         not (
+    #                                 munhak_row["source"].split()[0] == "2021학년도" and
+    #                                 (munhak_row["source"].split()[-1] == "수능특강" or munhak_row["source"].split()[
+    #                                     -1] == "수능완성"))]
+    #
+    # if quiz_source["2022"] is False:
+    #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
+    #                         not (
+    #                                 munhak_row["source"].split()[0] == "2022학년도" and
+    #                                 (munhak_row["source"].split()[-1] == "수능특강" or munhak_row["source"].split()[
+    #                                     -1] == "수능완성"))]
 
     if "is_end" in session and session["is_end"] is True:
         session["quiz_count"] = 0
@@ -236,13 +276,23 @@ def quiz():
     re = "re" in args and args["re"] == "true"
     s1 = "s1" in args and args["s1"] == "false"
     s2 = "s2" in args and args["s2"] == "false"
+    s3 = "s3" in args and args["s3"] == "false"
+
     if re:
-        if s1 and not s2:
-            session["quiz_source"] = "s2"
-        elif not s1 and s2:
-            session["quiz_source"] = "s1"
-        else:
-            session["quiz_source"] = "all"
+        # if s1 and not s2:
+        #     session["quiz_source"] = "s2"
+        # elif not s1 and s2:
+        #     session["quiz_source"] = "s1"
+        # else:
+        #     session["quiz_source"] = "all"
+
+        quiz_source = {
+            "past_exam": not s1,
+            "2021": not s2,
+            "2022": not s3
+        }
+
+        session["quiz_source"] = quiz_source
 
         session["quiz_count"] = 0
         session["solved_quiz"] = []
