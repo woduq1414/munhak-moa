@@ -24,40 +24,67 @@
 
         <div id="waitContent">
 
-            <div id="leftContainer">
-                <div id="userContainer">
+            <div id="upperContainer">
+                <div id="leftContainer">
+                    <div id="userContainer">
 
 
+                    </div>
+                </div>
+
+                <div id="rightContainer">
+                    <div id="roomIdWrapper">
+                        방 번호 :
+                        <div id="roomId" data-clipboard-text="{{ data.room_id }}">
+                            {{ data.room_id }}
+                        </div>
+                    </div>
+
+
+                    <div id="roomSettingWrapper">
+                        <div id="goalScore">목표 점수 : 20</div>
+                        <div id="correctScore">맞혔을 때 : +2</div>
+                        <div id="wrongScore">틀렸을 때 : -1</div>
+
+
+                        <div id="roomSettingIconWrapper">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                    </div>
+
+
+                    <div id="roomButtonContainer">
+
+                        <div class="btn btn-outline-danger" id="exitButton">나가기</div>
+                        <div class="btn btn-outline-primary" id="readyButton">준비</div>
+                        <div class="btn btn-outline-primary" id="startLiveButton">시작</div>
+                    </div>
                 </div>
             </div>
 
-            <div id="rightContainer">
-                <div id="roomIdWrapper">
-                    방 번호 :
-                    <div id="roomId" data-clipboard-text="{{ data.room_id }}">
-                        {{ data.room_id }}
+            <div id="underChatContainer">
+
+                <span id="openChatListWrapper">
+                    <a class="" id="openChatList">
+                    <i class="fas fa-chevron-up"></i> 채팅 닫기
+                    </a>
+                </span>
+                <div id="collapseChatList">
+
+
+                    <div id="chatList">
+
                     </div>
-                </div>
 
-
-                <div id="roomSettingWrapper">
-                    <div id="goalScore">목표 점수 : 20</div>
-                    <div id="correctScore">맞혔을 때 : +2</div>
-                    <div id="wrongScore">틀렸을 때 : -1</div>
-
-
-                    <div id="roomSettingIconWrapper">
-                        <i class="fas fa-cog"></i>
+                    <div style="" id="chatSendArea">
+                        <input type="text" id="chatInput" style=";">
+                        <button class="btn btn-primary" id="chatSendButton" style="">전송
+                        </button>
                     </div>
+
                 </div>
 
 
-                <div id="roomButtonContainer">
-
-                    <div class="btn btn-outline-danger" id="exitButton">나가기</div>
-                    <div class="btn btn-outline-primary" id="readyButton">준비</div>
-                    <div class="btn btn-outline-primary" id="startLiveButton">시작</div>
-                </div>
             </div>
 
 
@@ -154,7 +181,7 @@
             integrity="sha512-jJ6sFqh2ihNKr7SamUHpFAjdVHXTI7SWNEKZBEmYFFz/2WEr6wrHFYczX6GlGVIZ6Mu8JBrVuvdy8vji4CVbXA=="
             crossorigin="anonymous"></script>
 
-{#    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>#}
+    {#    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>#}
 
 
 
@@ -195,6 +222,9 @@
 
         socket.on('update_room_info', function (data) {
             console.log(data);
+
+            let isMeRoomMaster = socket.io.engine.id == data["room_master"];
+
             $("#userContainer").html("")
             for (let user in data["users"]) {
 
@@ -213,6 +243,14 @@
                 }
 
                      `}
+
+                        ${isMeRoomMaster && user !== data["room_master"] ? `
+                        <div class="kickPlayerButton" data="${user}">
+                            <i class="fas fa-times" data="${user}"></i>
+
+                        </div>
+                     ` : ``}
+
 
                     </div>
 
@@ -594,6 +632,97 @@
             $("#goalScore").html(`목표 점수 : ${data["goal_score"]}`)
             $("#correctScore").html(`맞혔을 때 : +${data["correct_score"]}`)
             $("#wrongScore").html(`틀렸을 때 : ${data["wrong_score"]}`)
+        })
+
+
+        $(document).on("click", "#chatSendButton", function (e) {
+            sendChat($("#chatInput").val())
+        })
+
+        $("#chatInput").on("keypress", function (e) {
+            if (e.keyCode === 13) {
+                sendChat($("#chatInput").val());
+            }
+        })
+
+        function sendChat(message) {
+
+            $("#chatInput").val("");
+
+
+            socket.emit("send_chat", {
+                room_id: room_id,
+                message: message
+            });
+        }
+
+        socket.on("receive_chat", function (data) {
+
+            let isLookingOldMessage = $('#chatList').scrollTop() + $('#chatList').height() != $('#chatList')[0].scrollHeight
+
+            $("#chatList").append(
+                `
+                    <div class="chatWrapper" style="">
+                        <span class="chatNickname" style="color: ${data.user["color"]}">${data.user["nickname"]}</span> : <span class="normalChat">${data.message}</span>
+                    </div>
+                `
+            )
+
+
+            if (isLookingOldMessage == false) {
+
+                $('#chatList').scrollTop($('#chatList')[0].scrollHeight);
+            }
+
+        })
+
+        $(document).on("click", "#openChatList", function () {
+            if ($("#collapseChatList").css("display") === "none") {
+                $("#collapseChatList").show();
+                $("#openChatListWrapper").html(`
+                  <a class="" id="openChatList">
+                     <i class="fas fa-chevron-up"></i> 채팅 닫기
+                    </a>
+                `)
+
+            } else {
+                $("#collapseChatList").hide();
+
+                $("#openChatListWrapper").html(`
+                  <a class="" id="openChatList">
+                    채팅 열기 <i class="fas fa-chevron-down"></i>
+                    </a>
+                `)
+
+
+            }
+
+        })
+
+        $(document).on("click", ".kickPlayerButton", function (e) {
+
+            if (confirm("강퇴할까요?")){
+                let $target = $(e.target);
+                console.log($target);
+                {#alert($target.attr("data"))#}
+                socket.emit("kick_player", {
+                    room_id: room_id,
+                    target_id: $target.attr("data")
+                });
+            }
+
+
+        })
+
+        socket.on('player_kicked', function (data) {
+            console.log(data)
+            if (socket.io.engine.id == data["target_id"]) {
+                alert("방장에 의해 강제퇴장 당하였습니다.")
+                location.href = "/quiz/live"
+
+
+            }
+
         })
 
 

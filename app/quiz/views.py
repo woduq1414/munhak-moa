@@ -63,7 +63,7 @@ def make_quiz(munhak_rows, not_selected_munhak_rows):
                               munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
     else:
 
-        if random.random() <= 0.4:  # 10% 확률
+        if random.random() <= 0.4:  # 28% 확률
             option_munhak_rows = []
             for munhak_row in munhak_rows:
                 munhak_row["distance"] = edit_distance(munhak_row["title"].replace(" ", ""),
@@ -154,10 +154,8 @@ def get_quiz():
                     (source.split()[-1] == "수능특강" or source.split()[
                         -1] == "수능완성"))
         return b
-    
 
     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if source_check(munhak_row["source"])]
-
 
     # if quiz_source["past_exam"] is False:  # 기출문제 제외
     #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
@@ -435,7 +433,8 @@ def make_room():
     args = request.args
     if "nickname" in args:
         if 1 <= len(args["nickname"]) <= 20:
-            session["live_nickname"] = args["nickname"]
+
+            session["live_nickname"] = html_escape(args["nickname"])
         else:
 
             return redirect(url_for("quiz.enter_live"))
@@ -870,12 +869,69 @@ def kick_player(data):
     if room_id not in room_info or room_info[room_id]["room_master"] != request.sid or room_info[room_id][
         "is_playing"] is not False:
         emit("error")
+        return
 
-    leave_live_room(data["target_id"])
 
-    emit("update_room_info", {
-        "users": room_info[room_id]["users"],
-        "room_master": room_info[room_id]["room_master"],
-        "setting": room_info[room_id]["setting"]
+
+
+    try:
+        target_user = room_info[room_id]["users"][data["target_id"]]
+        target_user_id = data["target_id"]
+
+        if target_user_id not in room_info[room_id]["users"]:
+            return
+
+
+        emit("update_room_info", {
+            "users": room_info[room_id]["users"],
+            "room_master": room_info[room_id]["room_master"],
+            "setting": room_info[room_id]["setting"]
+        }, room=room_id, namespace="/live")
+
+        emit("player_kicked", {
+            "user": target_user,
+            "target_id" : target_user_id
+        }, room=room_id, namespace="/live")
+
+        leave_live_room(data["target_id"])
+
+    except:
+        pass
+
+
+
+# cache.set("room_info", room_info)
+
+
+@socketio.on('send_chat', namespace="/live")
+def send_chat(data):
+    global room_info
+    # room_info = cache.get("room_info")
+    room_id = data["room_id"]
+
+    message = data["message"].strip()
+    message = html_escape(message)
+    if len(message) == 0:
+        return
+
+    print(data)
+
+    if room_id not in room_info or room_info[room_id]["is_playing"] is not False:
+        emit("error")
+
+    emit("receive_chat", {
+        "user": room_info[room_id]["users"][request.sid],
+        "message": message
     }, room=room_id, namespace="/live")
+
     # cache.set("room_info", room_info)
+
+
+def html_escape(text):
+    return "".join({
+                       "&": "&amp;",
+                       '"': "&quot;",
+                       "'": "&apos;",
+                       ">": "&gt;",
+                       "<": "&lt;",
+                   }.get(c, c) for c in text)
