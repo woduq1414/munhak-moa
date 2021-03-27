@@ -61,11 +61,19 @@
     user-select: none;
     border-radius: 1rem;
     border: 3px solid var(--primary-color);
-        /*font-family: "Poppins", Arial, sans-serif;*/
+    /*font-family: "Poppins", Arial, sans-serif;*/
     cursor: pointer;
+
+    /*border-image: repeating-linear-gradient(*/
+    /*        45deg,*/
+    /*        #606dbc,*/
+    /*        #606dbc 10px,*/
+    /*        #465298 10px,*/
+    /*        #465298 20px*/
+    /*) 20;*/
 }
 
-.readingQuizOX{
+.readingQuizOX {
 
     line-height: 2.4rem;
 
@@ -83,6 +91,7 @@
 .readingQuizAnswerO {
     color: deepskyblue;
 }
+
 .readingQuizAnswerX {
     color: orangered;
 }
