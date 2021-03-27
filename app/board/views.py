@@ -95,7 +95,7 @@ def munhak_board_detail(munhak_seq, munhak_title):
 
     tip_mine_exist = False
     for tip in tips:
-        tip_mine_exist = tip_mine_exist or tip["is_mine"]
+        tip_mine_exist = tip_mine_exist or (tip["is_mine"] == "true")
 
     try:
         subject_last_word = target_munhak_row["subject"].split()[-1]

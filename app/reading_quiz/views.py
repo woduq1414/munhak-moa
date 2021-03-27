@@ -90,7 +90,7 @@ def reading_quiz_detail(munhak_seq, munhak_title):
 
     quiz_mine_exist = False
     for quiz in quiz_list:
-        quiz_mine_exist = quiz_mine_exist or quiz["is_mine"]
+        quiz_mine_exist = quiz_mine_exist or (quiz["is_mine"] == "true")
 
 
     data = {
