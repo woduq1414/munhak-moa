@@ -2,10 +2,11 @@
 
 
 {% block style %}
-    <title>감상 팁 작성 - 문학모아</title>
+    <title>독서퀴즈 작성 - 문학모아</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/add_tip_form.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/reading_quiz.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 
 {% endblock %}
@@ -27,23 +28,27 @@
 
             <div id="category_source">
                 <span id="source">
-                     {{ data.munhak_row.source }}
-                </span>
-                &nbsp;·&nbsp;
-                <span id="category">
-                    {{ data.munhak_row.category }}
+                     {{ data.munhak_row.remark }}
                 </span>
             </div>
         </div>
         <div id="bottomContent">
-            <textarea id="writeTipForm"></textarea>
+
+            <div id="writeReadingQuizHint">
+                단답형 빈칸은 [[ ]] 대괄호 두 개를 쓰고 사이에 답을 써주세요. Ex) 흥부의 형은? [[놀부]]
+                <br>
+                OX형 빈칸은 (( )) 소괄호 두 개를 쓰고 사이에 답을 써주세요. Ex) 홍길동은 서얼이었다. ((O))
+            </div>
+
+            <textarea id="writeReadingQuizForm"></textarea>
 
             <div class="d-flex justify-content-between">
                 <span class="btn btn-outline-secondary" id="goBackButton">
                     뒤로 가기
                 </span>
 
-                <span class="btn btn-primary" id="{{ "editTipButton" if "content" in data else "addTipButton" }}">
+                <span class="btn btn-primary"
+                      id="{{ "editReadingQuizButton" if "content" in data else "addReadingQuizButton" }}">
                     {{ "수정" if "content" in data else "작성" }}
                 </span>
             </div>
@@ -93,10 +98,10 @@
             }
         );
 
-        $("#addTipButton").on("click", function () {
+        $("#addReadingQuizButton").on("click", function () {
             $.ajax({
                 type: "POST",
-                url: "{{ url_for("board.add_tip") }}",
+                url: "{{ url_for("reading_quiz.add_reading_quiz") }}",
                 data: {
                     munhak_seq: {{ data.munhak_row.munhak_seq }},
                     content: easyMDE.value()
@@ -107,7 +112,7 @@
                     },
                     200: function (data) {
                         location.href = `
-                        {{ url_for("board.munhak_board_detail", munhak_seq = data.munhak_row.munhak_seq) }}`
+                        {{ url_for("reading_quiz.reading_quiz_detail", munhak_seq = data.munhak_row.munhak_seq) }}`
                     }
                 }
 
@@ -115,10 +120,10 @@
         })
 
 
-        $("#editTipButton").on("click", function () {
+        $("#editReadingQuizButton").on("click", function () {
             $.ajax({
                 type: "POST",
-                url: "{{ url_for("board.edit_tip") }}",
+                url: "{{ url_for("reading_quiz.edit_reading_quiz") }}",
                 data: {
                     munhak_seq: {{ data.munhak_row.munhak_seq }},
                     content: easyMDE.value()
@@ -129,7 +134,7 @@
                     },
                     200: function (data) {
                         location.href = `
-                        {{ url_for("board.munhak_board_detail", munhak_seq = data.munhak_row.munhak_seq) }}`
+                        {{ url_for("reading_quiz.reading_quiz_detail", munhak_seq = data.munhak_row.munhak_seq) }}`
                     }
                 }
 

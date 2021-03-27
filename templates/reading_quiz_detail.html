@@ -1,0 +1,310 @@
+{% extends "layout.html" %}
+
+
+{% block style %}
+    <title>독서퀴즈 : {{ data.munhak_row.title }}({{ data.munhak_row.writer }}) - 문학모아</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/reading_quiz.css') }}">
+{% endblock %}
+
+{% block main %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/reading_quiz.css') }}">
+    <div id="contentContainer">
+        <div id="title">
+            {{ data.munhak_row.title }}
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <div id="writer">
+                {{ data.munhak_row.writer }}
+            </div>
+
+            <div id="category_source">
+                <span id="source">
+                     {{ data.munhak_row.remark }}
+                </span>
+            </div>
+        </div>
+        <div id="bottomContent">
+
+            <div class="pgContainer">
+
+                <div class="pgContent">
+                    <div id="relatedContainer">
+
+
+                        <i class="fas fa-link"></i>
+
+
+                            <a onClick="movePage(`{{ url_for('board.munhak_board_detail', munhak_seq=data.munhak_row.sheet_munhak_seq) }}`);">
+                            <span class="related">
+                                {{ data.munhak_row.writer }}, 『{{ data.munhak_row.title }}』
+                            </span>
+
+                            </a>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="pgContainer">
+                <div class="pgTitle">
+                    독서 퀴즈
+                </div>
+
+                <div class="pgContent">
+                    <div id="readingQuizContainer" style="display: none">
+
+
+                        {% for quiz in data.quiz_list %}
+
+                            <div class="readingQuizWrapper" data-toggle="false" reading_quiz_seq="{{ quiz.quiz_seq }}"
+                                 is_mine={{ quiz.is_mine }}>
+                                <div class="readingQuiz">
+                                    {{ quiz.quiz_content | markdown }}
+
+                                    <div class="bottomQuizInfo">
+                                        <div>
+                                            <span class="readingQuizWriterNickname">
+                                                작성자 : {{ quiz.user_nickname }}
+                                            </span>
+                                            {% if quiz.is_mine == "true" %}
+                                                &nbsp; &nbsp;
+
+                                                <span class="btn btn-outline-secondary editReadingQuizButton">
+                                                    수정
+                                                 </span>
+
+                                                <span class="btn btn-outline-danger deleteReadingQuizButton">
+                                                    삭제
+                                                </span>
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+
+
+
+                        {% endfor %}
+
+                        {% if data.quiz_mine_exist == false %}
+                            <div id="addReadingQuizWrapper">
+                                <div id="addReadingQuiz">
+                                    + 추가하기
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+        (() => {
+            function cho_hangul(str) {
+                cho = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+                result = "";
+                for (i = 0; i < str.length; i++) {
+
+                    code = str.charCodeAt(i) - 44032;
+                    if (code > -1 && code < 11172) result += cho[Math.floor(code / 588)];
+                    else {
+                        if (str.charAt(i) != " ") {
+
+                            result += "_";
+                        } else {
+                            result += " ";
+                        }
+
+
+                    }
+                }
+                return result;
+            }
+
+            $(document).ready(function () {
+                $(".readingQuiz p").each(function (index, item) {
+                    let html = $(item).html();
+
+                    html = html.replaceAll("[[", `
+                        <span class="readingQuizBlank" status="0" answer="
+                    `)
+                    html = html.replaceAll("]]", `
+                    ">  ?  </span>
+                    `)
+
+
+                    html = html.replaceAll("((", `
+                        <span class="readingQuizOX" status="0" answer="
+                    `)
+                    html = html.replaceAll("))", `
+                    ">  ?  </span>
+                    `)
+
+                    $(item).html(html)
+
+                })
+
+                $("#readingQuizContainer").css("display", "unset");
+
+
+                $(".readingQuizBlank").on("click", function () {
+                    $(this).attr("status", (($(this).attr("status") * 1) + 1) % 3)
+                    switch ($(this).attr("status") * 1) {
+                        case 0:
+                            $(this).text("  ?  ");
+                            break;
+                        case 1:
+                            $(this).text(cho_hangul($(this).attr("answer").trim()));
+                            break;
+                        case 2:
+                            $(this).text($(this).attr("answer").trim())
+                            break;
+                    }
+
+                })
+
+                $(".readingQuizOX").on("click", function () {
+                    $(this).attr("status", (($(this).attr("status") * 1) + 1) % 2)
+                    switch ($(this).attr("status") * 1) {
+                        case 0:
+                            $(this).text("  ?  ");
+                            break;
+                        case 1:
+                            let answer = $(this).attr("answer").trim();
+                            if (answer == "O" || answer == "o") {
+                                $(this).html(`
+                                           <i class="far fa-circle readingQuizAnswerO"></i>
+                                 `)
+                            } else if (answer == "X" || answer == 'x') {
+                                $(this).html(`
+                                           <i class="fas fa-times readingQuizAnswerX"></i>
+                                 `)
+                            } else {
+                                $(this).text($(this).attr("answer").trim())
+                            }
+
+
+                            break;
+                    }
+
+                })
+            });
+
+
+            let is_logined = {{ "true" if "user" in session else "false"}};
+
+            function warningToast(message) {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": true,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": true,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "2000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                toastr["warning"](message, "오류")
+            }
+
+            function not_logined() {
+                warningToast("로그인이 필요합니다!");
+            }
+
+            $("#addReadingQuiz").on("click", function () {
+
+
+                if (!is_logined) {
+                    not_logined();
+                    return;
+                }
+
+                location.href = `{{ url_for("reading_quiz.write_reading_quiz_form", munhak_seq = data.munhak_row.munhak_seq) }}`
+            })
+
+            $(document).on("click", ".editReadingQuizButton", function () {
+                if (!is_logined) {
+                    not_logined();
+                    return;
+                }
+
+                location.href = `{{ url_for("reading_quiz.write_reading_quiz_form", munhak_seq = data.munhak_row.munhak_seq) }}`
+            })
+
+            $(document).on("click", ".deleteReadingQuizButton", function (e) {
+                if (!is_logined) {
+                    not_logined();
+                    return;
+                }
+
+                Swal.fire({
+                    title: '경고',
+                    text: "정말로 감상 팁을 삭제하시겠어요?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: 'grey',
+                    confirmButtonText: '삭제',
+                    cancelButtonText: "취소",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ url_for("reading_quiz.delete_reading_quiz") }}",
+                            data: {
+                                "reading_quiz_seq": $(e.target).parents(".readingQuizWrapper").attr("reading_quiz_seq")
+                            },
+                            dataType: "json",
+                            statusCode: {
+                                404: function (data) {
+
+                                },
+                                200: function (data) {
+                                    window.location.reload();
+                                }
+                            }
+
+                        }).done(function (data) {
+                            console.log(data);
+
+                        })
+                    }
+                })
+            })
+        })();
+
+
+    </script>
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

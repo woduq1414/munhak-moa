@@ -37,7 +37,7 @@ class Tag(db.Model):
     munhak_seq = db.Column(db.Integer, nullable=False)
     tag_name = db.Column(db.String(20), nullable=False)
 
-    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq' , ondelete='CASCADE'), nullable=False)
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
     user = relationship("User", backref=backref('tag', order_by=tag_seq, cascade='all,delete'))
     add_date = db.Column(db.DateTime, nullable=False)
 
@@ -94,3 +94,31 @@ class QuizRanking(db.Model):
     score = db.Column(db.Integer, nullable=False)
 
     record_date = db.Column(db.DateTime, nullable=False)
+
+
+class ContentQuiz(db.Model):
+    quiz_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+
+    munhak_seq = db.Column(db.Integer, ForeignKey('content_quiz_munhak.munhak_seq', ondelete='CASCADE'), nullable=True)
+    munhak = relationship("ContentQuizMunhak",
+                          backref=backref('content_quiz_munhak', order_by=munhak_seq, cascade='all,delete'))
+
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('content_quiz_user', order_by=user_seq, cascade='all,delete'))
+
+    quiz_content = db.Column(db.String, nullable=False)
+
+    add_date = db.Column(db.DateTime, nullable=False)
+
+
+class ContentQuizMunhak(db.Model):
+    munhak_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+
+    title = db.Column(db.String, nullable=False)
+    writer = db.Column(db.String, nullable=False)
+
+    sheet_munhak_seq = db.Column(db.Integer, nullable=True)
+
+    remark = db.Column(db.String, nullable=True)
+
+    add_date = db.Column(db.DateTime, nullable=False)

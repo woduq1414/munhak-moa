@@ -50,6 +50,7 @@ def create_app(config_filename):
     from app.others.views import others_bp
     from app.board.views import board_bp
     from app.user.views import user_bp
+    from app.reading_quiz.views import reading_quiz_bp
     # from app.students.views import users_bp
     # from app.schools.views import schools_bp
     # from app.meals.views import meals_bp
@@ -60,6 +61,7 @@ def create_app(config_filename):
     app.register_blueprint(others_bp, url_prefix='/')
     app.register_blueprint(board_bp, url_prefix='/')
     app.register_blueprint(user_bp, url_prefix='/')
+    app.register_blueprint(reading_quiz_bp, url_prefix='/reading-quiz')
     # app.register_blueprint(users_bp, url_prefix='/api/students')
     # app.register_blueprint(schools_bp, url_prefix='/api/schools')
     # app.register_blueprint(meals_bp, url_prefix='/api/meals')
