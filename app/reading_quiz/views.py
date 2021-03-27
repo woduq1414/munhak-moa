@@ -104,7 +104,7 @@ def reading_quiz_detail(munhak_seq, munhak_title):
     return r
 
 
-@reading_quiz_bp.route("/reading-quiz/add", methods=["GET", "POST"])
+@reading_quiz_bp.route("/add", methods=["GET", "POST"])
 @login_required
 def add_reading_quiz():
     args = request.form
@@ -142,7 +142,7 @@ def add_reading_quiz():
     return "", 200
 
 
-@reading_quiz_bp.route("/reading-quiz/edit", methods=["GET", "POST"])
+@reading_quiz_bp.route("/edit", methods=["GET", "POST"])
 @login_required
 def edit_reading_quiz():
     args = request.form
@@ -173,7 +173,7 @@ def edit_reading_quiz():
 
 
 
-@reading_quiz_bp.route("/reading-quiz/delete", methods=["GET", "POST"])
+@reading_quiz_bp.route("/delete", methods=["GET", "POST"])
 @login_required
 def delete_reading_quiz():
     args = request.form
@@ -194,7 +194,7 @@ def delete_reading_quiz():
     return "", 200
 
 
-@reading_quiz_bp.route("/reading-quiz/write/<int:munhak_seq>", methods=["GET", "POST"])
+@reading_quiz_bp.route("/write/<int:munhak_seq>", methods=["GET", "POST"])
 @login_required
 def write_reading_quiz_form(munhak_seq):
     munhak_seq = munhak_seq
