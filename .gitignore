@@ -139,3 +139,5 @@ heroku_migrate.py
 test.py
 *.json
 /sample
+
+.venv/

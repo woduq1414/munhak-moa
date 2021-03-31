@@ -667,6 +667,49 @@ img.videoThumbnail {
 }
 
 
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic);
+.md_post blockquote{
+  font-size: 1.0em;
+  /*width:60%;*/
+  /*margin:50px auto;*/
+  /*font-family:Open Sans;*/
+  /*font-style:italic;*/
+  /*color: #555555;*/
+  padding:1.2em 1rem 1em 3rem;
+  border-left:8px solid var(--primary-color) ;
+  line-height:1.6;
+  position: relative;
+  background:rgb(246,246,246);
+}
+
+.md_post blockquote::before{
+  font-family:Arial;
+  content: "\201C";
+  color:var(--primary-color);
+  font-size:4em;
+  position: absolute;
+  left: 10px;
+  top:-10px;
+}
+
+.md_post blockquote::after{
+  content: '';
+}
+
+body.dark-mode .md_post blockquote {
+    border-left:8px solid lightgray ;
+    background-color: #444444;
+}
+
+body.dark-mode .md_post blockquote::before {
+    /*background-color: #232323;*/
+    color: lightgrey;
+}
+
+
+
+
+
 @media screen and (max-width: 768px) {
     .popoverButton {
         font-size: 1.8rem !important;

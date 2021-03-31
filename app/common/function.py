@@ -36,7 +36,7 @@ def fetch_spread_sheet():
     wks = gc.get_worksheet(0)
 
     rows = wks.get_all_values()
-    print(rows)
+    # print(rows)
     Munhak = namedtuple("Munhak", rows[0])
     try:
 
@@ -66,7 +66,7 @@ def fetch_spread_sheet():
 
     cache.set('munhak_rows_data', munhak_rows_data, timeout=99999999999999999)
     cache.set('munhak_quiz_rows_data', munhak_quiz_rows_data, timeout=99999999999999999)
-    print(data)
+    # print(data)
     # print(munhak_rows)
     return len(data)
 

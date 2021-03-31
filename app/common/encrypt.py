@@ -6,7 +6,7 @@ class SimpleEnDecrypt:
     def __init__(self, key=None):
         if key is None:  # 키가 없다면
             key = Fernet.generate_key()  # 키를 생성한다
-        print(key)
+        # print(key)
         self.key = key
         self.f = Fernet(self.key)
 

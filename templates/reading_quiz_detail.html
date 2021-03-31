@@ -64,7 +64,7 @@
 
                             <div class="readingQuizWrapper" data-toggle="false" reading_quiz_seq="{{ quiz.quiz_seq }}"
                                  is_mine={{ quiz.is_mine }}>
-                                <div class="readingQuiz">
+                                <div class="readingQuiz md_post">
                                     {{ quiz.quiz_content | markdown }}
 
                                     <div class="bottomQuizInfo">
@@ -267,7 +267,7 @@
 
                 Swal.fire({
                     title: '경고',
-                    text: "정말로 감상 팁을 삭제하시겠어요?",
+                    text: "정말로 퀴즈를 삭제하시겠어요?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
