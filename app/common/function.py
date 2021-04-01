@@ -87,7 +87,7 @@ def get_ip_address():
 
 
 def send_discord_alert_log(alert_string):
-
+    from flask import request, g, session
     webhook_body = {
 
         "embeds": [
@@ -104,6 +104,11 @@ def send_discord_alert_log(alert_string):
                     {
                         "name": "URI",
                         "value": request.url,
+                        "inline": True
+                    },
+                    {
+                        "name": "User",
+                        "value": session.get("user").__str__(),
                         "inline": True
                     },
 
