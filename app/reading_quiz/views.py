@@ -20,7 +20,7 @@ from app.common.decorator import return_500_if_errors, login_required
 from app.db import *
 from config import credentials, SECRET_KEY
 from app.cache import cache
-from app.common.function import fetch_spread_sheet, format_url_title
+from app.common.function import fetch_spread_sheet, format_url_title, send_discord_alert_log
 from config import SECRET_KEY
 
 reading_quiz_bp = Blueprint('reading_quiz', __name__)
@@ -139,6 +139,8 @@ def add_reading_quiz():
     db.session.add(quiz_row)
     db.session.commit()
 
+    send_discord_alert_log(f"새로운 퀴즈 추가! {quiz_row.munhak.title}")
+
     return "", 200
 
 
@@ -168,6 +170,8 @@ def edit_reading_quiz():
     old_quiz_row.quiz_content = content
 
     db.session.commit()
+    
+    send_discord_alert_log(f"퀴즈 수정! {old_quiz_row.munhak.title}")
 
     return "", 200
 
@@ -216,4 +220,9 @@ def write_reading_quiz_form(munhak_seq):
     if quiz_row is not None:
         data["content"] = quiz_row.quiz_content
         print(data["content"])
+
+
+
+
+
     return render_template("reading_quiz_form.html", data=data)
