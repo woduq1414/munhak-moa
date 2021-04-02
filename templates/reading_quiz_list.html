@@ -5,6 +5,7 @@
     <title>독서퀴즈 - 문학모아</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/reading_quiz.css') }}">
 
 
 {% endblock %}
@@ -29,7 +30,7 @@
                             {{ munhak_row.writer }}, 『{{ munhak_row.title }}』
                         </div>
                         <div class="bottomText">
-                     <span class="source">
+                     <span class="source" remark-data="{{ munhak_row.remark.replace(" ","_") }}">
                      {{ munhak_row.remark }}
                 </span>
                             &nbsp;|&nbsp;
@@ -60,6 +61,11 @@
 
                 movePage(`/reading-quiz/detail/${$(this).attr("munhak_seq")}`);
             })
+
+            const $highlightMunhak = $(".source[remark-data=성_기하배_제_2회_독서퀴즈]");
+            $highlightMunhak.addClass("highlightReadingQuizMunhak");
+
+
         })();
 
     </script>

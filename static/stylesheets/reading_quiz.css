@@ -101,6 +101,14 @@
     margin: 0.5rem 0.5rem;
 }
 
+.highlightReadingQuizMunhak {
+    color: var(--primary-color);
+}
+
+body.dark-mode .highlightReadingQuizMunhak {
+    color: rgb(226, 169, 4);
+}
+
 
 body.dark-mode #addReadingQuiz {
     background-color: #343434;
