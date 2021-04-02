@@ -14,7 +14,7 @@ import json
 import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, asc
 
 from app.common.decorator import return_500_if_errors, login_required
 from app.db import *
@@ -36,7 +36,7 @@ def reading_quiz_list():
     munhak_rows = db.session.query(ContentQuizMunhak, func.count(ContentQuiz.quiz_seq).label("quiz_count")).outerjoin(
         ContentQuiz,
         ContentQuiz.munhak_seq == ContentQuizMunhak.munhak_seq).group_by(ContentQuizMunhak.munhak_seq) \
-        .order_by(desc(ContentQuizMunhak.add_date)).all()
+        .order_by(desc(ContentQuizMunhak.add_date), asc(ContentQuizMunhak.munhak_seq)).all()
 
     print(munhak_rows)
 
