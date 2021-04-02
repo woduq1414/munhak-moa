@@ -14,7 +14,7 @@ import json
 import base64
 from collections import namedtuple
 from flask_restful import Api, Resource, reqparse
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from app.common.decorator import return_500_if_errors, login_required
 from app.db import *
@@ -35,7 +35,8 @@ def reading_quiz_list():
     # munhak_list = [x.as_dict() for x in munhak_rows]
     munhak_rows = db.session.query(ContentQuizMunhak, func.count(ContentQuiz.quiz_seq).label("quiz_count")).outerjoin(
         ContentQuiz,
-        ContentQuiz.munhak_seq == ContentQuizMunhak.munhak_seq).group_by(ContentQuizMunhak.munhak_seq).all()
+        ContentQuiz.munhak_seq == ContentQuizMunhak.munhak_seq).group_by(ContentQuizMunhak.munhak_seq) \
+        .order_by(desc(ContentQuizMunhak.add_date)).all()
 
     print(munhak_rows)
 
@@ -45,7 +46,6 @@ def reading_quiz_list():
     #                 "is_mine": "true" if tip_row.Tip.user_seq == user_seq else "false",
     #                 "user_nickname": tip_row.Tip.user.nickname}, ) for
     #         tip_row in tip_rows]
-
 
     data["munhak_list"] = munhak_rows
 
@@ -92,7 +92,6 @@ def reading_quiz_detail(munhak_seq, munhak_title):
     for quiz in quiz_list:
         quiz_mine_exist = quiz_mine_exist or (quiz["is_mine"] == "true")
 
-
     data = {
         "munhak_row": target_munhak_row,
         "quiz_list": quiz_list,
@@ -117,11 +116,9 @@ def add_reading_quiz():
         return abort(400)
     munhak_seq = int(munhak_seq)
 
-
     munhak_row = ContentQuizMunhak.query.filter_by(munhak_seq=munhak_seq).first()
     if munhak_row is None:
         return abort(404)
-
 
     user_seq = session["user"]["user_seq"]
 
@@ -170,11 +167,10 @@ def edit_reading_quiz():
     old_quiz_row.quiz_content = content
 
     db.session.commit()
-    
+
     send_discord_alert_log(f"퀴즈 수정! {old_quiz_row.munhak.title}")
 
     return "", 200
-
 
 
 @reading_quiz_bp.route("/delete", methods=["GET", "POST"])
@@ -220,9 +216,5 @@ def write_reading_quiz_form(munhak_seq):
     if quiz_row is not None:
         data["content"] = quiz_row.quiz_content
         print(data["content"])
-
-
-
-
 
     return render_template("reading_quiz_form.html", data=data)
