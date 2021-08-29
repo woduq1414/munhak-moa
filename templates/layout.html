@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="kr">
 <head>
+    <meta name="google-site-verification" content="ZuC80xg3UME3ao9EtYCQJUbccygdekyADXkh4bywMUo"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -307,135 +308,134 @@
         Redirect();
     });
 
+
     function getCookie(cookieName) {
         var cookieValue = null;
         if (document.cookie) {
             var array = document.cookie.split((escape(cookieName) + '='));
-            {#if (array.length >= 2) {#}
-            {#    var arraySub = array[1].split(';');#}
-            {#    cookieValue = unescape(arraySub[0]);#}
-            {#}#}
-                array.reverse();
-                if (array.length >= 2) {
-                    var arraySub = array[0].split(';');
-                    cookieValue = unescape(arraySub[0]);
-                }
 
+            array.reverse();
+            if (array.length >= 2) {
+                var arraySub = array[0].split(';');
+                cookieValue = unescape(arraySub[0]);
             }
-            return cookieValue;
+
         }
-
-        function setCookie(cookie_name, value, days) {
-            var exdate = new Date();
-            exdate.setDate(exdate.getDate() + days);
-            // 설정 일수만큼 현재시간에 만료값으로 지정
-
-            var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
-            document.cookie = `${cookie_name}=${cookie_value};path=/`;
-        }
+        return cookieValue;
+    }
 
 
-        $(window).scroll(function () {
+    function setCookie(cookie_name, value, days) {
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + days);
+        // 설정 일수만큼 현재시간에 만료값으로 지정
 
-            $('#sidebarFixedMenu').css({
-                'top': $(window).scrollTop()
-                //Why this 15, because in the CSS, we have set left 15, so as we scroll, we would want this to remain at 15px left
-            });
+        var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+        document.cookie = `${cookie_name}=${cookie_value};path=/`;
+    }
 
+
+    $(window).scroll(function () {
+
+        $('#sidebarFixedMenu').css({
+            'top': $(window).scrollTop()
+            //Why this 15, because in the CSS, we have set left 15, so as we scroll, we would want this to remain at 15px left
         });
 
+    });
 
-        var fullHeight = function () {
 
+    var fullHeight = function () {
+
+        $('.js-fullheight').css('height', $(window).height());
+        $(window).resize(function () {
             $('.js-fullheight').css('height', $(window).height());
-            $(window).resize(function () {
-                $('.js-fullheight').css('height', $(window).height());
-            });
-
-        };
-        fullHeight();
-
-
-        $('.sidebarCollapse').on('click', function () {
-            $(this).children("i").toggleClass("fa-bars");
-            $(this).children("i").toggleClass("fa-arrow-left");
-            $('.sidebarCollapseMobile i').toggleClass("fa-bars");
-            $('.sidebarCollapseMobile i').toggleClass("fa-arrow-left");
-            $('#sidebar').toggleClass('active');
         });
 
-        $('.sidebarCollapseMobile').on('click', function () {
-            $(this).children("i").toggleClass("fa-bars");
-            $(this).children("i").toggleClass("fa-arrow-left");
-            $('.sidebarCollapse i').toggleClass("fa-bars");
-            $('.sidebarCollapse i').toggleClass("fa-arrow-left");
-            $('#sidebar').toggleClass('active');
-        });
+    };
+    fullHeight();
 
 
-        if (matchMedia("screen and (min-width: 768px)").matches) {
-            $("#sidebar").addClass("active");
-        } else {
-            // 1024px 미만에서 사용할 JavaScript
-            $("#sidebar").toggleClass("active");
-            $(".sidebarCollapseMobile i").toggleClass("fa-bars");
-            $(".sidebarCollapseMobile i").toggleClass("fa-arrow-left");
+    $('.sidebarCollapse').on('click', function () {
+        $(this).children("i").toggleClass("fa-bars");
+        $(this).children("i").toggleClass("fa-arrow-left");
+        $('.sidebarCollapseMobile i').toggleClass("fa-bars");
+        $('.sidebarCollapseMobile i').toggleClass("fa-arrow-left");
+        $('#sidebar').toggleClass('active');
+    });
+
+    $('.sidebarCollapseMobile').on('click', function () {
+        $(this).children("i").toggleClass("fa-bars");
+        $(this).children("i").toggleClass("fa-arrow-left");
+        $('.sidebarCollapse i').toggleClass("fa-bars");
+        $('.sidebarCollapse i').toggleClass("fa-arrow-left");
+        $('#sidebar').toggleClass('active');
+    });
 
 
-        }
-
-        function userTheme(toggle = false) {
-
-
-            let userMode = localStorage.userThemeMode || 'auto';
-            userNode = getCookie("userTheme") || 'auto';
-
-            const osMode = !!window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : 'light';
-            if (toggle) {
-                switch (userMode) {
-                    case 'auto':
-
-                        if (osMode === "dark") {
-                            userMode = "light";
-                        } else {
-                            userMode = "dark";
-                        }
-
-                        break;
-                    case 'dark':
-                        userMode = 'light';
-                        break;
-                    default:
-                        userMode = 'dark';
-                        break;
-                }
-                localStorage.userThemeMode = userMode;
-                setCookie("userTheme", userMode, 1000);
-            }
-            console.log(`current mode : ${userMode}`);
-            window.__THEME_MODE = userMode === 'auto' ? osMode : userMode;
-            document.getElementsByTagName('body')[0].classList[window.__THEME_MODE === 'dark' ? 'add' : 'remove']('dark-mode');
-            if (window.__THEME_MODE === 'dark') {
-                $("#darkModeIcon").addClass("fa-moon");
-                $("#darkModeIcon").removeClass("fa-sun");
-            } else {
-                $("#darkModeIcon").addClass("fa-sun");
-                $("#darkModeIcon").removeClass("fa-moon");
-            }
+    if (matchMedia("screen and (min-width: 768px)").matches) {
+        $("#sidebar").addClass("active");
+    } else {
+        // 1024px 미만에서 사용할 JavaScript
+        $("#sidebar").toggleClass("active");
+        $(".sidebarCollapseMobile i").toggleClass("fa-bars");
+        $(".sidebarCollapseMobile i").toggleClass("fa-arrow-left");
 
 
-        }
+    }
 
-        if (!!window.matchMedia) {
-            ['light', 'dark'].forEach(mode => {
-                window.matchMedia(`(prefers-color-scheme: ${mode})`).addListener(e => {
-                    if (!!e.matches) {
-                        userTheme();
+    function userTheme(toggle = false) {
+
+
+        let userMode = localStorage.userThemeMode || 'auto';
+        userNode = getCookie("userTheme") || 'auto';
+
+        const osMode = !!window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : 'light';
+        if (toggle) {
+            switch (userMode) {
+                case 'auto':
+
+                    if (osMode === "dark") {
+                        userMode = "light";
+                    } else {
+                        userMode = "dark";
                     }
-                });
-            });
+
+                    break;
+                case 'dark':
+                    userMode = 'light';
+                    break;
+                default:
+                    userMode = 'dark';
+                    break;
+            }
+            localStorage.userThemeMode = userMode;
+            setCookie("userTheme", userMode, 1000);
         }
-        userTheme();
+        console.log(`current mode : ${userMode}`);
+        window.__THEME_MODE = userMode === 'auto' ? osMode : userMode;
+        document.getElementsByTagName('body')[0].classList[window.__THEME_MODE === 'dark' ? 'add' : 'remove']('dark-mode');
+        if (window.__THEME_MODE === 'dark') {
+            $("#darkModeIcon").addClass("fa-moon");
+            $("#darkModeIcon").removeClass("fa-sun");
+        } else {
+            $("#darkModeIcon").addClass("fa-sun");
+            $("#darkModeIcon").removeClass("fa-moon");
+        }
+
+
+    }
+
+    if (!!window.matchMedia) {
+        ['light', 'dark'].forEach(mode => {
+            window.matchMedia(`(prefers-color-scheme: ${mode})`).addListener(e => {
+                if (!!e.matches) {
+                    userTheme();
+                }
+            });
+        });
+    }
+    userTheme();
 
 
 </script>

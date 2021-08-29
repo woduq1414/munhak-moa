@@ -30,7 +30,8 @@
                             {{ munhak_row.writer }}, 『{{ munhak_row.title }}』
                         </div>
                         <div class="bottomText">
-                     <span class="source" remark-data="{{ munhak_row.remark.replace(" ","_") }}">
+                     <span class="source {{ "highlightReadingQuizMunhak" if munhak_row.remark == "성 기하배 제 2회 독서퀴즈" else "" }}"
+                           remark-data="{{ munhak_row.remark.replace(" ","_") }}">
                      {{ munhak_row.remark }}
                 </span>
                             &nbsp;|&nbsp;
@@ -60,11 +61,15 @@
             $(".munhakCardWrapper").on("click", function () {
 
                 movePage(`/reading-quiz/detail/${$(this).attr("munhak_seq")}`);
-            })
+            });
 
             // const $highlightMunhak = $(".source[remark-data=성_기하배_1학기_제_1차_지필고사]");
-            const $highlightMunhak = $(".source[remark-data=성_기하배_제_2회_독서퀴즈]");
-            $highlightMunhak.addClass("highlightReadingQuizMunhak");
+
+            $(document).ready(function () {
+
+                //const $highlightMunhak = $(".source[remark-data=성_기하배_제_2회_독서퀴즈]");
+                //$highlightMunhak.addClass("highlightReadingQuizMunhak");
+            });
 
 
         })();

@@ -102,11 +102,11 @@
 }
 
 .highlightReadingQuizMunhak {
-    color: var(--primary-color);
+    color: var(--primary-color) !important;
 }
 
 body.dark-mode .highlightReadingQuizMunhak {
-    color: rgb(226, 169, 4);
+    color: rgb(226, 169, 4) !important;
 }
 
 
