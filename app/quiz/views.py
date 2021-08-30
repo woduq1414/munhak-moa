@@ -344,7 +344,7 @@ def result():
     if "result" not in session:
         return redirect(url_for("quiz.index"))
 
-    if "quiz_count" in session and session["quiz_count"] >= 10:
+    if "quiz_count" in session and session["quiz_count"] >= 3:
         send_discord_alert_log(f"{session['quiz_count']}개를 맞혔어요!")
 
     is_success = session["result"]
