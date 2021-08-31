@@ -359,7 +359,7 @@
                     {#alert('정지');#}
                 }, 300000);
 
-                $(".otherPlayerMarker").remove()
+                $(".otherPlayerMarkerWrapper").remove()
                 for (let sid in data["users"]) {
                     if (sid == socket.io.engine.id) {
                         {#$("#myProgressBarWrapper").css("background-color",data["users"][sid]["color"]);#}
