@@ -211,3 +211,9 @@ body, main {
     flex-direction: column;
     justify-content: center;
 }
+
+.sourceMessage {
+    font-size: 1rem;
+    text-align: center;
+    color: dimgrey;
+}

@@ -22,6 +22,9 @@
                 <div id="hint">
                     <q>&nbsp;{{ data.current_munhak.hint }}&nbsp;</q>는..
                 </div>
+                <div class="sourceMessage">
+                    < {{ data.current_munhak.source }} >
+                </div>
                 <a href="{{ url_for('board.munhak_board_detail', munhak_seq=data.current_munhak.munhak_seq) }}">
                     <div id="option{{ data.correct + 1 }}" class="option optionResult"
                          data="{{ data.correct_option.writer }}, 『{{ data.correct_option.title }}』"
@@ -30,9 +33,12 @@
                     </div>
 
                 </a>
+
                 <div id="message">
                     이었습니다!
                 </div>
+
+
             {% endif %}
             <div class="message">
                 총 {{ data.solved_count }}개를 맞히셨어요!
