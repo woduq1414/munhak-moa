@@ -195,7 +195,7 @@
 
             });
 
-            $(document).on("click", "#submitButton", function (e) {
+            $("#submitButton").on("click", function (e) {
                 public_cnt = 0;
 
                 public_list = [];
@@ -211,7 +211,7 @@
                     }
                 }
                 if (public_cnt !== 2 || munhak_list.length < 2 || munhak_list.length > 6) {
-                    warningToast("다른 사람들에게 공개할 픽을 2개 골라주세요.")
+                    warningToast("다른 사람들에게 공개할 픽을 2개 골라주세요.");
                     return;
                 }
 

@@ -93,3 +93,8 @@ body.dark-mode .pickWrapper {
 body.dark-mode .userWrapper {
     background-color: #343434;
 }
+
+#totoDescription2 {
+    font-size: 1.3rem;
+    text-align: center;
+}
