@@ -29,7 +29,7 @@
         <div id="underContainer">
             <div class="d-flex justify-content-end">
                 <div></div>
-                <div id="goPickButton" class="btn btn-outline-primary" onclick=" movePage(`/toto/pick`);">
+                <div id="goPickButton" class="btn btn-outline-primary">
                     <i class="fas fa-edit"></i> 선택 / 수정
                 </div>
             </div>
@@ -81,12 +81,39 @@
 {% block script %}
     <script>
         (() => {
+            function warningToast(message) {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": true,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": true,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "2000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                toastr["warning"](message, "오류")
+            }
 
-
+            let is_logined = {{ "true" if "user" in session else "false"}};
             $(document).ready(function () {
 
             });
+            $("#goPickButton").on("click", function () {
+                if(!is_logined){
+                       warningToast("로그인이 필요합니다!");
+                       return;
+                }
+                movePage(`/toto/pick`);
 
+            });
 
         })();
 
