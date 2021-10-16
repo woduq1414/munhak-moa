@@ -1,0 +1,181 @@
+#totoTitle {
+    font-size: 2.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+#totoDescription {
+    font-size: 1rem;
+    /*color: #343434;*/
+    text-align: center;
+}
+
+#upperContainer {
+    flex-shrink: 0;
+    /*display: flex;*/
+    /*justify-content: s*/
+}
+
+#formUnderContainer {
+    flex-grow: 1;
+    display: flex;
+}
+
+#leftContainer {
+    width: 50%;
+    flex-shrink: 0;
+
+}
+
+.munhakContainer {
+    height: 60vh;
+    overflow-y: auto;
+}
+
+#rightContainer {
+    flex-grow: 1;
+    /*flex-shrink: 0;*/
+}
+
+.munhakWrapper {
+    cursor: pointer;
+    margin: 0.5rem 0;
+    transition: font-size 0.5s;
+}
+
+.munhakWrapper:hover {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+
+#contentContainer {
+    max-height: 80vh;
+    height: 100%;
+    overflow-y: hidden;
+    flex-grow: unset;
+}
+
+.munhakContainer::-webkit-scrollbar {
+    width: 6px;
+
+}
+
+.munhakContainer::-webkit-scrollbar-thumb {
+    background-color: #b6b6b6;
+    border-radius: 100px;
+}
+
+.selectMunhakWrapper {
+    display: flex;
+    align-items: center;
+    /*padding: 0.8rem 0.5rem;*/
+    background-color: #f9f9f9;
+    border-radius: 1rem;
+    margin: 1rem 1rem;
+}
+
+body.dark-mode .selectMunhakWrapper {
+    background-color: #343434;
+}
+
+
+.selectMunhakCheck {
+    padding-left: 0.8rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-right: 0.7rem;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+
+    border-bottom-left-radius: 1rem;
+    border-top-left-radius: 1rem;
+
+    cursor: pointer;
+    /*margin-left: 0.5rem;*/
+
+    /*color: white;*/
+    /*background-color: var(--primary-color);*/
+
+    color: grey;
+    background-color: #f2f2f2;
+}
+
+body.dark-mode .selectMunhakCheck {
+    background-color: #454545;
+}
+
+
+.selectMunhakWrapper.active .selectMunhakCheck {
+    color: white;
+    background-color: var(--primary-color);
+}
+
+#selectDescription {
+    text-align: right;
+    margin-right: 1.4rem;
+}
+
+#submitButton {
+    font-size: 1.4rem;
+    /*width: 90%;*/
+    /*text-align: right;*/
+    margin-right: 2.5%;
+    width: 200px;
+}
+
+
+.selectMunhakDelete {
+    padding-right: 0.8rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 1rem;
+    flex-shrink: 0;
+
+    border-bottom-right-radius: 1rem;
+    border-top-right-radius: 1rem;
+
+    /*margin-right: 0.5rem;*/
+    color: orangered;
+
+    cursor: pointer;
+
+}
+
+.selectMunhakTitle {
+    /*padding-top: 0.5rem;*/
+    /*padding-bottom: 0.5rem;*/
+    flex-grow: 1;
+    font-size: 1.3rem;
+}
+
+
+@media screen and (max-width: 768px) {
+    #leftContainer {
+        width: 95%;
+    }
+
+    #rightContainer {
+        width: 100%;
+    }
+    .munhakContainer {
+        /*overflow-y: unset;*/
+    }
+
+
+    #formUnderContainer {
+        flex-direction: column;
+        overflow-y: scroll;
+    }
+
+    #formUnderContainer::-webkit-scrollbar {
+        width: 6px;
+
+    }
+
+    #formUnderContainer::-webkit-scrollbar-thumb {
+        background-color: #b6b6b6;
+        border-radius: 100px;
+    }
+}

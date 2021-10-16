@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+
+{% block style %}
+    <title>22수능 문학작품 또또 - 문학모아</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+
+
+{% endblock %}
+
+{% block main %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/toto.css') }}">
+
+    <div id="contentContainer">
+        <div id="upperContainer" class="">
+            <div id="totoTitle">
+                22 수능 문학 작품 또또
+            </div>
+            <div id="totoDescription">
+                22 수능에 연계될 것 같은 EBS 작품은? (~11/11 까지 선택)
+            </div>
+
+
+        </div>
+
+
+        <div id="underContainer">
+            <div class="d-flex justify-content-end">
+                <div></div>
+                <div id="goPickButton" class="btn btn-outline-primary" onclick=" movePage(`/toto/pick`);">
+                    <i class="fas fa-edit"></i> 선택 / 수정
+                </div>
+            </div>
+            <div id="userContainer">
+                {% for user in data.pick_list %}
+                    <div class="userWrapper">
+
+                        <div class="pickContainer">
+                            {% for pick in [user.pick1, user.pick2] %}
+                                {% if pick != None %}
+                                    <div class="pickWrapper">{{ pick.writer }}, 『{{ pick.title }}』</div>
+                                {% endif %}
+                            {% endfor %}
+                            {% for pick in [user.pick3, user.pick4, user.pick5, user.pick6] %}
+                                {% if pick != None %}
+                                    {% if data.is_pick_available == True %}
+                                        <div class="pickNotPublic">
+                                            <i class="fa fa-question pickNotPublicIcon"></i>
+                                        </div>
+
+                                    {% else %}
+                                        <div class="pickWrapper">{{ pick.writer }}, 『{{ pick.title }}』</div>
+                                    {% endif %}
+                                {% endif %}
+
+
+                            {% endfor %}
+                        </div>
+
+                        <div class="underPickInfo">
+                            <div class="userNickname">
+                                <i class="fas fa-user"></i> {{ user.nickname }}
+                            </div>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;
+                            <div class="pickDatetime">
+                                <i class="fas fa-calendar-day"></i> {{ user.date }}
+                            </div>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        (() => {
+
+
+            $(document).ready(function () {
+
+            });
+
+
+        })();
+
+    </script>
+{% endblock %}

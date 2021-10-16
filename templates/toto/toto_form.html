@@ -1,0 +1,297 @@
+{% extends "layout.html" %}
+
+
+{% block style %}
+    <title>22수능 문학작품 또또 - 문학모아</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
+
+
+
+{% endblock %}
+
+{% block main %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/toto_form.css') }}">
+
+    <div id="contentContainer">
+        <div id="upperContainer" class="">
+            <div id="totoTitle">
+                문학 작품 선택
+            </div>
+            <div id="totoDescription">
+                문학 작품 2~6개를 고르고 그 중 다른 사람들에게 공개할 2개를 선택해주세요!
+            </div>
+
+
+        </div>
+
+
+        <div id="formUnderContainer">
+            <div id="leftContainer">
+
+
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    {% for category in data.munhak_group_data.keys() %}
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link {{ 'active' if loop.index0 == 0 }}" id="pills-{{ category }}-tab"
+                               data-toggle="pill" href="#pills-{{ category }}"
+                               role="tab"
+                               aria-controls="pills-{{ category }}"
+                               aria-selected="{{ 'true' if loop.index0 == 0 }}">{{ category }}</a>
+                        </li>
+                    {% endfor %}
+
+
+                    </li>
+                </ul>
+                <div class="tab-content" id="pills-tabContent">
+                    {% for category, munhak_rows in data.munhak_group_data.items() %}
+
+                        <div class="tab-pane munhakContainer fade {{ 'show active' if loop.index0 == 0 }}"
+                             id="pills-{{ category }}"
+                             role="tabpanel"
+                             aria-labelledby="pills-home-tab">
+
+
+                            {% for munhak_row in munhak_rows %}
+                                <div class="munhakWrapper" data-seq="{{ munhak_row.munhak_seq }}">
+                                    {% if '특강' in munhak_row.source %}
+                                        <span class="badge badge-pill badge-success">수특</span>
+                                    {% else %}
+                                        <span class="badge badge-pill badge-danger">수완</span>
+                                    {% endif %}
+                                    &nbsp;
+
+
+                                    <span class="munhakTitle">
+                                        {{ munhak_row.writer }}, 『{{ munhak_row.title }}』
+                                    </span>
+                                </div>
+                            {% endfor %}
+
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <div id="rightContainer">
+                {#                <div id="selectDescription">#}
+                {#                    다른 사람들에게 공개할 2개의 문학 작품을 선택해주세요!#}
+                {#                </div>#}
+                <div id="selectMunhakContainer">
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="d-flex justify-content-end">
+        <div></div>
+        <div id="submitButton" class="btn btn-outline-primary   ">
+            제출
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        (() => {
+
+            let munhak_list = [];
+
+            munhak_list = [
+                {% for pick in data.old_pick_data %}
+                    {% if pick != None %}
+                        {
+                            "title": "{{ pick.writer }}, 『{{ pick.title }}』", "munhak_seq": "{{ pick.munhak_seq }}",
+                            "is_public": {{ "true" if loop.index0 <= 1 else "false"}}
+                        },
+                    {% endif %}
+                {% endfor %}
+            ];
+
+            refreshMunhakList();
+
+
+            let public_cnt = 0;
+
+
+            function refreshMunhakList() {
+
+                let $container = $("#selectMunhakContainer");
+                $container.html("")
+                for (let munhak of munhak_list) {
+                    $container.append(`
+                        <div class="selectMunhakWrapper ${munhak.is_public ? 'active' : ''}" data-seq="${munhak.munhak_seq}">
+                            <i class="far fa-check-circle selectMunhakCheck"></i>
+
+                            <div class="selectMunhakTitle">
+                            ${munhak.title}
+                            </div>
+                            <i class="far fa-trash-alt selectMunhakDelete"></i>
+                        </div>
+
+                    `)
+                }
+            }
+
+
+            $(document).on("click", ".selectMunhakCheck", function (e) {
+                let $target = $(e.target);
+                let munhak_seq = $target.parent().attr("data-seq");
+
+                public_cnt = 0;
+
+                let target_i = -1;
+                let origin_b = undefined;
+
+                for (let i in munhak_list) {
+
+                    if (munhak_list[i].munhak_seq === munhak_seq) {
+                        target_i = i;
+                        origin_b = munhak_list[i].is_public;
+
+                    }
+                    if (munhak_list[i].is_public === true) {
+                        public_cnt += 1;
+                    }
+                }
+
+                if (target_i !== -1) {
+                    if (public_cnt >= 2) {
+                        if (origin_b === false) {
+                            //
+                        } else {
+                            munhak_list[target_i].is_public = false;
+                        }
+                    } else {
+                        munhak_list[target_i].is_public = !munhak_list[target_i].is_public;
+                    }
+                }
+
+
+                refreshMunhakList();
+
+            });
+
+            $(document).on("click", ".selectMunhakDelete", function (e) {
+                let $target = $(e.target);
+                let munhak_seq = $target.parent().attr("data-seq");
+                for (let i in munhak_list) {
+
+                    if (munhak_list[i].munhak_seq === munhak_seq) {
+                        munhak_list = munhak_list.filter(x => x !== munhak_list[i]);
+                        break;
+                    }
+                }
+                refreshMunhakList();
+
+            });
+
+            $(document).on("click", "#submitButton", function (e) {
+                public_cnt = 0;
+
+                public_list = [];
+                unpublic_list = [];
+
+                for (let i in munhak_list) {
+
+                    if (munhak_list[i].is_public === true) {
+                        public_list.push(munhak_list[i].munhak_seq);
+                        public_cnt += 1;
+                    } else {
+                        unpublic_list.push(munhak_list[i].munhak_seq);
+                    }
+                }
+                if (public_cnt !== 2 || munhak_list.length < 2 || munhak_list.length > 6) {
+                    warningToast("다른 사람들에게 공개할 픽을 2개 골라주세요.")
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url_for("toto.add_pick") }}",
+                    data: {
+                        "pick1": parseInt(public_list[0]),
+                        "pick2": parseInt(public_list[1]),
+                        "pick3": parseInt(unpublic_list[0]),
+                        "pick4": parseInt(unpublic_list[1]),
+                        "pick5": parseInt(unpublic_list[2]),
+                        "pick6": parseInt(unpublic_list[3]),
+                    },
+                    dataType: "json",
+                    statusCode: {
+
+                        200: function (data) {
+
+                            console.log(data);
+                            movePage("/toto");
+                        }
+                    }
+
+                }).done(function (data) {
+                    alert("!!!");
+
+                })
+
+            });
+
+            function warningToast(message) {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": true,
+                    "progressBar": false,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": true,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "2000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                toastr["warning"](message, "오류")
+            }
+
+
+            $(".munhakWrapper").on("click", function (e) {
+                let munhak_seq = $(this).attr("data-seq");
+                let title = $(this).find(".munhakTitle").text().trim();
+
+                if (munhak_list.length >= 6) {
+                    warningToast("최대 6개까지 선택 가능합니다!")
+                    return;
+                }
+
+                for (let munhak of munhak_list) {
+                    if (munhak.munhak_seq === munhak_seq) {
+                        return;
+                    }
+                }
+
+                munhak_list.push({
+                    "munhak_seq": munhak_seq, "title": title, "is_public": false,
+                });
+                refreshMunhakList();
+
+            })
+            $(document).ready(function () {
+
+            });
+
+
+        })();
+
+    </script>
+{% endblock %}

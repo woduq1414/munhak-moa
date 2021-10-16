@@ -1,0 +1,95 @@
+#totoTitle {
+    font-size: 2.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+#totoDescription {
+    font-size: 1rem;
+    /*color: #343434;*/
+    text-align: center;
+}
+
+#upperContainer {
+    flex-shrink: 0;
+    /*display: flex;*/
+    /*justify-content: s*/
+}
+
+#underContainer {
+    margin-top: 1rem;
+    /*flex-grow: 1;*/
+    display: flex;
+    flex-direction: column;
+}
+
+#userContainer {
+
+    display: flex;
+    flex-direction: column;
+    margin: 1rem auto;
+    width: 100%;
+
+
+    /*overflow-y: auto;*/
+}
+
+
+
+
+.pickContainer {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}
+
+.pickWrapper {
+    background-color: var(--primary-color-bright);
+    font-size: 1.3rem;
+
+    border-radius: 100rem;
+    padding: 0.1rem 0.8rem;
+    margin-right: 0.5rem;
+    line-height: 2.3rem;
+    margin-bottom: 0.3rem;
+    cursor: pointer;
+}
+.pickNotPublic {
+    background-color: #cccccc;
+    font-size: 1.3rem;
+
+    border-radius: 100rem;
+    padding: 0.3rem 0.8rem;
+    margin-right: 0.5rem;
+    color: grey;
+    margin-bottom: 0.3rem;
+
+
+}
+
+.underPickInfo {
+    display: flex;
+    justify-content: end;
+}
+
+
+body.dark-mode .pickWrapper {
+    color: #bbb;
+    background-color: #343434;
+    border: 1px solid var(--primary-color-bright);
+}
+
+.userNickname{
+    font-size: 1.1rem;
+}
+
+.userWrapper {
+    box-shadow: 0px 0px 8px -5px rgba(0, 0, 0, 0.3);
+    padding: 1.2rem 1rem;
+    border-radius: 1rem;
+    margin: 0.7rem 0 ;
+}
+
+body.dark-mode .userWrapper {
+    background-color: #343434;
+}

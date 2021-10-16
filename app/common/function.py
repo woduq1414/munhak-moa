@@ -15,6 +15,7 @@ from config import DISCORD_WEBHOOK_URL
 from flask import request
 import ssl
 
+
 def is_local():
     import socket
     import os
@@ -64,7 +65,13 @@ def fetch_spread_sheet():
 
     munhak_quiz_rows_data = [munhak_row for munhak_row in munhak_rows_data if len(munhak_row["keywords"]) != 0]
 
+    munhak_rows_data_dict = {}
+    for munhak_row in munhak_rows_data:
+        munhak_rows_data_dict[munhak_row["munhak_seq"]] = munhak_row
+
     cache.set('munhak_rows_data', munhak_rows_data, timeout=99999999999999999)
+    cache.set('munhak_rows_data_dict', munhak_rows_data_dict, timeout=99999999999999999)
+
     cache.set('munhak_quiz_rows_data', munhak_quiz_rows_data, timeout=99999999999999999)
     # print(data)
     # print(munhak_rows)
@@ -97,7 +104,7 @@ def send_discord_alert_log(alert_string):
 
             },
             {
-                "description" : alert_string
+                "description": alert_string
             },
             {
                 "fields": [
@@ -128,24 +135,20 @@ def send_discord_alert_log(alert_string):
     threading.Thread(target=lambda: send_discord_webhook(webhook_body=webhook_body)).start()
 
 
-
-
-
 def edit_distance(s1, s2):
-
-        l1, l2 = len(s1), len(s2)
-        if l2 > l1:
-            return edit_distance(s2, s1)
-        if l2 is 0:
-            return l1
-        prev_row = list(range(l2 + 1))
-        current_row = [0] * (l2 + 1)
-        for i, c1 in enumerate(s1):
-            current_row[0] = i + 1
-            for j, c2 in enumerate(s2):
-                d_ins = current_row[j] + 1
-                d_del = prev_row[j + 1] + 1
-                d_sub = prev_row[j] + (1 if c1 != c2 else 0)
-                current_row[j + 1] = min(d_ins, d_del, d_sub)
-            prev_row[:] = current_row[:]
-        return prev_row[-1]
+    l1, l2 = len(s1), len(s2)
+    if l2 > l1:
+        return edit_distance(s2, s1)
+    if l2 is 0:
+        return l1
+    prev_row = list(range(l2 + 1))
+    current_row = [0] * (l2 + 1)
+    for i, c1 in enumerate(s1):
+        current_row[0] = i + 1
+        for j, c2 in enumerate(s2):
+            d_ins = current_row[j] + 1
+            d_del = prev_row[j + 1] + 1
+            d_sub = prev_row[j] + (1 if c1 != c2 else 0)
+            current_row[j + 1] = min(d_ins, d_del, d_sub)
+        prev_row[:] = current_row[:]
+    return prev_row[-1]

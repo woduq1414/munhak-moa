@@ -122,3 +122,18 @@ class ContentQuizMunhak(db.Model):
     remark = db.Column(db.String, nullable=True)
 
     add_date = db.Column(db.DateTime, nullable=False)
+
+class TotoPick(db.Model):
+    pick_seq = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", backref=backref('totopick', order_by=user_seq, cascade='all,delete'))
+
+    # pick1~2 : 공개픽, pick3~6 : 비공개픽
+    pick1 = db.Column(db.Integer, nullable=True)
+    pick2 = db.Column(db.Integer, nullable=True)
+    pick3 = db.Column(db.Integer, nullable=True)
+    pick4 = db.Column(db.Integer, nullable=True)
+    pick5 = db.Column(db.Integer, nullable=True)
+    pick6 = db.Column(db.Integer, nullable=True)
+
+    add_date = db.Column(db.DateTime, nullable=False)
