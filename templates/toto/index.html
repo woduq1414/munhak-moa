@@ -32,6 +32,7 @@
                 <div></div>
                 <div id="goPickButton" class="btn btn-outline-primary">
                     <i class="fas fa-edit"></i> 선택 / 수정
+
                 </div>
             </div>
             <div id="userContainer">
@@ -41,18 +42,25 @@
                         <div class="pickContainer">
                             {% for pick in [user.pick1, user.pick2] %}
                                 {% if pick != None %}
-                                    <div class="pickWrapper">{{ pick.writer }}, 『{{ pick.title }}』</div>
+                                    <div class="pickWrapper"
+                                         onclick="movePage(`{{ url_for('board.munhak_board_detail', munhak_seq=pick.munhak_seq) }}`);">{{ pick.writer }},
+                                        『{{ pick.title }}』
+                                    </div>
                                 {% endif %}
                             {% endfor %}
                             {% for pick in [user.pick3, user.pick4, user.pick5, user.pick6] %}
                                 {% if pick != None %}
-                                    {% if data.is_pick_available == True %}
+                                    {% if data.is_pick_available == False or user.user_seq == data.user_seq %}
+                                        <div class="pickWrapper"
+                                             onclick="movePage(`{{ url_for('board.munhak_board_detail', munhak_seq=pick.munhak_seq) }}`);">{{ pick.writer }},
+                                            『{{ pick.title }}』
+                                        </div>
+
+
+                                    {% else %}
                                         <div class="pickNotPublic">
                                             <i class="fa fa-question pickNotPublicIcon"></i>
                                         </div>
-
-                                    {% else %}
-                                        <div class="pickWrapper">{{ pick.writer }}, 『{{ pick.title }}』</div>
                                     {% endif %}
                                 {% endif %}
 

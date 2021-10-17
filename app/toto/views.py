@@ -47,6 +47,14 @@ def toto_index():
     }
     data["is_result_open"] = is_result_open
 
+    try:
+        user_seq = session["user"]["user_seq"]
+    except:
+        user_seq = None
+    data["user_seq"] = user_seq
+
+    print(data)
+
     if datetime.now() < pick_deadline:
         # 픽 가능
         data["is_pick_available"] = True
@@ -56,8 +64,11 @@ def toto_index():
             "nickname": x.user.nickname, "pick1": munhak_rows_data_dict.get(x.pick1),
             "pick2": munhak_rows_data_dict.get(x.pick2), "pick3": munhak_rows_data_dict.get(x.pick3),
             "pick4": munhak_rows_data_dict.get(x.pick4),
-            "pick5": munhak_rows_data_dict.get(x.pick5), "pick6": munhak_rows_data_dict.get(x.pick6), "date" : x.add_date.strftime("%Y-%m-%d")
+            "pick5": munhak_rows_data_dict.get(x.pick5), "pick6": munhak_rows_data_dict.get(x.pick6),
+            "date": x.add_date.strftime("%Y-%m-%d"), "user_seq": x.user.user_seq
         } for x in pick_rows]
+
+        print(pick_list)
 
         random.shuffle(pick_list)
         data["pick_list"] = pick_list
@@ -74,8 +85,11 @@ def toto_index():
             pick_rows = TotoPick.query.all()
 
             pick_list = [{
-                "nickname": x.user.nickname, "pick1": x.pick1, "pick2": x.pick2, "pick3": x.pick3, "pick4": x.pick4,
-                "pick5": x.pick5, "pick6": x.pick6
+                "nickname": x.user.nickname, "pick1": munhak_rows_data_dict.get(x.pick1),
+                "pick2": munhak_rows_data_dict.get(x.pick2), "pick3": munhak_rows_data_dict.get(x.pick3),
+                "pick4": munhak_rows_data_dict.get(x.pick4),
+                "pick5": munhak_rows_data_dict.get(x.pick5), "pick6": munhak_rows_data_dict.get(x.pick6),
+                "date": x.add_date.strftime("%Y-%m-%d"), "user_seq": x.user.user_seq
             } for x in pick_rows]
 
             random.shuffle(pick_list)

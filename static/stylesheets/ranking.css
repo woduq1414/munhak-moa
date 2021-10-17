@@ -16,7 +16,7 @@
     /*background-color: var(--primary-color);*/
     border-radius: 5px;
     /*color: white;*/
-    padding: 1.5rem;
+    margin: 1.5rem;
 
     position: fixed;
     top: 0;
@@ -30,7 +30,7 @@
     /*background-color: var(--primary-color);*/
     border-radius: 5px;
     /*color: white;*/
-    padding: 1.5rem;
+    margin: 1.5rem;
 
     position: fixed;
     top: 3rem;

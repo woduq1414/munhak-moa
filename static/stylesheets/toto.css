@@ -55,17 +55,22 @@
     cursor: pointer;
 }
 .pickNotPublic {
-    background-color: #cccccc;
+    background-color: #dddddd;
     font-size: 1.3rem;
 
     border-radius: 100rem;
     padding: 0.3rem 0.8rem;
     margin-right: 0.5rem;
-    color: grey;
+    color: #a0a0a0;
     margin-bottom: 0.3rem;
 
 
 }
+
+body.dark-mode .pickNotPublic {
+    background-color: #454545;
+}
+
 
 .underPickInfo {
     display: flex;
@@ -98,3 +103,4 @@ body.dark-mode .userWrapper {
     font-size: 1.3rem;
     text-align: center;
 }
+
