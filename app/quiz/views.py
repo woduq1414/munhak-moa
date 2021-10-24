@@ -368,6 +368,7 @@ def result():
         else:
             if session["quiz_count"] >= 1 and session["quiz_count"] > old_record_row.score:
                 old_record_row.score = session["quiz_count"]
+                old_record_row.record_date = datetime.now()
                 db.session.commit()
                 is_best_record = True
 
