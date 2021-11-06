@@ -46,3 +46,7 @@
 .form-group {
     text-align: center;
 }
+
+body.dark-mode #quizContent, body.dark-mode #quizContent2 {
+    background-color: #232323;
+}

@@ -38,8 +38,6 @@
             $("#content .option").off("click");
 
 
-
-
             let option = $(this).attr("option");
 
 
@@ -53,15 +51,32 @@
                         location.href = "./result";
                     },
                     200: function (data) {
+                        if (window.__THEME_MODE === 'dark') {
+                            $("#container").animate({"borderWidth": "50px", "borderColor" : "#91e4ff"}, 100, function () {
+                                setTimeout(function () {
 
-                        $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
-                            setTimeout(function () {
-                                $("#container").animate({"background-color": "white"}, 100, function () {
+                                    $("#container").animate({"borderWidth" : "0px", "borderColor" : "transparent"}, 100, function () {
 
-                                });
-                            }, 500);
+                                    });
 
-                        });
+
+                                }, 500);
+
+                            });
+
+                        } else {
+                            $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
+                                setTimeout(function () {
+
+                                    $("#container").animate({"background-color": "white"}, 100, function () {
+
+                                    });
+
+                                }, 500);
+
+                            });
+                        }
+
 
                         $("#content").attr("id", "content2");
                         $("#content2").css("position", "fixed");

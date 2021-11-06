@@ -2,6 +2,7 @@
 
 {% block style %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
     {#    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/quiz.css') }}">#}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ranking.css') }}">
     <title>알아두면 쓸데없는 문학퀴즈 - 문학모아</title>
@@ -22,36 +23,41 @@
             </div>
 
 
-            <div id="sourceCheckContainer">
-                <div class="custom-control custom-checkbox sourceCheckWrapper">
-
-                    <input type="checkbox" class="custom-control-input "
-                           id="sourceCheck1" data="평가원" checked>
-                    <label class="custom-control-label"
-                           for="sourceCheck1">평가원 기출</label>
-
-
-                </div>
-                <div class="custom-control custom-checkbox sourceCheckWrapper">
-
-                    <input type="checkbox" class="custom-control-input "
-                           id="sourceCheck2" data="수특/수완" >
-                    <label class="custom-control-label"
-                           for="sourceCheck2">21 수특 · 수완</label>
-
-
-                </div>
-
-                      <div class="custom-control custom-checkbox sourceCheckWrapper">
-
-                    <input type="checkbox" class="custom-control-input "
-                           id="sourceCheck_2022" data="수특/수완" checked>
-                    <label class="custom-control-label"
-                           for="sourceCheck_2022">22 수특 · 수완</label>
-
-
-                </div>
+            <div id="currentSource">
+                <i class="fas fa-edit"></i> 출제 범위 : <span id="currentSourceText">평가원 기출(2016~2022학년도)</span>
             </div>
+
+
+            {#            <div id="sourceCheckContainer">#}
+            {#                <div class="custom-control custom-checkbox sourceCheckWrapper">#}
+            {##}
+            {#                    <input type="checkbox" class="custom-control-input "#}
+            {#                           id="sourceCheck1" data="평가원" checked>#}
+            {#                    <label class="custom-control-label"#}
+            {#                           for="sourceCheck1">평가원 기출</label>#}
+            {##}
+            {##}
+            {#                </div>#}
+            {#                <div class="custom-control custom-checkbox sourceCheckWrapper">#}
+            {##}
+            {#                    <input type="checkbox" class="custom-control-input "#}
+            {#                           id="sourceCheck2" data="수특/수완" >#}
+            {#                    <label class="custom-control-label"#}
+            {#                           for="sourceCheck2">21 수특 · 수완</label>#}
+            {##}
+            {##}
+            {#                </div>#}
+            {##}
+            {#                      <div class="custom-control custom-checkbox sourceCheckWrapper">#}
+            {##}
+            {#                    <input type="checkbox" class="custom-control-input "#}
+            {#                           id="sourceCheck_2022" data="수특/수완" checked>#}
+            {#                    <label class="custom-control-label"#}
+            {#                           for="sourceCheck_2022">22 수특 · 수완</label>#}
+            {##}
+            {##}
+            {#                </div>#}
+            {#            </div>#}
 
 
             <a id="startButton" class="btn btn-primary">시작하기</a>
@@ -92,6 +98,47 @@
     </div>
 
 
+    <div class="modal fade" id="sourceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-body" id="sourceModalBody">
+
+                    <div id="sourceModalWrapper">
+                        <span>출처 :</span>
+                        <span id="sourceCheckAll">모두 선택</span>
+                        <span id="sourceCheckNone">모두 해제</span>
+                        <div id="sourceCheckContainer">
+                            {% for key, source_group in data.source_dict.items() %}
+                                <div class="sourceCheckGroup">
+                                    {% set t = loop.index %}
+                                    {% for source in source_group %}
+                                        <div class="custom-control custom-checkbox sourceCheckWrapper">
+                                            <input type="checkbox" class="custom-control-input sourceCheckBox"
+                                                   id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}">
+                                            <label class="custom-control-label"
+                                                   for="sourceCheck{{ t * 100 + loop.index }}">{{ source }}</label>
+                                        </div>
+
+                                    {% endfor %}
+                                </div>
+
+                            {% endfor %}
+                        </div>
+
+
+                    </div>
+
+                    <div id="sourceModalConfirm" class="btn btn-primary">설정</div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
     <div class="modal fade" id="rankingModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -104,6 +151,7 @@
         </div>
     </div>
 
+
     <div id="goMainPage">
         <div class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> 메인으로
@@ -112,7 +160,7 @@
 
     </div>
 
-        <div id="goLivePage">
+    <div id="goLivePage">
         <div class="btn btn-outline-danger">
             <i class="fas fa-arrow-left"></i> Live로
         </div>
@@ -132,13 +180,75 @@
 {% block script %}
     <script>
 
-        $("#startButton").on("click", function () {
 
-            let s1 = $("#sourceCheck1").prop("checked");
-            let s2 = $("#sourceCheck2").prop("checked");
-            let s3 = $("#sourceCheck_2022").prop("checked");
-            console.log(s1, s2);
-            location.href = `{{ url_for("quiz.quiz") }}?s1=${s1}&s2=${s2}&s3=${s3}&re=true`
+        let selected_source_dict = {
+            {% for source in data.source_list %}
+                "{{ source }}": {{"true" if "고3" in source else "false"}},
+            {% endfor %}
+        };
+        $("#currentSource").on("click", function () {
+            $("#sourceModal").modal();
+            for (let source of Object.keys(selected_source_dict)) {
+                $(`.sourceCheckBox[data='${source}']`).prop("checked", selected_source_dict[source]);
+                // console.log($(`.sourceCheckBox[data=${source}]`));
+            }
+
+        });
+
+
+        $("#sourceCheckAll").on("click", function () {
+            $(".sourceCheckBox").prop("checked", true)
+        });
+        $("#sourceCheckNone").on("click", function () {
+            $(".sourceCheckBox").prop("checked", false)
+        });
+
+        $(document).on("click", "#sourceModalConfirm", function () {
+            let f = undefined;
+            let c = 0;
+            $(".sourceCheckBox").each(function (index, item) {
+                let t = $(item).attr("data");
+                if ($(item).is(":checked") === true) {
+                    selected_source_dict[t] = true;
+                    f = t;
+                    c += 1;
+                } else {
+                    selected_source_dict[t] = false;
+                }
+            });
+
+            if (f === undefined) {
+                alert("하나 이상 선택해주세요!");
+                return;
+            }
+
+            if( c === 1){
+                $("#currentSourceText").text(`${f}`);
+            }else{
+                $("#currentSourceText").text(`${f} 외 ${c - 1}개`);
+            }
+
+            $("#sourceModal").modal("hide");
+        });
+
+
+        $("#startButton").on("click", function () {
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({
+                    "source_dict": selected_source_dict,
+                    "re" : true,
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                url: "./reset-quiz",
+                statusCode: {
+                    200: function (data) {
+                        location.href = "{{ url_for("quiz.quiz") }}";
+                    }
+                }
+
+            })
         })
 
 
@@ -146,15 +256,19 @@
             location.href = "{{ url_for("others.index") }}"
         })
 
-         $("#goLivePage").on("click", function () {
+        $("#goLivePage").on("click", function () {
             location.href = "{{ url_for("quiz.enter_live") }}"
-        })
-
-
+        });
 
         $("#openInfo").on("click", function () {
+
+
             $("#infoModal").modal();
-        })
+
+
+        });
+
+
         $("#openRanking").on("click", function () {
             $("#rankingModal").modal();
             $.ajax({

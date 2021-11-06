@@ -543,14 +543,34 @@
                 $("#quizContent").remove();
 
             } else if (data["is_correct"] === true) {
-                $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
-                    setTimeout(function () {
-                        $("#container").animate({"background-color": "white"}, 100, function () {
+                if (window.__THEME_MODE === 'dark') {
+                    $("#container").animate({"borderWidth": "50px", "borderColor": "#91e4ff"}, 100, function () {
+                        setTimeout(function () {
 
-                        });
-                    }, 500);
+                            $("#container").animate({
+                                "borderWidth": "0px",
+                                "borderColor": "transparent"
+                            }, 100, function () {
 
-                });
+                            });
+
+
+                        }, 500);
+
+                    });
+
+                } else {
+                    $("#container").animate({"background-color": "#91e4ff"}, 100, function () {
+                        setTimeout(function () {
+
+                            $("#container").animate({"background-color": "white"}, 100, function () {
+
+                            });
+
+                        }, 500);
+
+                    });
+                }
 
                 $("#quizContent").attr("id", "quizContent2");
                 $("#quizContent2").css("position", "fixed");
@@ -558,14 +578,36 @@
                     $("#quizContent2").remove();
                 });
             } else if (data["is_correct"] === false) {
-                $("#container").animate({"background-color": "#ff978e"}, 100, function () {
-                    setTimeout(function () {
-                        $("#container").animate({"background-color": "white"}, 100, function () {
 
-                        });
-                    }, 500);
+                if (window.__THEME_MODE === 'dark') {
+                    $("#container").animate({"borderWidth": "50px", "borderColor": "#ff978e"}, 100, function () {
+                        setTimeout(function () {
 
-                });
+                            $("#container").animate({
+                                "borderWidth": "0px",
+                                "borderColor": "transparent"
+                            }, 100, function () {
+
+                            });
+
+
+                        }, 500);
+
+                    });
+
+                } else {
+                    $("#container").animate({"background-color": "#ff978e"}, 100, function () {
+                        setTimeout(function () {
+
+                            $("#container").animate({"background-color": "white"}, 100, function () {
+
+                            });
+
+                        }, 500);
+
+                    });
+                }
+
 
                 $("#quizContent").attr("id", "quizContent2");
                 $("#quizContent2").css("position", "fixed");
@@ -701,7 +743,7 @@
 
         $(document).on("click", ".kickPlayerButton", function (e) {
 
-            if (confirm("강퇴할까요?")){
+            if (confirm("강퇴할까요?")) {
                 let $target = $(e.target);
                 console.log($target);
                 {#alert($target.attr("data"))#}

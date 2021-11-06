@@ -90,7 +90,7 @@
     }
 
     $("#goLoginButtonRanking").on("click", function () {
-        setCookie("after-login-redirect", location.href)
+        setCookie("after-login-redirect", location.href);
         location.href = "{{ url_for("user.login_form") }}"
     })
 

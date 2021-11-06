@@ -1,0 +1,20 @@
+#darkModeIconWrapper {
+    /*background-color: var(--primary-color);*/
+    border-top-right-radius: 99999px;
+    /*color: white;*/
+    padding: 3rem 3rem 1.5rem 1.5rem;
+    font-size: 3rem;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    cursor: pointer;
+    transition: all 1s;
+}
+
+body.dark-mode #content {
+    background-color: #232323;
+}
+
+body.dark-mode .modal-content {
+    background-color: #343434;
+}

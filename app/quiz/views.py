@@ -13,7 +13,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 import base64
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from flask_restful import Api, Resource, reqparse
 from sqlalchemy import desc, asc
 import uuid
@@ -37,9 +37,17 @@ def index():
     munhak_rows_data = cache.get("munhak_quiz_rows_data")
 
     munhak_rows = copy.deepcopy(munhak_rows_data)
+
+    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))
+    source_dict = defaultdict(list)
+    for source in source_list:
+        source_dict[source[:5]].append(source)
+
+
     data = {
         "total_munhak": len(munhak_rows),
-        "source_list": sorted(set([munhak_row["source"] for munhak_row in munhak_rows]))
+        "source_list": sorted(set([munhak_row["source"] for munhak_row in munhak_rows])),
+        "source_dict" : source_dict
     }
     print(data)
 
@@ -47,29 +55,34 @@ def index():
     return render_template("quiz/index.html", data=data)
 
 
-def make_quiz(munhak_rows, not_selected_munhak_rows):
+def make_quiz(include_munhak_rows, not_selected_munhak_rows, all_munhak_rows = None):
+
+    if all_munhak_rows is None:
+        all_munhak_rows = include_munhak_rows
+
+
     # import time
     # start = time.time()  #
 
     correct_munhak_row = random.choice(not_selected_munhak_rows)
 
-    for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
-        munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
+    for _ in [munhak_row for munhak_row in all_munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
+        all_munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
 
-    random.shuffle(munhak_rows)
+    random.shuffle(all_munhak_rows)
 
     if random.random() <= 0.3:  # 30% 확률
-        option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+        option_munhak_rows = [munhak_row for munhak_row in all_munhak_rows if
                               munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
     else:
 
         if random.random() <= 0.4:  # 28% 확률
             option_munhak_rows = []
-            for munhak_row in munhak_rows:
+            for munhak_row in all_munhak_rows:
                 munhak_row["distance"] = edit_distance(munhak_row["title"].replace(" ", ""),
                                                        correct_munhak_row["title"].replace(" ", ""))
 
-            distance_sorted_munhak_rows = sorted(munhak_rows, key=lambda x: x["distance"])
+            distance_sorted_munhak_rows = sorted(all_munhak_rows, key=lambda x: x["distance"])
             distance_groupby_munhak_rows = groupby(distance_sorted_munhak_rows, key=lambda x: x["distance"], )
 
             c = 0
@@ -95,7 +108,7 @@ def make_quiz(munhak_rows, not_selected_munhak_rows):
 
             option_munhak_rows.append(correct_munhak_row)
         else:
-            option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
+            option_munhak_rows = all_munhak_rows[0:3] + [correct_munhak_row]
 
     random.shuffle(option_munhak_rows)
     correct = option_munhak_rows.index(correct_munhak_row)
@@ -124,67 +137,36 @@ def make_quiz(munhak_rows, not_selected_munhak_rows):
 def get_quiz():
     # import time
     # time.sleep(1)
-    if "quiz_source" not in session:
-        session["quiz_source"] = {
-            "past_exam": True,
-            "2021": False,
-            "2022": True,
-        }
+    if "exclude_quiz_source" not in session:
+        session["exclude_quiz_source"] = []
 
-    quiz_source = session["quiz_source"]
+
+
+    exclude_quiz_source = session["exclude_quiz_source"]
     munhak_rows_data = copy.deepcopy(cache.get("munhak_quiz_rows_data"))
+
+    print(exclude_quiz_source)
 
     # munhak_rows_data = []
 
     def source_check(source):
-        b = True
-        if quiz_source["past_exam"] is False:  # 기출문제 제외
-            b = b and not (source.split()[-1] == "모의평가" or source.split()[
-                -1] == "수능")
+        if source in exclude_quiz_source:
+            return False
+        else:
+            return True
 
-        if quiz_source["2021"] is False:
-            b = b and not (
-                    source.split()[0] == "2021학년도" and
-                    (source.split()[-1] == "수능특강" or source.split()[
-                        -1] == "수능완성"))
-
-        if quiz_source["2022"] is False:
-            b = b and not (
-                    source.split()[0] == "2022학년도" and
-                    (source.split()[-1] == "수능특강" or source.split()[
-                        -1] == "수능완성"))
-        return b
-
-    munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if source_check(munhak_row["source"])]
-
-    # if quiz_source["past_exam"] is False:  # 기출문제 제외
-    #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
-    #                         not (munhak_row["source"].split()[-1] == "모의평가" or munhak_row["source"].split()[
-    #                             -1] == "수능")]
-    # if quiz_source["2021"] is False:
-    #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
-    #                         not (
-    #                                 munhak_row["source"].split()[0] == "2021학년도" and
-    #                                 (munhak_row["source"].split()[-1] == "수능특강" or munhak_row["source"].split()[
-    #                                     -1] == "수능완성"))]
-    #
-    # if quiz_source["2022"] is False:
-    #     munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if
-    #                         not (
-    #                                 munhak_row["source"].split()[0] == "2022학년도" and
-    #                                 (munhak_row["source"].split()[-1] == "수능특강" or munhak_row["source"].split()[
-    #                                     -1] == "수능완성"))]
+    include_munhak_rows_data = [munhak_row for munhak_row in munhak_rows_data if source_check(munhak_row["source"])]
 
     if "is_end" in session and session["is_end"] is True:
         session["quiz_count"] = 0
-        session["total_munhak"] = len(munhak_rows_data)
+        session["total_munhak"] = len(include_munhak_rows_data)
         session["solved_quiz"] = []
         session["current_munhak"] = None
         session["is_end"] = False
 
     if "quiz_count" not in session:
         session["quiz_count"] = 0
-        session["total_munhak"] = len(munhak_rows_data)
+        session["total_munhak"] = len(include_munhak_rows_data)
     if "solved_quiz" not in session:
         session["solved_quiz"] = []
     session["result"] = None
@@ -199,35 +181,18 @@ def get_quiz():
 
         # munhak_rows = Munhak.query.filter_by(is_available=True).all()
 
-        munhak_rows = copy.deepcopy(munhak_rows_data)
+        include_munhak_rows = copy.deepcopy(include_munhak_rows_data)
+        all_munhak_rows = copy.deepcopy(munhak_rows_data)
 
-        not_solved_munhak_rows = [munhak_row for munhak_row in munhak_rows if
+
+        not_solved_munhak_rows = [munhak_row for munhak_row in include_munhak_rows if
                                   munhak_row["munhak_seq"] not in solved_quiz]
 
         if len(not_solved_munhak_rows) == 0:  # 다 맞았을 때
             session["result"] = True
             return "wow", 404
 
-        # correct_munhak_row = random.choice(not_solved_munhak_rows)
-        #
-        # for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
-        #     munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
-        #
-        # random.shuffle(munhak_rows)
-        #
-        # if correct_munhak_row["category"] != "극" and correct_munhak_row[
-        #     "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
-        #     option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
-        #                           munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
-        # else:
-        #     option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
-        #
-        # random.shuffle(option_munhak_rows)
-        # correct = option_munhak_rows.index(correct_munhak_row)
-        # hint = random.choice(correct_munhak_row["keywords"])
-        # hint = hint.replace("\\", "")
-
-        quiz_data = make_quiz(munhak_rows, not_solved_munhak_rows)
+        quiz_data = make_quiz(include_munhak_rows, not_solved_munhak_rows, all_munhak_rows=all_munhak_rows)
 
         session["correct"] = simpleEnDecrypt.encrypt(f"{quiz_data['correct']}:{uuid.uuid4()}")
 
@@ -246,7 +211,7 @@ def get_quiz():
             "category": quiz_data["category"],
             "hint": quiz_data["hint"],
             "options": quiz_data["options"],
-            "total_munhak": len(munhak_rows_data)
+            "total_munhak": len(include_munhak_rows_data)
         }
         print(data)
         #
@@ -261,42 +226,41 @@ def get_quiz():
             "options": [
                 f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in session["options"]
             ],
-            "total_munhak": len(munhak_rows_data)
+            "total_munhak": len(include_munhak_rows_data)
         }
         print(data)
         #
         return render_template("quiz/quiz.html", data=data)
 
 
-@quiz_bp.route('/play')
-def quiz():
-    args = request.args
-    re = "re" in args and args["re"] == "true"
-    s1 = "s1" in args and args["s1"] == "false"
-    s2 = "s2" in args and args["s2"] == "false"
-    s3 = "s3" in args and args["s3"] == "false"
+@quiz_bp.route('/reset-quiz', methods=["GET", "POST"])
+def reset_quiz():
+
+    args = request.json
+
+    source_dict = args["source_dict"]
+    re = args["re"]
 
     if re:
-        # if s1 and not s2:
-        #     session["quiz_source"] = "s2"
-        # elif not s1 and s2:
-        #     session["quiz_source"] = "s1"
-        # else:
-        #     session["quiz_source"] = "all"
 
-        quiz_source = {
-            "past_exam": not s1,
-            "2021": not s2,
-            "2022": not s3
-        }
+        source_list = []
+        for k, v in source_dict.items():
+            if v is False:
+                source_list.append(k)
 
-        session["quiz_source"] = quiz_source
+        session["exclude_quiz_source"] = source_list
 
         session["quiz_count"] = 0
         session["solved_quiz"] = []
         session["current_munhak"] = None
         session["is_end"] = False
-        return redirect(url_for("quiz.quiz"))
+
+
+    return "succ", 200
+
+
+@quiz_bp.route('/play')
+def quiz():
 
     return render_template("quiz/quiz_container.html")
 
@@ -668,46 +632,11 @@ def start_live(data):
 
         not_selected_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                     munhak_row["munhak_seq"] not in selected_quiz_list]
-        # print(quiz_no)
-        # print(not_selected_munhak_rows)
-        # print(selected_quiz_list)
+
 
         if not not_selected_munhak_rows:
             break
 
-        # correct_munhak_row = random.choice(not_selected_munhak_rows)
-        #
-        # for _ in [munhak_row for munhak_row in munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
-        #     munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
-        #
-        # random.shuffle(munhak_rows)
-        #
-        # if correct_munhak_row["category"] != "극" and correct_munhak_row[
-        #     "category"] != "수필" and random.random() >= 0.5:  # 50% 확률
-        #     option_munhak_rows = [munhak_row for munhak_row in munhak_rows if
-        #                           munhak_row["category"] == correct_munhak_row["category"]][0:3] + [correct_munhak_row]
-        # else:
-        #     option_munhak_rows = munhak_rows[0:3] + [correct_munhak_row]
-        #
-        # random.shuffle(option_munhak_rows)
-        # correct = option_munhak_rows.index(correct_munhak_row)
-        #
-        # hint = random.choice(correct_munhak_row["keywords"])
-        # hint = hint.replace("\\", "")
-        #
-        # quiz_data = {
-        #     "quiz_no": quiz_no,
-        #     "munhak_seq": correct_munhak_row["munhak_seq"],
-        #     "source": correct_munhak_row["source"],
-        #     "category": correct_munhak_row["category"],
-        #     "hint": hint,
-        #     "correct": correct,
-        #     "options": [
-        #         f"{munhak_row['writer']}, 『{munhak_row['title']}』" for munhak_row in option_munhak_rows
-        #     ],
-        #     "title": correct_munhak_row["title"],
-        #     "writer": correct_munhak_row["writer"]
-        # }
 
         quiz_data = make_quiz(munhak_rows, not_selected_munhak_rows)
         quiz_data["quiz_no"] = quiz_no

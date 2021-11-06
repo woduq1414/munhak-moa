@@ -217,3 +217,46 @@ body, main {
     text-align: center;
     color: dimgrey;
 }
+
+body.dark-mode #content, body.dark-mode #content2 {
+    background-color: #232323;
+}
+
+
+
+body.dark-mode .option {
+    background-color: #343434 !important;
+}
+
+body.dark-mode #option1 {
+    border : 1px solid #fad09e;
+}
+body.dark-mode #option2 {
+    border : 1px solid #b2df9c;
+}
+body.dark-mode #option3 {
+    border : 1px solid #99e5e5;
+}
+body.dark-mode #option4 {
+    border : 1px solid  #c2a5df;
+}
+
+
+
+body.dark-mode #quizNo {
+    background-color: #343434 !important;
+    border : 1px solid gold;
+}
+
+body.dark-mode #category {
+    background-color: #343434 !important;
+    border : 1px solid mediumpurple;
+}
+
+body.dark-mode .progress {
+        background-color: grey;
+}
+
+body.dark-mode .sourceMessage {
+    color: #343434;
+}

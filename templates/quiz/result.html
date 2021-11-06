@@ -111,9 +111,9 @@
     </div>
 
 
-    <div id="goMainPage">
+    <div id="goPrevPage">
         <div class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> 메인으로
+            <i class="fas fa-arrow-left"></i> 이전으로
         </div>
 
 
@@ -129,9 +129,9 @@
 {% block script %}
     <script>
 
-        $("#goMainPage").on("click", function () {
-            location.href = "{{ url_for("others.index") }}"
-        })
+        $("#goPrevPage").on("click", function () {
+            location.href = "{{ url_for("quiz.index") }}"
+        });
 
 
         let is_best_record = {{ "true" if data.is_best_record == True else "false" }}
@@ -172,7 +172,7 @@
         }
 
         $("#goLoginButton").on("click", function () {
-            setCookie("after-login-redirect", "{{ url_for("quiz.result") }}")
+            setCookie("after-login-redirect", "{{ url_for("quiz.result") }}");
             location.href = "{{ url_for("user.login_form") }}"
         })
 
