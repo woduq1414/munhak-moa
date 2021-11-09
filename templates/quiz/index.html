@@ -85,9 +85,9 @@
 
                         <div id="githubWrapper">
                             <a href="https://github.com/woduq1414">
-                                <img src="https://www.iconfinder.com/data/icons/octicons/1024/mark-github-512.png"
-                                     id="githubIcon">
-                                woduq1414</a>
+                                <i class="fab fa-github" id="githubIcon"></i>
+                                <span id="githubId">woduq1414</span>
+                            </a>
                         </div>
 
                     </div>
@@ -222,9 +222,9 @@
                 return;
             }
 
-            if( c === 1){
+            if (c === 1) {
                 $("#currentSourceText").text(`${f}`);
-            }else{
+            } else {
                 $("#currentSourceText").text(`${f} 외 ${c - 1}개`);
             }
 
@@ -237,7 +237,7 @@
                 type: "POST",
                 data: JSON.stringify({
                     "source_dict": selected_source_dict,
-                    "re" : true,
+                    "re": true,
                 }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",

@@ -141,3 +141,15 @@ body, main {
 #sourceModalWrapper {
     padding: 0 1rem;
 }
+
+#githubIcon {
+    font-size: 1.4rem;
+    margin-right: 0.5rem;
+}
+
+#githubWrapper a {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+}
