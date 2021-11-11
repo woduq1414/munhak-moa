@@ -38,7 +38,7 @@ def is_toto_target_munhak(munhak_row):
 @toto_bp.route('/')
 def toto_index():
     munhak_rows_data_dict = cache.get("munhak_rows_data_dict")
-    pick_deadline = datetime(2021, 11, 11, 23, 59, 59)
+    pick_deadline = datetime(2021, 11, 14, 23, 59, 59)
     toto_real_result = [120, 122, 124, 126, 128, 130]
     is_result_open = False
 
