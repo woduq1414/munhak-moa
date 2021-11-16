@@ -30,10 +30,12 @@
         <div id="underContainer">
             <div class="d-flex justify-content-end">
                 <div></div>
+                {% if data.is_pick_available %}
                 <div id="goPickButton" class="btn btn-outline-primary">
                     <i class="fas fa-edit"></i> 선택 / 수정
 
                 </div>
+                {% endif %}
             </div>
             <div id="userContainer">
                 {% for user in data.pick_list %}
