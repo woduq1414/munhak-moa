@@ -27,9 +27,15 @@ from collections import defaultdict
 
 toto_bp = Blueprint('toto', __name__)
 
+toto_term = "23 6모"
+toto_source = ["2023학년도 수능특강", "2023학년도 수능완성"]
+pick_deadline = datetime(2022, 6, 8, 23, 59, 59)
+toto_real_result = [120, 122, 124, 126, 128, 130]
+is_result_open = False
+
 
 def is_toto_target_munhak(munhak_row):
-    if munhak_row["source"] == "2022학년도 수능특강" or munhak_row["source"] == "2022학년도 수능완성":
+    if munhak_row["source"] in toto_source:
         return True
     else:
         return False
@@ -38,12 +44,12 @@ def is_toto_target_munhak(munhak_row):
 @toto_bp.route('/')
 def toto_index():
     munhak_rows_data_dict = cache.get("munhak_rows_data_dict")
-    pick_deadline = datetime(2021, 11, 16, 23, 59, 59)
-    toto_real_result = [120, 122, 124, 126, 128, 130]
-    is_result_open = False
+
+
 
     data = {
-
+        "term" : toto_term,
+        "pick_deadline" : f"{pick_deadline.month}/{pick_deadline.day}"
     }
     data["is_result_open"] = is_result_open
 
@@ -58,7 +64,7 @@ def toto_index():
     if datetime.now() < pick_deadline:
         # 픽 가능
         data["is_pick_available"] = True
-        pick_rows = TotoPick.query.all()
+        pick_rows = TotoPick.query.filter_by(term=toto_term).all()
 
         pick_list = [{
             "nickname": x.user.nickname, "pick1": munhak_rows_data_dict.get(x.pick1),
@@ -172,6 +178,7 @@ def add_pick():
 
     pick_row = TotoPick(
         user_seq=user_seq,
+        term=toto_term,
         pick1=pick_list[0],
         pick2=pick_list[1],
         pick3=pick_list[2],
@@ -194,7 +201,7 @@ def add_pick():
 def delete_pick():
     user_seq = session["user"]["user_seq"]
 
-    old_pick_row = TotoPick.query.filter_by(user_seq=user_seq).first()
+    old_pick_row = TotoPick.query.filter_by(user_seq=user_seq, term=toto_term).first()
     if old_pick_row is None:
         return abort(404)
 
@@ -214,7 +221,7 @@ def pick_toto_form():
     user_seq = session["user"]["user_seq"]
 
     data = {
-
+        "term" : toto_term
     }
     munhak_group_data = defaultdict(list)
     for munhak_row in munhak_rows:

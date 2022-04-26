@@ -255,12 +255,7 @@ def random_munhak():
 
 @board_bp.route('/board')
 def munhak_board_list():
-
-
     cookies = request.cookies
-
-
-
 
     munhak_rows_data = cache.get("munhak_rows_data")
     munhak_rows = copy.deepcopy(munhak_rows_data)
@@ -275,13 +270,15 @@ def munhak_board_list():
     if "query" not in cookies:
         clear = True
 
-
-
     query_cookie = ""
     if query is not None:
         query_cookie += query + " "
 
-    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))
+    source_list = sorted(
+        list(set([munhak_row["source"] for munhak_row in munhak_rows if "시집" not in munhak_row["source"]])))
+    source_list_all = sorted(
+        list(set([munhak_row["source"] for munhak_row in munhak_rows])))
+
     if clear is not None:
         if category is not None:
             query_cookie += " $" + category + " "
@@ -313,7 +310,7 @@ def munhak_board_list():
     page_size = 10
 
     source_dict = defaultdict(list)
-    for source in source_list:
+    for source in source_list_all:
         source_dict[source[:5]].append(source)
 
     data = {

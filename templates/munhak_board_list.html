@@ -69,7 +69,9 @@
                             {% for source in source_group %}
                                 <div class="custom-control custom-checkbox sourceCheckWrapper">
                                     <input type="checkbox" class="custom-control-input sourceCheckBox"
-                                           id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}" >
+                                           id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}"
+                                           data-special="{{ 'true' if '시집' in source else 'false'}}"
+                                            >
                                     <label class="custom-control-label"
                                            for="sourceCheck{{ t * 100 + loop.index }}">{{ source }}</label>
                                 </div>
@@ -139,7 +141,7 @@
                 $(".categoryCheckBox").prop("checked", false)
             })
             $("#sourceCheckAll").on("click", function () {
-                $(".sourceCheckBox").prop("checked", true)
+                $(".sourceCheckBox[data-special!=true]").prop("checked", true)
             })
             $("#sourceCheckNone").on("click", function () {
                 $(".sourceCheckBox").prop("checked", false)

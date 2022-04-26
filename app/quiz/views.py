@@ -38,16 +38,12 @@ def index():
 
     munhak_rows = copy.deepcopy(munhak_rows_data)
 
-    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows])))
-    source_dict = defaultdict(list)
-    for source in source_list:
-        source_dict[source[:5]].append(source)
-
+    source_dict = cache.get("source_dict")
 
     data = {
         "total_munhak": len(munhak_rows),
         "source_list": sorted(set([munhak_row["source"] for munhak_row in munhak_rows])),
-        "source_dict" : source_dict
+        "source_dict": source_dict
     }
     print(data)
 
@@ -55,18 +51,18 @@ def index():
     return render_template("quiz/index.html", data=data)
 
 
-def make_quiz(include_munhak_rows, not_selected_munhak_rows, all_munhak_rows = None):
-
+def make_quiz(include_munhak_rows, not_selected_munhak_rows, all_munhak_rows=None):
     if all_munhak_rows is None:
         all_munhak_rows = include_munhak_rows
-
 
     # import time
     # start = time.time()  #
 
     correct_munhak_row = random.choice(not_selected_munhak_rows)
 
-    for _ in [munhak_row for munhak_row in all_munhak_rows if munhak_row["title"] == correct_munhak_row["title"]]:
+    space_replaced_title = correct_munhak_row["title"].replace(" ", "")
+    for _ in [munhak_row for munhak_row in all_munhak_rows if
+              space_replaced_title == munhak_row["title"].replace(" ", "")]:
         all_munhak_rows.remove(_)  # 제목이 같은 건 선지에 넣지 않는다
 
     random.shuffle(all_munhak_rows)
@@ -139,10 +135,8 @@ def get_quiz():
     # time.sleep(1)
     if "exclude_quiz_source" not in session:
         session["exclude_quiz_source"] = []
-
-
-
-    exclude_quiz_source = session["exclude_quiz_source"]
+    else:
+        exclude_quiz_source = session["exclude_quiz_source"]
     munhak_rows_data = copy.deepcopy(cache.get("munhak_quiz_rows_data"))
 
     print(exclude_quiz_source)
@@ -183,7 +177,6 @@ def get_quiz():
 
         include_munhak_rows = copy.deepcopy(include_munhak_rows_data)
         all_munhak_rows = copy.deepcopy(munhak_rows_data)
-
 
         not_solved_munhak_rows = [munhak_row for munhak_row in include_munhak_rows if
                                   munhak_row["munhak_seq"] not in solved_quiz]
@@ -235,7 +228,6 @@ def get_quiz():
 
 @quiz_bp.route('/reset-quiz', methods=["GET", "POST"])
 def reset_quiz():
-
     args = request.json
 
     source_dict = args["source_dict"]
@@ -255,13 +247,11 @@ def reset_quiz():
         session["current_munhak"] = None
         session["is_end"] = False
 
-
     return "succ", 200
 
 
 @quiz_bp.route('/play')
 def quiz():
-
     return render_template("quiz/quiz_container.html")
 
 
@@ -422,7 +412,8 @@ def make_room():
             "setting": {
                 "correct_score": 2,
                 "wrong_score": -1,
-                "goal_score": 20
+                "goal_score": 20,
+                "limit_time" : 300
             },
             "game_code": "",
         }
@@ -464,6 +455,9 @@ def enter_room():
 
 @quiz_bp.route('/live/<int:room_id>')
 def live_room(room_id):
+    source_dict = cache.get("source_dict")
+    source_list = cache.get("source_list")
+
     global room_info
     # room_info = cache.get("room_info")
     print("room_info", room_info, room_id)
@@ -474,7 +468,7 @@ def live_room(room_id):
 
         return redirect(url_for("quiz.enter_live"))
 
-    return render_template("./quiz/live/room.html", data={"room_id": room_id})
+    return render_template("./quiz/live/room.html", data={"room_id": room_id, "source_dict" : source_dict, "source_list" : source_list})
 
 
 def messageReceived(methods=['GET', 'POST']):
@@ -612,6 +606,7 @@ def start_live(data):
     global room_info
     # room_info = cache.get("room_info")
     room_id = data["room_id"]
+    room_info[room_id]["setting"]["source_dict"] = data["source_dict"]
     if room_id not in room_info or room_info[room_id]["room_master"] != request.sid or room_info[room_id][
         "is_playing"] is not False:
         emit("error")
@@ -628,17 +623,33 @@ def start_live(data):
     selected_quiz_list = []
     quiz_data_list = []
     munhak_rows = copy.deepcopy(munhak_rows_data)
+
+    source_list = []
+    for k, v in room_info[room_id]["setting"]["source_dict"].items():
+        if v is False:
+            source_list.append(k)
+
+    exclude_quiz_source = source_list
+
+    def source_check(source):
+        if source in exclude_quiz_source:
+            return False
+        else:
+            return True
+
+    munhak_rows = [munhak_row for munhak_row in munhak_rows if source_check(munhak_row["source"])]
+
+    all_munhak_rows = copy.deepcopy(munhak_rows_data)
+
     for quiz_no in range(1, len(munhak_rows)):
 
         not_selected_munhak_rows = [munhak_row for munhak_row in munhak_rows if
                                     munhak_row["munhak_seq"] not in selected_quiz_list]
 
-
         if not not_selected_munhak_rows:
             break
 
-
-        quiz_data = make_quiz(munhak_rows, not_selected_munhak_rows)
+        quiz_data = make_quiz(munhak_rows, not_selected_munhak_rows, all_munhak_rows=all_munhak_rows)
         quiz_data["quiz_no"] = quiz_no
 
         selected_quiz_list.append(quiz_data["munhak_seq"])
@@ -661,11 +672,12 @@ def start_live(data):
         "users": room_info[room_id]["users"],
         "goal_score": room_info[room_id]["setting"]["goal_score"],
         "correct_score": room_info[room_id]["setting"]["correct_score"],
-        "wrong_score": room_info[room_id]["setting"]["wrong_score"]
+        "wrong_score": room_info[room_id]["setting"]["wrong_score"],
+        "limit_time" : room_info[room_id]["setting"]["limit_time"]
     }, room=room_id)
 
     import time
-    time.sleep(303)
+    time.sleep(3 + room_info[room_id]["setting"]["limit_time"])
     if room_info[room_id]["game_code"] == game_code and room_info[room_id]["is_playing"] is True:
         end_live(room_id)
 
@@ -711,6 +723,7 @@ def mark_and_get_quiz(data):
     CORRECT_SCORE = room_info[room_id]["setting"]["correct_score"]
     WRONG_SCORE = room_info[room_id]["setting"]["wrong_score"]
     GOAL_SCORE = room_info[room_id]["setting"]["goal_score"]
+
 
     if "answer" in data:
         quiz = room_info[room_id]["quiz_data_list"][quiz_no - 1]
@@ -785,6 +798,12 @@ def edit_room_setting(data):
     if data["wrong_score"] // 1 >= 0:
         room_info[room_id]["setting"]["wrong_score"] = int(data["wrong_score"] // 1) * -1
 
+    if data["limit_time"] // 1 >= 30:
+        room_info[room_id]["setting"]["limit_time"] = min(30, max(int(data["limit_time"] // 1), 600))
+
+    room_info[room_id]["setting"]["source_dict"] = data["source_dict"]
+    print(data["source_dict"])
+
     emit("room_setting_edited", room_info[room_id]["setting"], room=room_id, namespace="/live")
     # cache.set("room_info", room_info)
 
@@ -801,16 +820,12 @@ def kick_player(data):
         emit("error")
         return
 
-
-
-
     try:
         target_user = room_info[room_id]["users"][data["target_id"]]
         target_user_id = data["target_id"]
 
         if target_user_id not in room_info[room_id]["users"]:
             return
-
 
         emit("update_room_info", {
             "users": room_info[room_id]["users"],
@@ -820,14 +835,13 @@ def kick_player(data):
 
         emit("player_kicked", {
             "user": target_user,
-            "target_id" : target_user_id
+            "target_id": target_user_id
         }, room=room_id, namespace="/live")
 
         leave_live_room(data["target_id"])
 
     except:
         pass
-
 
 
 # cache.set("room_info", room_info)

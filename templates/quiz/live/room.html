@@ -45,7 +45,11 @@
                         <div id="goalScore">목표 점수 : 20</div>
                         <div id="correctScore">맞혔을 때 : +2</div>
                         <div id="wrongScore">틀렸을 때 : -1</div>
-
+                        <div id="limitTime">제한 시간 : 300초</div>
+                        <div id="displaySourceRangeWrapper"><i class="fas fa-edit"></i>
+                        출제 범위 : <span id="displaySourceRange">평가원 기출(2016~2022학년도)
+                        </span>
+                        </div>
 
                         <div id="roomSettingIconWrapper">
                             <i class="fas fa-cog"></i>
@@ -160,6 +164,24 @@
                         </small>
                     </div>
 
+                    <div class="form-group">
+                        <label for="limitTimeInput" id="limitTimeLabel">제한 시간 : </label>
+                        {#                <br>#}
+                        <input type="number" id="limitTimeInput" min="30" value="300">
+                        <small id="nicknameHelp" class="form-text text-muted" default="hello">초(30~600)
+                            <span id="nicknameLength"></span>
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+
+                        {#                <br>#}
+                        <div id="currentSource">
+                            <i class="fas fa-edit"></i> 출제 범위 : <span id="currentSourceText">평가원 기출(2016~2022학년도)</span>
+                         </div>
+
+                    </div>
+
                     <div class="btn-outline-primary btn" id="editRoomSettingButton">
                         설정 수정
                     </div>
@@ -170,6 +192,47 @@
     </div>
 
 
+    <div class="modal fade" id="sourceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-body" id="sourceModalBody">
+
+                    <div id="sourceModalWrapper">
+                        <span>출처 :</span>
+                        <span id="sourceCheckAll">모두 선택</span>
+                        <span id="sourceCheckNone">모두 해제</span>
+                        <div id="sourceCheckContainer">
+                            {% for key, source_group in data.source_dict.items() %}
+                                <div class="sourceCheckGroup">
+                                    {% set t = loop.index %}
+                                    {% for source in source_group %}
+                                        <div class="custom-control custom-checkbox sourceCheckWrapper">
+                                            <input type="checkbox" class="custom-control-input sourceCheckBox"
+                                                   id="sourceCheck{{ t * 100 + loop.index }}" data="{{ source }}"
+                                                   data-special="{{ 'true' if '시집' in source else 'false'}}"
+                                                   >
+                                            <label class="custom-control-label"
+                                                   for="sourceCheck{{ t * 100 + loop.index }}">{{ source }}</label>
+                                        </div>
+
+                                    {% endfor %}
+                                </div>
+
+                            {% endfor %}
+                        </div>
+
+
+                    </div>
+
+                    <div id="sourceModalConfirm" class="btn btn-primary">설정</div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 
 {% endblock %}
@@ -177,9 +240,11 @@
 
 
 {% block script %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.dev.js"
-            integrity="sha512-jJ6sFqh2ihNKr7SamUHpFAjdVHXTI7SWNEKZBEmYFFz/2WEr6wrHFYczX6GlGVIZ6Mu8JBrVuvdy8vji4CVbXA=="
-            crossorigin="anonymous"></script>
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.dev.js"#}
+{#            integrity="sha512-jJ6sFqh2ihNKr7SamUHpFAjdVHXTI7SWNEKZBEmYFFz/2WEr6wrHFYczX6GlGVIZ6Mu8JBrVuvdy8vji4CVbXA=="#}
+{#            crossorigin="anonymous"></script>#}
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
 
     {#    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>#}
 
@@ -208,6 +273,14 @@
         }
 
 
+         let selected_source_dict = {
+            {% for source in data.source_list %}
+                "{{ source }}": {{"true" if "고3" in source else "false"}},
+            {% endfor %}
+        };
+
+
+
         socket.on('connect', function () {
             socket.emit('join_live_room', {
                 room_id: room_id
@@ -223,14 +296,14 @@
         socket.on('update_room_info', function (data) {
             console.log(data);
 
-            let isMeRoomMaster = socket.io.engine.id == data["room_master"];
+            let isMeRoomMaster = socket.id == data["room_master"];
 
             $("#userContainer").html("")
             for (let user in data["users"]) {
 
                 $("#userContainer").append(`
                     <div class="userWrapper">
-                        <i class="fas fa-user userIcon ${user === socket.io.engine.id ? 'meIcon' : ''}"></i>
+                        <i class="fas fa-user userIcon ${user === socket.id ? 'meIcon' : ''}"></i>
                         <span class="userNickname" style="color:${data["users"][user].color}">${data["users"][user].nickname}</span>
                        ${user === data["room_master"] ? `
                         <div class="roomMasterIconWrapper">
@@ -259,7 +332,7 @@
                 `)
 
 
-                if (user === socket.io.engine.id) {
+                if (user === socket.id) {
                     $("#readyButton").text(
                         data["users"][user]["is_ready"] === true ? "준비 취소" : "준비"
                     );
@@ -267,7 +340,7 @@
 
 
             }
-            if (socket.io.engine.id === data["room_master"]) {
+            if (socket.id === data["room_master"]) {
                 $("#readyButton").hide()
                 $("#startLiveButton").show()
 
@@ -300,7 +373,8 @@
         $("#startLiveButton").on("click", function () {
 
             socket.emit("start_live", {
-                room_id: room_id
+                room_id: room_id,
+                source_dict: selected_source_dict
             });
         })
 
@@ -349,7 +423,7 @@
 
                 $("#myProgressBarWrapper").attr("goal_score", data["goal_score"])
                 $("#remainTime").show();
-                $("#remainTime").text("300");
+                $("#remainTime").text(data["limit_time"]);
 
                 timerId = setInterval(() => {
                     $("#remainTime").text($("#remainTime").text() * 1 - 1);
@@ -357,11 +431,11 @@
                 setTimeout(() => {
                     clearInterval(timerId);
                     {#alert('정지');#}
-                }, 300000);
+                }, data["limit_time"] * 1000);
 
                 $(".otherPlayerMarkerWrapper").remove()
                 for (let sid in data["users"]) {
-                    if (sid == socket.io.engine.id) {
+                    if (sid == socket.id) {
                         {#$("#myProgressBarWrapper").css("background-color",data["users"][sid]["color"]);#}
                         $("#myProgressBar").css("background-color", data["users"][sid]["color"]);
                         $("#myProgressBar").height("0px")
@@ -397,7 +471,7 @@
 
         socket.on('solve_progress', function (data) {
             console.log(data)
-            if (socket.io.engine.id == data["sid"]) {
+            if (socket.id == data["sid"]) {
                 $("#myProgressBar").animate({height: $("#myProgressBarWrapper").height() * data["score"] / $("#myProgressBarWrapper").attr("goal_score")}, 800, function () {
                     {#$("#quizContent2").remove();#}
                 });
@@ -663,6 +737,8 @@
                 correct_score: $("#correctScoreInput").val() * 1,
                 wrong_score: $("#wrongScoreInput").val() * 1,
                 goal_score: $("#goalScoreInput").val() * 1,
+                limit_time: $("#limitTimeInput").val() * 1,
+                source_dict : selected_source_dict
             });
 
             $("#roomSettingModal").modal("hide")
@@ -674,6 +750,24 @@
             $("#goalScore").html(`목표 점수 : ${data["goal_score"]}`)
             $("#correctScore").html(`맞혔을 때 : +${data["correct_score"]}`)
             $("#wrongScore").html(`틀렸을 때 : ${data["wrong_score"]}`)
+            $("#limitTime").html(`제한 시간 : ${data["limit_time"]}초`)
+
+            selected_source_dict = data["source_dict"]
+            let c = 0
+            let f = ""
+            for(let x in selected_source_dict){
+                if(selected_source_dict[x] === true){
+                    c += 1
+                    f = x
+                }
+            }
+            if (c === 1) {
+                $("#displaySourceRange").text(`${f}`);
+            } else {
+                 $("#displaySourceRange").text(`${f} 외 ${c - 1}개`);
+            }
+
+
         })
 
 
@@ -758,7 +852,7 @@
 
         socket.on('player_kicked', function (data) {
             console.log(data)
-            if (socket.io.engine.id == data["target_id"]) {
+            if (socket.id == data["target_id"]) {
                 alert("방장에 의해 강제퇴장 당하였습니다.")
                 location.href = "/quiz/live"
 
@@ -767,7 +861,50 @@
 
         })
 
+        $("#currentSource").on("click", function () {
+            $("#sourceModal").modal();
+            for (let source of Object.keys(selected_source_dict)) {
+                $(`.sourceCheckBox[data='${source}']`).prop("checked", selected_source_dict[source]);
+                // console.log($(`.sourceCheckBox[data=${source}]`));
+            }
 
+        });
+
+
+        $("#sourceCheckAll").on("click", function () {
+            $(".sourceCheckBox[data-special!=true]").prop("checked", true)
+        });
+        $("#sourceCheckNone").on("click", function () {
+            $(".sourceCheckBox").prop("checked", false)
+        });
+
+        $(document).on("click", "#sourceModalConfirm", function () {
+            let f = undefined;
+            let c = 0;
+            $(".sourceCheckBox").each(function (index, item) {
+                let t = $(item).attr("data");
+                if ($(item).is(":checked") === true) {
+                    selected_source_dict[t] = true;
+                    f = t;
+                    c += 1;
+                } else {
+                    selected_source_dict[t] = false;
+                }
+            });
+
+            if (f === undefined) {
+                alert("하나 이상 선택해주세요!");
+                return;
+            }
+
+            if (c === 1) {
+                $("#currentSourceText").text(`${f}`);
+            } else {
+                $("#currentSourceText").text(`${f} 외 ${c - 1}개`);
+            }
+
+            $("#sourceModal").modal("hide");
+        });
     </script>
 
 

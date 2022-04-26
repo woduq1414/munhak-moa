@@ -1,3 +1,3 @@
-from werkzeug.contrib.cache import SimpleCache
+from flask_caching import Cache
 
-cache = SimpleCache()
+cache = Cache(config={'CACHE_TYPE': 'simple'})

@@ -2,7 +2,7 @@
 
 
 {% block style %}
-    <title>22수능 문학작품 또또 - 문학모아</title>
+    <title>{{ data.term }} 문학작품 또또 - 문학모아</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/munhak_board.css') }}">
 
@@ -16,10 +16,10 @@
     <div id="contentContainer">
         <div id="upperContainer" class="">
             <div id="totoTitle">
-                22 수능 문학 작품 또또
+                {{ data.term }} 문학 작품 또또
             </div>
             <div id="totoDescription">
-                22 수능에 연계될 것 같은 EBS 작품은? (~11/16 까지 선택)
+                {{ data.term }}에 연계될 것 같은 EBS 작품은? (~{{ data.pick_deadline }} 까지 선택)
 
             </div>
 

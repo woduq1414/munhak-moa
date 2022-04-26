@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, Response
 from flask_cors import CORS
-from flask_swagger_ui import get_swaggerui_blueprint
+# from flask_swagger_ui import get_swaggerui_blueprint
 from app.common.function import *
 import json
 from flaskext.markdown import Markdown
@@ -33,11 +33,13 @@ def create_app(config_filename):
     from app.db import db
     from app.socket import socketio
     from app.session import sess
+    from app.cache import cache
 
     db.init_app(app)
     db.app = app
     sess.init_app(app)
     socketio.init_app(app)
+    cache.init_app(app)
 
     # pjax.init_app(app)
 

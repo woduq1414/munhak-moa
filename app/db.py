@@ -128,6 +128,9 @@ class TotoPick(db.Model):
     user_seq = db.Column(db.Integer, ForeignKey('user.user_seq', ondelete='CASCADE'), nullable=False)
     user = relationship("User", backref=backref('totopick', order_by=user_seq, cascade='all,delete'))
 
+
+    term = db.Column(db.String, nullable=True)
+
     # pick1~2 : 공개픽, pick3~6 : 비공개픽
     pick1 = db.Column(db.Integer, nullable=True)
     pick2 = db.Column(db.Integer, nullable=True)

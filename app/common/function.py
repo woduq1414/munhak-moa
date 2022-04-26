@@ -6,7 +6,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 import base64
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from flask_restful import Api, Resource, reqparse
 from datetime import datetime
 from config import credentials
@@ -68,6 +68,15 @@ def fetch_spread_sheet():
     munhak_rows_data_dict = {}
     for munhak_row in munhak_rows_data:
         munhak_rows_data_dict[munhak_row["munhak_seq"]] = munhak_row
+
+    source_list = sorted(list(set([munhak_row["source"] for munhak_row in munhak_rows_data])))
+    source_dict = defaultdict(list)
+    for source in source_list:
+        source_dict[source[:5]].append(source)
+
+    cache.set("source_list", source_list, timeout=99999999999999999)
+    cache.set("source_dict", source_dict, timeout=99999999999999999)
+
 
     cache.set('munhak_rows_data', munhak_rows_data, timeout=99999999999999999)
     cache.set('munhak_rows_data_dict', munhak_rows_data_dict, timeout=99999999999999999)
