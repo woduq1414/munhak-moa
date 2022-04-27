@@ -1,3 +1,4 @@
+import string
 from itertools import groupby
 
 from flask import Blueprint
@@ -413,7 +414,7 @@ def make_room():
                 "correct_score": 2,
                 "wrong_score": -1,
                 "goal_score": 20,
-                "limit_time" : 300
+                "limit_time": 300
             },
             "game_code": "",
         }
@@ -468,7 +469,8 @@ def live_room(room_id):
 
         return redirect(url_for("quiz.enter_live"))
 
-    return render_template("./quiz/live/room.html", data={"room_id": room_id, "source_dict" : source_dict, "source_list" : source_list})
+    return render_template("./quiz/live/room.html",
+                           data={"room_id": room_id, "source_dict": source_dict, "source_list": source_list})
 
 
 def messageReceived(methods=['GET', 'POST']):
@@ -604,9 +606,12 @@ def ready_live(data):
 @socketio.on('start_live', namespace="/live")
 def start_live(data):
     global room_info
+
     # room_info = cache.get("room_info")
     room_id = data["room_id"]
     room_info[room_id]["setting"]["source_dict"] = data["source_dict"]
+
+
     if room_id not in room_info or room_info[room_id]["room_master"] != request.sid or room_info[room_id][
         "is_playing"] is not False:
         emit("error")
@@ -673,7 +678,7 @@ def start_live(data):
         "goal_score": room_info[room_id]["setting"]["goal_score"],
         "correct_score": room_info[room_id]["setting"]["correct_score"],
         "wrong_score": room_info[room_id]["setting"]["wrong_score"],
-        "limit_time" : room_info[room_id]["setting"]["limit_time"]
+        "limit_time": room_info[room_id]["setting"]["limit_time"]
     }, room=room_id)
 
     import time
@@ -696,6 +701,8 @@ def end_live(room_id):
 
     for sid in room_info[room_id]["users"]:
         room_info[room_id]["users"][sid]["is_ready"] = False
+
+    room_info[room_id]["game_code"] = ""
 
     emit("end_live", {
         "users": user_list
@@ -723,7 +730,6 @@ def mark_and_get_quiz(data):
     CORRECT_SCORE = room_info[room_id]["setting"]["correct_score"]
     WRONG_SCORE = room_info[room_id]["setting"]["wrong_score"]
     GOAL_SCORE = room_info[room_id]["setting"]["goal_score"]
-
 
     if "answer" in data:
         quiz = room_info[room_id]["quiz_data_list"][quiz_no - 1]
@@ -778,6 +784,15 @@ def mark_and_get_quiz(data):
         emit("receive_quiz", {
             "quiz_data": None, "is_correct": is_correct
         })
+        room_info[room_id]["users"][sid]["is_finished"] = True
+        is_all_finished = True
+        for user, value in room_info[room_id]["users"].items():
+            print(user, value)
+            if value["is_finished"] is False:
+                is_all_finished = False
+                break
+        if is_all_finished:
+            end_live(room_id)
 
 
 @socketio.on('edit_room_setting', namespace="/live")
