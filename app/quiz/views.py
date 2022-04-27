@@ -799,7 +799,7 @@ def edit_room_setting(data):
         room_info[room_id]["setting"]["wrong_score"] = int(data["wrong_score"] // 1) * -1
 
     if data["limit_time"] // 1 >= 30:
-        room_info[room_id]["setting"]["limit_time"] = min(30, max(int(data["limit_time"] // 1), 600))
+        room_info[room_id]["setting"]["limit_time"] = max(30, min(int(data["limit_time"] // 1), 600))
 
     room_info[room_id]["setting"]["source_dict"] = data["source_dict"]
     print(data["source_dict"])
