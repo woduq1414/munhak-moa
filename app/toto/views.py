@@ -231,7 +231,7 @@ def pick_toto_form():
 
     old_pick_data = []
 
-    old_pick_row = TotoPick.query.filter_by(user_seq=user_seq).first()
+    old_pick_row = TotoPick.query.filter_by(user_seq=user_seq, term=toto_term).first()
     if old_pick_row is not None:
         for pick in [old_pick_row.pick1, old_pick_row.pick2, old_pick_row.pick3, old_pick_row.pick4, old_pick_row.pick5,
                      old_pick_row.pick6]:
