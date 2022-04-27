@@ -43,7 +43,7 @@ if socket.gethostname()[:7] == "DESKTOP":
 
 else:
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', None).replace("postgres", "postgresql")
     SECRET_KEY = os.environ.get('SECRET_KEY', None)
     print(os.environ.get('GOOGLE_CREDENTIALS', None))
     print(json.loads(os.environ.get('GOOGLE_CREDENTIALS', None)))
