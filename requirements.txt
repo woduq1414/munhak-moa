@@ -20,7 +20,7 @@ Flask-RESTful==0.3.9
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.14.3
-gunicorn==20.1.0
+
 idna==2.9
 importlib-metadata==1.5.0
 itsdangerous==2.1.2
@@ -50,6 +50,7 @@ Flask-HTTPAuth==4.1.0
 Flask-Markdown==0.3
 flask-socketio==5.1.2
 eventlet==0.33.0
+gunicorn==20.1.0
 flask-pjax==0.0.1
 Flask-Session==0.4.0
 redis==3.5.3
