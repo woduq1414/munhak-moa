@@ -50,7 +50,7 @@ Flask-HTTPAuth==4.1.0
 Flask-Markdown==0.3
 flask-socketio==5.1.2
 eventlet==0.33.0
-git+https://github.com/benoitc/gunicorn/archive/refs/heads/master.zip#egg=gunicorn==20.1.0
+https://github.com/benoitc/gunicorn/archive/refs/heads/master.zip#egg=gunicorn==20.1.0
 # gunicorn==20.1.0
 flask-pjax==0.0.1
 Flask-Session==0.4.0
