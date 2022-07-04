@@ -256,12 +256,19 @@
         let timerId;
 
         let is_playing = false;
-        $("#quizContent").hide();
-        {#$("#waitContent").hide();#}
-        $("#remainTime").hide();
-        $("#startLiveButton").hide()
-        $("#myProgressBarWrapper").hide()
-        $(".overlayBox").hide();
+
+        $(document).ready(function(){
+             $("#quizContent").hide();
+            {#$("#waitContent").hide();#}
+            $("#remainTime").hide();
+            $("#startLiveButton").hide()
+            $("#myProgressBarWrapper").hide()
+            $(".overlayBox").hide();
+        });
+
+
+
+
         let room_id = {{ data.room_id }};
 
 

@@ -14,7 +14,8 @@
     <hr>
     <div id="options">
         {% for option in data.options %}
-            <div class="option" option="{{ loop.index0 }}" id="option{{ loop.index }}">
+            <div class="option" option="{{ loop.index0 }}"
+                 id="option{{ loop.index }}">
                 {{ option }}
             </div>
         {% endfor %}
@@ -33,12 +34,37 @@
 
     <script>
 
-        $("#content .option").on("click", function () {
 
-            $("#content .option").off("click");
+        $(document).on("keyup", function (event) {
+
+            if (event.keyCode === 49 || event.which === 49) {
+                {#$(document).off("keypress");#}
+                selectOption(0);
+
+            } else if (event.keyCode === 50 || event.which === 50) {
+                {#$(document).off("keypress");#}
+                selectOption(1);
+
+            } else if (event.keyCode === 51 || event.which === 51) {
+                {#$(document).off("keypress");#}
+                selectOption(2);
+
+            } else if (event.keyCode === 52 || event.which === 52) {
+                {#$(document).off("keypress");#}
+                selectOption(3);
+
+            }
+        });
 
 
-            let option = $(this).attr("option");
+        function selectOption(option) {
+
+            if (isOptionSelected === true) {
+                return;
+            }
+
+
+            isOptionSelected = true;
 
 
             $.ajax({
@@ -52,10 +78,16 @@
                     },
                     200: function (data) {
                         if (window.__THEME_MODE === 'dark') {
-                            $("#container").animate({"borderWidth": "50px", "borderColor" : "#91e4ff"}, 100, function () {
+                            $("#container").animate({
+                                "borderWidth": "50px",
+                                "borderColor": "#91e4ff"
+                            }, 100, function () {
                                 setTimeout(function () {
 
-                                    $("#container").animate({"borderWidth" : "0px", "borderColor" : "transparent"}, 100, function () {
+                                    $("#container").animate({
+                                        "borderWidth": "0px",
+                                        "borderColor": "transparent"
+                                    }, 100, function () {
 
                                     });
 
@@ -97,6 +129,8 @@
 
                         $temp = $("#content");
                         $temp.animate({top: ($(document).height() - $temp.height()) / 2}, 700, function () {
+                            isOptionSelected = false;
+
                             setTimeout(function () {
                                 $temp.css("position", "unset");
                             }, 500);
@@ -111,7 +145,18 @@
                     }
                 }
 
-            })
+            });
+        }
+
+
+        $("#content .option").on("click", function () {
+
+            $("#content .option").off("click");
+
+
+            let option = $(this).attr("option");
+            selectOption(option);
+
 
         })
     </script>
