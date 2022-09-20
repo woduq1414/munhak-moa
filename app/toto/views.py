@@ -27,9 +27,9 @@ from collections import defaultdict
 
 toto_bp = Blueprint('toto', __name__)
 
-toto_term = "23 9모"
+toto_term = "23 수능"
 toto_source = ["2023학년도 수능특강", "2023학년도 수능완성"]
-pick_deadline = datetime(2022, 8, 30, 23, 59, 59)
+pick_deadline = datetime(2022, 11, 11, 23, 59, 59)
 toto_real_result = [120, 122, 124, 126, 128, 130]
 is_result_open = False
 
