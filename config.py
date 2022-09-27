@@ -11,7 +11,7 @@ scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
 # if is_local():
-if socket.gethostname()[:7] == "DESKTOP":
+if socket.gethostname()[:7] == "DESKTOP" or socket.gethostname()[:7] == "instance":
 
     config = configparser.ConfigParser()
     config.read('config.ini')
